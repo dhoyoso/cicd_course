@@ -47,7 +47,34 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 2.  **Clona el repositorio a tu máquina local**
 
-3.  **Crea un entorno virtual y activalo:**
+3. **Crea un archivo '.gitignore' en la raíz de tu repositorio**:
+
+    ```plaintext
+    # virtual envs
+    venv/
+    env/
+
+    # python 
+    *.pyc
+    *.pyo
+    *.pyd
+    __pycache__/
+
+    # pytest
+    .pytest_cache/
+    pytestdebug.log
+
+    # coverage
+    .coverage
+    htmlcov/
+
+    # IDE
+    .vscode/
+    ```
+
+    Este archivo le dice a Git qué archivos y carpetas *no* debe incluir en el repositorio (por ejemplo, el entorno virtual, archivos de caché, archivos de configuración locales, etc.).
+
+4.  **Crea un entorno virtual y activalo:**
 
     ```bash
     python3 -m venv venv      # En algunos SO puede ser sólo python, si no te funciona instala virtualenv con el comando 'pip install virtualenv'
@@ -55,7 +82,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     venv\Scripts\activate     # En Windows
     ```
 
-4. **Crea un archivo 'requirements.txt' en la raíz de tu repositorio:**
+5. **Crea un archivo 'requirements.txt' en la raíz de tu repositorio:**
 
     ```plaintext
     pylint
@@ -70,7 +97,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
     Este archivo lista las dependencias de tu proyecto y sus versiones.  GitHub Actions usará este archivo para instalar las mismas versiones en el entorno de ejecución.
 
-5.  **Instala las dependencias:**
+6.  **Instala las dependencias:**
 
     ```bash
     pip install -r requirements.txt
@@ -177,34 +204,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 
     Este archivo vacío le dice a Python y a los módulos de prueba que la carpeta `app` es un paquete y puede contener módulos.
 
-7. **Crea un archivo '.gitignore' en la raíz de tu repositorio**:
-
-    ```plaintext
-    # virtual envs
-    venv/
-    env/
-
-    # python 
-    *.pyc
-    *.pyo
-    *.pyd
-    __pycache__/
-
-    # pytest
-    .pytest_cache/
-    pytestdebug.log
-
-    # coverage
-    .coverage
-    htmlcov/
-
-    # IDE
-    .vscode/
-    ```
-
-    Este archivo le dice a Git qué archivos y carpetas *no* debe incluir en el repositorio (por ejemplo, el entorno virtual, archivos de caché, archivos de configuración locales, etc.).
-
-8. **Ejecuta la aplicación Flask:**
+7. **Ejecuta la aplicación Flask:**
     Parado en la raíz de tu repositorio, ejecuta:
 
     ```bash
