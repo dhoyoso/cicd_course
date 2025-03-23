@@ -47,7 +47,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 2.  **Clona el repositorio a tu máquina local**
 
-3.  **Crea un entorno virtual:**
+3.  **Crea un entorno virtual y activalo:**
 
     ```bash
     python3 -m venv venv      # En algunos SO puede ser sólo python, si no te funciona instala virtualenv con el comando 'pip install virtualenv'
