@@ -155,9 +155,10 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     ```
 
 6. **Ejecuta la aplicación Flask:**
+    Parado en la raíz de tu repositorio, ejecuta:
 
     ```bash
-    python app/app.py
+    python -m app.app # en algunos SO, es python3 -m app.app
     ```
 
     Abre tu navegador y ve a [http://localhost:5000](http://localhost:5000).  Deberías ver la calculadora web.  Prueba a hacer algunas operaciones para asegurarte de que funciona correctamente.
