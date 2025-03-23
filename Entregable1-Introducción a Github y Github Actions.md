@@ -316,7 +316,7 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     name: ???  # 1. Dale un nombre descriptivo a tu workflow
 
     on:
-      ??? : # 2. ¿Qué evento(s) quieres usar para disparar este workflow?
+      ??? : # 2. ¿Qué evento(s) quieres usar para disparar este workflow? (añade mínimo 2)
             #    Piensa en cuándo quieres que se ejecute (push, pull_request, manualmente...).
         ??? : # 2b. (Opcional) ¿Quieres restringirlo a alguna rama específica?
           - main
@@ -328,15 +328,17 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
         steps:
           - uses: actions/checkout@v3  # Este paso clona tu repositorio. No lo modifiques.
 
+            # 4. Reemplaza [TU NOMBRE COMPLETO] con tu nombre.
+            # 5. ¿Qué comando de shell usarías para obtener la fecha y hora?
           - name: Imprimir Mensaje Personalizado
             run: |
-              echo "Hola, soy [TU NOMBRE] y este es mi primer workflow!"  # 4. Reemplaza [TU NOMBRE] con tu nombre.
-              echo "La fecha y hora actual es: $(???)"  # 5. ¿Qué comando de shell usarías para obtener la fecha y hora?
+              echo "Hola, soy [TU NOMBRE COMPLETO] y este es mi primer workflow!"  
+              echo "La fecha y hora actual es: $(???)"  
 
           - name: Configurar Python
             uses: actions/setup-python@v3
             with:
-              python-version: ??? # 6. Elige una versión de Python (ej: '3.8', '3.9', '3.10', '3.11').
+              python-version: ??? # 6. Elige una versión de Python (ej: '3.8', '3.9', '3.10', '3.11', '3.12').
 
           - name: Ejecutar script Python
             run: ??? #7. Completa para ejecutar el script de python. Pista: python <nombre_archivo>
