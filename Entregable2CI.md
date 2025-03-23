@@ -55,10 +55,25 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     venv\Scripts\activate     # En Windows
     ```
 
-4.  **Instala las dependencias:**
+4. **Crea un archivo 'requirements.txt' en la raíz de tu repositorio:**
+
+    ```plaintext
+    pylint
+    flake8
+    black
+    pytest
+    coverage
+    selenium
+    webdriver-manager
+    flask
+    ```
+
+    Este archivo lista las dependencias de tu proyecto y sus versiones.  GitHub Actions usará este archivo para instalar las mismas versiones en el entorno de ejecución.
+
+5.  **Instala las dependencias:**
 
     ```bash
-    pip install pylint flake8 black pytest coverage selenium webdriver-manager flask
+    pip install -r requirements.txt
     ```
 
 ## 4. La Aplicación de Ejemplo (Calculadora Web)
@@ -162,7 +177,34 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 
     Este archivo vacío le dice a Python y a los módulos de prueba que la carpeta `app` es un paquete y puede contener módulos.
 
-7. **Ejecuta la aplicación Flask:**
+7. **Crea un archivo '.gitignore' en la raíz de tu repositorio**:
+
+    ```plaintext
+    # virtual envs
+    venv/
+    env/
+
+    # python 
+    *.pyc
+    *.pyo
+    *.pyd
+    __pycache__/
+
+    # pytest
+    .pytest_cache/
+    pytestdebug.log
+
+    # coverage
+    .coverage
+    htmlcov/
+
+    # IDE
+    .vscode/
+    ```
+
+    Este archivo le dice a Git qué archivos y carpetas *no* debe incluir en el repositorio (por ejemplo, el entorno virtual, archivos de caché, archivos de configuración locales, etc.).
+
+8. **Ejecuta la aplicación Flask:**
     Parado en la raíz de tu repositorio, ejecuta:
 
     ```bash
@@ -510,14 +552,7 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
     *   **`steps`:**
         *   **`actions/checkout@v3`:**  Clona el repositorio.
         *   **`actions/setup-python@v3`:**  Configura Python.
-        *   **`Install dependencies`:** Instala dependencias.  Se asume un archivo `requirements.txt`.
-            *   **Creación de `requirements.txt` (¡Importante!):**  Antes de subir tu código, *crea un archivo `requirements.txt`* en la raíz de tu repositorio.  Este archivo lista todas las dependencias de tu proyecto.  La forma más fácil de crearlo es:
-
-                ```bash
-                pip freeze > requirements.txt
-                ```
-
-                Esto guardará las versiones *exactas* de todos los paquetes instalados en tu entorno virtual en el archivo `requirements.txt`.  GitHub Actions usará este archivo para instalar las mismas versiones.  Es *crucial* para la reproducibilidad.
+        *   **`Install dependencies`:** Instala dependencias.  Se asume el archivo `requirements.txt`.
         *   **`Run Black`:**  Ejecuta Black en modo de verificación (`--check`).
         *   **`Run Pylint`:**  Ejecuta Pylint. El `|| true` evita que el workflow falle si Pylint encuentra *warnings* (solo fallará si hay errores, lo cual es deseable).  Guarda el informe para SonarCloud.
         *   **`Run Flake8`:**  Ejecuta Flake8.  `|| true` para evitar fallos por warnings. Guarda el informe.
