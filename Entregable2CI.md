@@ -154,7 +154,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     </html>
     ```
 
-6. **Crea un archivo '__init__.py' dentro de la carpeta 'app'**:
+6. **Crea un archivo '__init __.py' dentro de la carpeta 'app'**:
 
     ```python
     # app/__init__.py
