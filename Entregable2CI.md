@@ -241,7 +241,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     black app
     ```
 
-    Black reformateará tu código automáticamente para que cumpla con un estilo consistente.  Después de ejecutar Black, vuelve a ejecutar Pylint y Flake8 para ver si los problemas de estilo han desaparecido.
+    Black reformateará tu código automáticamente para que cumpla con un estilo consistente.  Después de ejecutar Black, vuelve a ejecutar Pylint y Flake8 para ver si los problemas de estilo han desaparecido. Corrige los problemas faltantes si los hay.
 
     *Importante:*  Es una buena práctica ejecutar estas herramientas *antes* de hacer un commit. Así te aseguras de que tu código cumple con los estándares de calidad y estilo, evitando con antelación que el pipeline de CI falle.
 
@@ -250,10 +250,19 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 SonarCloud es una plataforma en la nube que proporciona análisis estático continuo de código.  Es gratuita para proyectos de código abierto y se integra muy bien con GitHub Actions.
 
 1.  **Crea una cuenta en SonarCloud:**  Ve a [https://sonarcloud.io/](https://sonarcloud.io/) y regístrate con tu cuenta de GitHub.
-2.  **Crea una organización:** Si no tienes una, te pedirá que crees una organización (puede ser tu nombre de usuario de GitHub).
+2.  **Crea una organización:** 
+    * Dale en "Import an organization".
+    ![alt text](Entregable2-images/image.png)
+    * Luego selecciona tu cuenta de Github. 
+    ![alt text](Entregable2-images/image-1.png)
+    * Selecciona All repositories (o solo los que desees) y dale en "Install".
+    ![alt text](Entregable2-images/image-2.png)
+    * Crea tu organización (nombre e identificador único), selecciona el plan gratuito y dale en **crear** organización.
+
 3.  **Importa tu repositorio:**
-    *   Haz clic en el botón "+" y selecciona "Analyze a new project".
-    *   Selecciona tu repositorio (`ci-pipeline-python`).
+    *   Haz clic  'My Projects' y selecciona "Analyze a new project".
+    *   Selecciona tu repositorio (`ci-pipeline-python`) y dale click en "Set Up".
+    *   Elige "Number of days", elige "30" con el fin de analizar todo el código que sea ha escrito en los últimos 30 días en tu repositorio.
     *   SonarCloud analizará tu repositorio y te mostrará un panel de control con los resultados.  Inicialmente, puede que no muestre mucha información porque no hemos configurado el análisis en el workflow.
 4.  **Obtén tu token de SonarCloud:**
     *   Ve a "My Account" (en la esquina superior derecha).
@@ -271,7 +280,7 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
     sonar.projectKey=[TU_USUARIO]_ci-pipeline-python
     sonar.organization=[TU_ORGANIZACION]
     sonar.sources=app  # Analiza solo el código dentro de la carpeta 'app'
-    sonar.python.version=3.x  # Reemplaza x con tu versión de Python (ej: 3.9)
+    sonar.python.version=3.x  # Reemplaza x con tu versión de Python (ej: 3.12)
     sonar.python.pylint.reportPaths=pylint-report.txt
     sonar.python.flake8.reportPaths=flake8-report.txt
     sonar.coverage.exclusions=**/tests/**,**/setup.py # Excluye los tests y setup.py
