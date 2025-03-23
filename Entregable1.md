@@ -1,4 +1,4 @@
-# Primer Entregable: Introducción a CI/CD con GitHub y GitHub Actions
+# Taller Individual Entregable 1: Introducción a CI/CD con GitHub y GitHub Actions
 
 Este es el primer entregable de tu curso de CI/CD. Aprenderás los fundamentos de GitHub, el control de versiones con Git, la configuración con YAML y cómo automatizar tareas con GitHub Actions.  ¡No te preocupes si no tienes experiencia previa, te guiaremos paso a paso!
 
@@ -290,6 +290,33 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     *   `branches`:  (Opcional)  Dentro de `push` y `pull_request`, puedes especificar las ramas a las que se aplica el evento.  Si no se especifica, se aplica a *todas* las ramas.
     *   `cron`:  Dentro de `schedule`, se usa la sintaxis de cron para definir la programación.  `'0 0 * * *'` significa "a las 00:00 (medianoche) todos los días".
 
+*   **Artifacts (Artefactos):** Los artefactos son archivos generados por tu workflow que quieres conservar o compartir.  Por ejemplo, un archivo de log, un archivo de configuración, un archivo de salida de una prueba, etc.  Puedes subir artefactos a GitHub para su almacenamiento y descarga.
+
+    ```yaml
+    jobs:
+      construir:
+        runs-on: ubuntu-latest
+        steps:
+          - run: echo "Construyendo..."
+          - run: echo "Generando archivo de log..."
+          - name: Subir artefacto
+            uses: actions/upload-artifact@v3
+            if: always()
+            with:
+              name: nombre-artefacto
+              path: log.json
+    ```
+    **Explicación:**
+
+    *   `jobs`:  La sección principal donde defines tus trabajos.
+    *   `construir`:  El nombre de tu job.
+    *   `steps`:  La sección donde defines los pasos de tu job.
+    *   `name: Subir artefacto`:  Un paso para subir un artefacto.
+    *   `uses: actions/upload-artifact@v3`:  La acción oficial de GitHub para subir artefactos.
+    *   `if: always()`:  Un condicional que indica que este paso se ejecutará *siempre*, independientemente del resultado de los pasos anteriores.
+    *   `with: name: ...`:  El nombre del artefacto.
+    *   `with: path: ...`:  La ruta del archivo que quieres subir.     
+
 ## 2. Ejercicio Práctico / Entregable
 
 **Objetivo:** Crear un workflow de GitHub Actions que imprima un mensaje personalizado, la fecha/hora actual y ejecute un script simple de Python que imprima información del sistema operativo.
@@ -380,7 +407,7 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 7.  **Entrega el entregable:**
     *   En la página de la ejecución del workflow en GitHub, copia la URL completa de la página.
     *   Envía un correo electrónico a `dhoyoso@eafit.edu.co` con:
-        *   **Asunto:** Entregable 1 CI/CD - [Tu Nombre]
+        *   **Asunto:** Entregable 1 Intro CI/CD - [Tu Nombre]
         *   **Cuerpo:**
             *   Tu nombre completo.
             *   La URL de la ejecución de tu workflow.
