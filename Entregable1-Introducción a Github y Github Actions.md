@@ -328,9 +328,9 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
         steps:
           - uses: actions/checkout@v3  # Este paso clona tu repositorio. No lo modifiques.
 
+          - name: Imprimir Mensaje Personalizado
             # 4. Reemplaza [TU NOMBRE COMPLETO] con tu nombre.
             # 5. ¿Qué comando de shell usarías para obtener la fecha y hora?
-          - name: Imprimir Mensaje Personalizado
             run: |
               echo "Hola, soy [TU NOMBRE COMPLETO] y este es mi primer workflow!"  
               echo "La fecha y hora actual es: $(???)"  
@@ -390,7 +390,7 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 **Criterios de evaluación:**
 
 *   Creación correcta del repositorio.
-*   Completar correctamente la plantilla YAML.
+*   Completar correctamente la plantilla YAML según las instrucciones descritas.
 *   Uso correcto de los comandos Git.
 *   Ejecución exitosa del workflow.
 *   Mensaje personalizado correcto.
@@ -402,3 +402,4 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 *   **`runs-on`:**  `ubuntu-latest` es una buena opción por defecto.
 *   **Comando `date`:**  Si no conoces el comando `date`, búscalo en la documentación del sistema operativo elegido para el runner (o usa un motor de búsqueda).
 *   **`if __name__ == "__main__":`:**  Esta es una construcción común en Python.  Investiga qué hace.
+* **RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRATIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
