@@ -154,7 +154,15 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     </html>
     ```
 
-6. **Ejecuta la aplicación Flask:**
+6. **Crea un archivo '__init__.py' dentro de la carpeta 'app'**:
+
+    ```python
+    # app/__init__.py
+    ```
+
+    Este archivo vacío le dice a Python y a los módulos de prueba que la carpeta `app` es un paquete y puede contener módulos.
+
+7. **Ejecuta la aplicación Flask:**
     Parado en la raíz de tu repositorio, ejecuta:
 
     ```bash
