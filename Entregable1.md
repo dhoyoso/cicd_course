@@ -375,6 +375,7 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     *   Deberías ver tu workflow.
     *   Haz clic en la ejecución más reciente.
     *   Verás el resultado del job "imprimir_info".
+    *   **Inspecciona cada paso y mira los logs para entender lo que sucedió y validar el correcto funcionamiento antes de realizar la entrega.**
 
 7.  **Entrega el entregable:**
     *   En la página de la ejecución del workflow en GitHub, copia la URL completa de la página.
