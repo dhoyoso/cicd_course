@@ -67,6 +67,9 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     # coverage
     .coverage
     htmlcov/
+    coverage.xml
+    report.html
+
 
     # IDE
     .vscode/
@@ -93,6 +96,8 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     selenium
     webdriver-manager
     flask
+    pytest-cov
+    pytest-html
     ```
 
     Este archivo lista las dependencias de tu proyecto y sus versiones.  GitHub Actions usará este archivo para instalar las mismas versiones en el entorno de ejecución.
@@ -252,10 +257,16 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
 1.  **Crea una cuenta en SonarCloud:**  Ve a [https://sonarcloud.io/](https://sonarcloud.io/) y regístrate con tu cuenta de GitHub.
 2.  **Crea una organización:** 
     * Dale en "Import an organization".
+
+
     ![alt text](Entregable2-images/image.png)
     * Luego selecciona tu cuenta de Github. 
+
+
     ![alt text](Entregable2-images/image-1.png)
     * Selecciona All repositories (o solo los que desees) y dale en "Install".
+
+
     ![alt text](Entregable2-images/image-2.png)
     * Crea tu organización (nombre e identificador único), selecciona el plan gratuito y dale en **crear** organización.
 
@@ -289,8 +300,9 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
     ```
      **Importante:**
     *   Reemplaza `[TU_USUARIO]` con tu *nombre de usuario de GitHub*.
-    *   Reemplaza `[TU_ORGANIZACION]` con el *nombre de tu organización en SonarCloud* (que puede ser diferente a tu nombre de usuario de GitHub).
+    *   Reemplaza `[TU_ORGANIZACION]` con el *nombre de tu organización en SonarCloud* (que puede ser diferente a tu nombre de usuario de GitHub, **AUNQUE usualmente es el mismo usuario de Github**).
     *   `sonar.sources=app`:  Esto le dice a SonarCloud que solo analice el código dentro de la carpeta `app`.  Si tuvieras código en otros directorios, los añadirías aquí (separados por comas).
+    * Elimina todos los comentario (que empiezan con #) antes de ejecutar el análisis, de lo contrario fallará.
 
 ## 6. Pruebas Unitarias con pytest y Cobertura
 
@@ -325,7 +337,78 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
             dividir(1, 0)
     ```
 
-3.  **Ejecuta las pruebas (localmente):**
+3. Dentro de tests crea un archivo llamado `test_app.py`:
+
+    ```python
+    # tests/test_app.py
+    import pytest
+    from app.app import app
+
+    @pytest.fixture
+    def client():
+        app.config['TESTING'] = True
+        with app.test_client() as client:
+            yield client
+
+    def test_index_get(client):
+        response = client.get('/')
+        assert response.status_code == 200
+        assert b'<!DOCTYPE html>' in response.data  # Assuming the HTML template starts with <!DOCTYPE html>
+
+    def test_index_post_sumar(client):
+        response = client.post('/', data={'num1': '2', 'num2': '3', 'operacion': 'sumar'})
+        assert response.status_code == 200
+        assert b'5.0' in response.data
+
+    def test_index_post_restar(client):
+        response = client.post('/', data={'num1': '5', 'num2': '3', 'operacion': 'restar'})
+        assert response.status_code == 200
+        assert b'2.0' in response.data
+
+    def test_index_post_multiplicar(client):
+        response = client.post('/', data={'num1': '2', 'num2': '3', 'operacion': 'multiplicar'})
+        assert response.status_code == 200
+        assert b'6.0' in response.data
+
+    def test_index_post_dividir(client):
+        response = client.post('/', data={'num1': '6', 'num2': '3', 'operacion': 'dividir'})
+        assert response.status_code == 200
+        assert b'2.0' in response.data
+
+    def test_index_post_dividir_by_zero(client):
+        response = client.post('/', data={'num1': '6', 'num2': '0', 'operacion': 'dividir'})
+        assert response.status_code == 200
+        assert b'Error: No se puede dividir por cero' in response.data
+
+    def test_index_post_invalid_operation(client):
+        response = client.post('/', data={'num1': '6', 'num2': '3', 'operacion': 'invalid'})
+        assert response.status_code == 200
+        assert b'Operaci\xc3\xb3n no v\xc3\xa1lida' in response.data
+
+    def test_index_post_invalid_numbers(client):
+        response = client.post('/', data={'num1': 'a', 'num2': 'b', 'operacion': 'sumar'})
+        assert response.status_code == 200
+        assert b'Error: Introduce n\xc3\xbameros v\xc3\xa1lidos' in response.data
+    ```
+
+4. Crea un archivo pytest.ini en la raíz de tu repositorio para configurar pytest:
+
+    ```ini
+    # pytest.ini
+    [pytest]
+    pythonpath = .  
+    addopts = -v --color=yes --tb=short --cov=app --cov-report=term-missing --cov-report=html --cov-report=xml --cov-branch
+    testpaths = tests app/tests  # Look in 'tests' and 'app/tests'
+    norecursedirs = .git venv .* _* build dist  # Common exclusions
+    ```
+
+    *  **`pythonpath = .`:**  Añade el directorio raíz a `sys.path` para que pytest pueda encontrar los módulos de tu aplicación.
+    *  **`addopts = ...`:**  Opciones adicionales para pytest.  `-v` es para verbose, `--color=yes` para colores en la consola, `--tb=short` para mostrar solo la parte relevante de los errores, `--cov=app` para medir la cobertura del código en la carpeta `app`, `--cov-report=term-missing` para mostrar las líneas no cubiertas en la consola, `--cov-report=html` para generar un informe HTML y `--cov-report=xml` para generar un informe XML.
+    *  **`testpaths = tests app/tests`:**  Indica a pytest que busque pruebas en los directorios `tests` y `app/tests`.
+    *  **`norecursedirs = ...`:**  Excluye ciertos directorios de la búsqueda de pruebas.
+
+
+5.  **Ejecuta las pruebas y Mide la cobertura (localmente):**
 
     ```bash
     pytest
@@ -333,31 +416,22 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
 
     pytest buscará automáticamente archivos que comiencen con `test_` o terminen con `_test` y ejecutará las funciones que comiencen con `test_`.
 
-4. **Mide la cobertura (localmente):**
-
-    ```bash
-     coverage run -m pytest
-     coverage report -m  # Muestra un informe en la consola
-     coverage html       # Genera un informe HTML
-    ```
-    * `coverage run -m pytest`: Ejecuta las pruebas usando `coverage`.
-    * `coverage report -m`: Muestra un resumen de la cobertura en la consola, incluyendo las líneas que no fueron cubiertas (`missing`).
-    *  `coverage html`: Genera un informe HTML detallado en una carpeta llamada `htmlcov`. Puedes abrir `htmlcov/index.html` en tu navegador para ver la cobertura línea por línea.
+    * El resumen de las pruebas, su resultado y la cobertura de código se mostrarán en la consola.
+    * Con la configuración establecida en el pytest.ini, se genera un informe HTML detallado en una carpeta llamada `htmlcov`. Puedes abrir `htmlcov/index.html` en tu navegador para ver la cobertura línea por línea.
 
 ## 7. Pruebas de Aceptación con Selenium
 
-Las pruebas de aceptación (o pruebas E2E - End-to-End) simulan la interacción de un usuario real con la aplicación, normalmente a través de la interfaz de usuario (en nuestro caso, la página web de la calculadora).  Selenium es un framework que permite automatizar esta interacción.
+Las pruebas de aceptación simulan la interacción de un usuario real con la aplicación, normalmente a través de la interfaz de usuario (en nuestro caso, la página web de la calculadora).  Selenium es un framework que permite automatizar esta interacción.
 
-1.  Crea un archivo llamado `tests/test_app.py`:
+1.  Crea un archivo llamado `tests/test_acceptance_app.py`:
 
     ```python
-    # tests/test_app.py
     import pytest
     from selenium import webdriver
     from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import Select
-    from webdriver_manager.chrome import ChromeDriverManager
-    from webdriver_manager.firefox import GeckoDriverManager
+    from selenium.webdriver.support.ui import Select, WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import TimeoutException
 
     # Configuración del driver (elige uno: Chrome o Firefox)
     @pytest.fixture
@@ -382,66 +456,51 @@ Las pruebas de aceptación (o pruebas E2E - End-to-End) simulan la interacción 
         yield driver
         driver.quit()
 
-    def test_calculadora(browser):
-        browser.get("http://localhost:5000")  # Cambia si tu app se ejecuta en otro puerto
 
-        # Encuentra los elementos de la página
+    # Función de ayuda para esperar y obtener el resultado
+    def get_resultado(browser):
+        try:
+            # Espera HASTA QUE el <h2> sea visible (máximo 10 segundos)
+            resultado = WebDriverWait(browser, 10).until(
+                EC.visibility_of_element_located((By.TAG_NAME, "h2"))
+            )
+            return resultado.text
+        except TimeoutException:
+            return "Error: Tiempo de espera agotado esperando el resultado."
+
+    #Funcion auxiliar para encontrar elementos:
+    def find_elements(browser):
         num1_input = browser.find_element(By.NAME, "num1")
         num2_input = browser.find_element(By.NAME, "num2")
         operacion_select = Select(browser.find_element(By.NAME, "operacion"))
         calcular_button = browser.find_element(By.CSS_SELECTOR, "button[type='submit']")
-        resultado = browser.find_element(By.TAG_NAME, "h2")
+        return num1_input, num2_input, operacion_select, calcular_button
 
-        # Prueba 1: Sumar 2 + 3
-        num1_input.send_keys("2")
-        num2_input.send_keys("3")
-        operacion_select.select_by_value("sumar")
-        calcular_button.click()
-        assert "Resultado: 5" in resultado.text
+    @pytest.mark.parametrize(
+        "num1, num2, operacion, resultado_esperado",
+        [
+            ("2", "3", "sumar", "Resultado: 5"),
+            ("5", "2", "restar", "Resultado: 3"),
+            ("4", "6", "multiplicar", "Resultado: 24"),
+            ("10", "2", "dividir", "Resultado: 5"), 
+            ("5", "0", "dividir", "Error: No se puede dividir por cero"),
+            ("abc", "def", "sumar", "Error: Introduce números válidos"), 
+        ],
+    )
+    def test_calculadora(browser, num1, num2, operacion, resultado_esperado):
+        browser.get("http://localhost:5000")  # Cambia si tu app se ejecuta en otro puerto
 
-        # Prueba 2: Restar 5 - 2
-        num1_input.clear()  # Limpia los campos
-        num2_input.clear()
-        num1_input.send_keys("5")
-        num2_input.send_keys("2")
-        operacion_select.select_by_value("restar")
-        calcular_button.click()
-        assert "Resultado: 3" in resultado.text
+        # Encuentra los elementos de la página.  Esta vez con la funcion auxiliar.
+        num1_input, num2_input, operacion_select, calcular_button = find_elements(browser)
 
-        # Prueba 3: Multiplicar 4 * 6
-        num1_input.clear()
-        num2_input.clear()
-        num1_input.send_keys("4")
-        num2_input.send_keys("6")
-        operacion_select.select_by_value("multiplicar")
+        #Realiza la operacion:
+        num1_input.send_keys(num1)
+        num2_input.send_keys(num2)
+        operacion_select.select_by_value(operacion)
         calcular_button.click()
-        assert "Resultado: 24" in resultado.text
 
-        # Prueba 4: Dividir 10 / 2
-        num1_input.clear()
-        num2_input.clear()
-        num1_input.send_keys("10")
-        num2_input.send_keys("2")
-        operacion_select.select_by_value("dividir")
-        calcular_button.click()
-        assert "Resultado: 5" in resultado.text  # O "5.0" dependiendo de tu formateo
-
-        # Prueba 5: Dividir por cero (debería mostrar un mensaje de error)
-        num1_input.clear()
-        num2_input.clear()
-        num1_input.send_keys("5")
-        num2_input.send_keys("0")
-        operacion_select.select_by_value("dividir")
-        calcular_button.click()
-        assert "Error: No se puede dividir por cero" in resultado.text
-
-        # Prueba 6: Valores no numéricos
-        num1_input.clear()
-        num2_input.clear()
-        num1_input.send_keys("abc")
-        num2_input.send_keys("def")
-        calcular_button.click()
-        assert "Error: Introduce números válidos" in resultado.text
+        #Verifica con la funcion auxiliar:
+        assert resultado_esperado in get_resultado(browser)
     ```
 
 2.  **Ejecuta las pruebas de aceptación (localmente):**
@@ -449,11 +508,15 @@ Las pruebas de aceptación (o pruebas E2E - End-to-End) simulan la interacción 
     Para ejecutar las pruebas de aceptación *localmente*, primero necesitas ejecutar tu aplicación Flask:
 
     ```bash
-    python app/app.py
+    python -m app.app
     ```
     Luego, en *otra* terminal (manteniendo la aplicación Flask en ejecución):
     ```bash
-    pytest tests/test_app.py
+    # activa el entorno virtual
+    source venv/bin/activate  # En Linux/macOS
+    venv\Scripts\activate     # En Windows
+    
+    pytest tests/test_acceptance_app.py # Ejecuta las pruebas de aceptación
     ```
 
 **Explicación del código de prueba de aceptación:**
@@ -461,22 +524,20 @@ Las pruebas de aceptación (o pruebas E2E - End-to-End) simulan la interacción 
 *   **`import pytest`:** Importa el framework pytest.
 *   **`from selenium import webdriver`:** Importa las clases necesarias de Selenium.
 *   **`from selenium.webdriver.common.by import By`:** Importa `By` para seleccionar elementos por diferentes criterios (nombre, ID, CSS selector, etc.).
-*  **`from selenium.webdriver.support.ui import Select`**: Importa `Select` para interactuar con elementos `<select>` (dropdowns).
-*   **`from webdriver_manager.chrome import ChromeDriverManager`**:  Importa `webdriver-manager` para Chrome.
-*   **`from webdriver_manager.firefox import GeckoDriverManager`**: Importa `webdriver-manager` para Firefox.
-*   **`@pytest.fixture`:**  Define un *fixture* de pytest.  Un fixture es una función que prepara el entorno para las pruebas (en este caso, crea y cierra la instancia del navegador).
-    *   **`def browser():`:**  La función del fixture.
-        *   **Opciones de Chrome/Firefox:**  Configura las opciones del navegador.  `--headless` hace que se ejecute sin interfaz gráfica (ideal para CI). `--no-sandbox` y `--disable-dev-shm-usage` son opciones a veces necesarias en entornos de CI.
-        * **`webdriver.Chrome(options=options)`/`webdriver.Firefox(options=options)`:** Crea una instancia del driver de Chrome/Firefox.
-        * **`yield driver`:**  "Devuelve" el driver a las pruebas.  La ejecución se pausa aquí hasta que la prueba termine.
-        * **`driver.quit()`:**  *Después* de que la prueba termina, cierra el navegador.
-*   **`def test_calculadora(browser):`:**  La función de prueba.  Recibe el `browser` (el driver) del fixture.
-    *   **`browser.get("http://localhost:5000")`:**  Abre la página de la calculadora.  Cambia la URL si tu aplicación se ejecuta en un puerto diferente.
-    *   **`browser.find_element(...)`:**  Encuentra elementos en la página (inputs, botones, etc.).  Estamos usando `By.NAME` y `By.CSS_SELECTOR` para localizarlos, pero hay otras opciones (ver documentación de Selenium).
-    *   **`num1_input.send_keys(...)`:**  Escribe texto en un campo de entrada.
-    *   **`operacion_select.select_by_value(...)`:**  Selecciona una opción en un dropdown.
-    *   **`calcular_button.click()`:**  Hace clic en un botón.
-    *   **`assert "..." in resultado.text`:**  Verifica que el resultado de la operación sea el esperado.
+*  **`from selenium.webdriver.support.ui import Select, WebDriverWait`:** Importa `Select` para manejar elementos `select` (menús desplegables) y `WebDriverWait` para esperar a que aparezcan elementos en la página.
+*   **`from selenium.webdriver.support import expected_conditions as EC`:** Importa `expected_conditions` para definir condiciones de espera.
+*   **`from selenium.common.exceptions import TimeoutException`:** Importa `TimeoutException` para manejar errores de tiempo de espera.
+*   **`@pytest.fixture`:**  Un *fixture* es una función que se ejecuta antes y después de las pruebas.  En este caso, `browser` es un *fixture* que crea un nuevo driver de navegador (en este caso, Chrome o Firefox) antes de cada prueba y lo cierra después.
+*   **`def get_resultado(browser):`**  Una función auxiliar que espera a que aparezca el resultado en la página y lo devuelve.  Si el resultado no aparece en 10 segundos, devuelve un mensaje de error.
+*   **`def find_elements(browser):`**  Una función auxiliar que busca los elementos de la página (números, operación, botón) y los devuelve.
+*   **`@pytest.mark.parametrize`:**  Un decorador que permite ejecutar la misma prueba con diferentes datos de entrada.  En este caso, probamos varias operaciones con diferentes números y comprobamos que el resultado sea el esperado.
+*   **`browser.get("http://localhost:5000")`:**  Abre la página de la calculadora web en el navegador.
+*   **`num1_input, num2_input, operacion_select, calcular_button = find_elements(browser)`:**  Usa la función auxiliar para encontrar los elementos de la página.
+*   **`num1_input.send_keys(num1)`:**  Escribe el primer número en el campo de entrada.
+*   **`operacion_select.select_by_value(operacion)`:**  Selecciona la operación en el menú desplegable.
+*   **`calcular_button.click()`:**  Hace clic en el botón de calcular.
+*   **`assert resultado_esperado in get_resultado(browser)`:**  Comprueba que el resultado esperado aparezca en la página.
+
 
 ## 8. GitHub Actions Workflow (CI Pipeline)
 
@@ -506,7 +567,7 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
           - name: Set up Python
             uses: actions/setup-python@v3
             with:
-              python-version: '3.12'
+              python-version: '3.12' # Reemplaza con tu versión de Python
 
           - name: Install dependencies
             run: |
@@ -515,41 +576,28 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
               pip install flask
 
           - name: Run Black (Formatter)
-            run: black app tests --check  # --check solo verifica, no modifica
+            run: black app --check  # --check solo verifica, no modifica
 
           - name: Run Pylint (Linter)
-            run: pylint app --output-format=pylint-report.txt || true
-            #El flag --exit-zero se sustituye por || true, para evitar errores si hay warnings.
+            run: pylint app --output-format=text --fail-under=9 > pylint-report.txt || true
 
           - name: Run Flake8 (Linter)
             run: flake8 app --output-file=flake8-report.txt || true
 
           - name: Run Unit Tests with pytest and Coverage
             run: |
-              coverage run -m pytest tests/test_calculadora.py
-              coverage xml -o coverage.xml  # Genera un informe XML para SonarCloud
+              pytest --cov=app tests/ --ignore=tests/test_acceptance_app.py  # Genera un informe XML para SonarCloud
 
           - name: Run Acceptance Tests with Selenium
             run: |
-              python -m http.server 8000 & # Inicia un servidor web simple en segundo plano.
-              pytest tests/test_app.py
-
+              python -m app.app 5000 & # Inicia un servidor web simple en segundo plano.
+              pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml
+            
           - name: SonarCloud Scan
-            uses: SonarSource/sonarcloud-github-action@master
+            uses: SonarSource/sonarqube-scan-action@v5.0.0
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Automáticamente proporcionado
               SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
-            with:
-              args: >
-                -Dsonar.projectKey=[TU_USUARIO]_ci-pipeline-python
-                -Dsonar.organization=[TU_ORGANIZACION]
-                -Dsonar.sources=app
-                -Dsonar.python.version=3.x #Pon tu version de python.
-                -Dsonar.python.pylint.reportPaths=pylint-report.txt
-                -Dsonar.python.flake8.reportPaths=flake8-report.txt
-                -Dsonar.coverage.exclusions=**/tests/**,**/setup.py
-                -Dsonar.python.coverage.reportPaths=coverage.xml
-
     ```
 
 **Explicación del Workflow:**
@@ -574,7 +622,6 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
             *   **`env`:**
                 *   **`GITHUB_TOKEN`:**  Token proporcionado automáticamente por GitHub Actions.
                 *   **`SONAR_TOKEN`:**  El token que creaste en SonarCloud (como secreto).
-            *   **`with/args`:**  Argumentos de configuración para SonarCloud.  Estos *deben coincidir* con la configuración en tu archivo `sonar-project.properties`.  Aquí se especifica dónde encontrar los informes de Pylint, Flake8 y Coverage.
 
 2.  **Asegúrate de que tienes un archivo `requirements.txt`:** Si no lo has creado ya, ejecuta `pip freeze > requirements.txt` en tu entorno virtual *activado* y con todas las dependencias instaladas.
 
@@ -586,7 +633,7 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
     git push origin main
     ```
 
-4.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub.  Deberías ver tu workflow ejecutándose (o ya completado).  Haz clic en él para ver los detalles y los logs de cada paso.
+4.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub.  Deberías ver tu workflow ejecutándose (o ya completado).  Haz clic en él para ver los detalles y los logs de cada paso. Asegúrate de que todos los pasos se ejecuten correctamente. En caso contrario, revisa los logs para encontrar el problema y corregirlo.
 
 5.  **Ve a SonarCloud y verifica los resultados del análisis:**  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc.
 
