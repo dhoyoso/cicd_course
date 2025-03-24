@@ -46,7 +46,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 2.  **Clona el repositorio a tu máquina local**
 
-3. **Crea un archivo '.gitignore' en la raíz de tu repositorio**:
+3. **Crea un archivo `.gitignore` en la raíz de tu repositorio**:
 
     ```plaintext
     # virtual envs
@@ -94,7 +94,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
     El $ varía dependiendo del sistema operativo, pero lo importante es que aparezca (venv) antes del signo de dolar o de la terminal.
 
-5. **Crea un archivo 'requirements.txt' en la raíz de tu repositorio:**
+5. **Crea un archivo `requirements.txt` en la raíz de tu repositorio:**
 
     ```plaintext
     pylint
@@ -675,44 +675,18 @@ Es importante considerar qué:
     git push origin main
     ```
 
-3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub.  Deberías ver tu workflow ejecutándose (o ya completado).  Haz clic en él para ver los detalles y los logs de cada paso. Asegúrate de que todos los pasos se ejecuten correctamente. En caso contrario, revisa los logs para encontrar el problema y corregirlo.
+3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub. Si seguiste bien todas las instrucciones, deberías ver qu el pipeline se ejecutó tras el push a `main` y deberías ver el pipeline ejecutandose o ejecutado en estado fallido, esto debido a la falta de calidad en el código, pues las pruebas unitarias y de aceptación están bien (cómo se validó localmente).
 
-4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. El link de tu proyecto en SonarCloud es `https://sonarcloud.io/dashboard?id=[TU_USUARIO]_ci-pipeline-python` (reemplaza `[TU_USUARIO]` con tu nombre de usuario de GitHub). También puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` en GitHub Actions o entrando directamente a SonarCloud Proyects.
+4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto o también puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` después de la validación del gate en GitHub Actions.  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. **Presta atención, sobretodo a cualquier hallazgo nivel C o inferior.**
 
-5. **Agrega más código sin calidad ni pruebas unitarias:** Al agregar más código sin pruebas unitarias ni buenas prácticas de calidad, el pipeline fallará.  Esto es una buena práctica para asegurarse de que todo el código nuevo esté cubierto por pruebas.
-
-Agrega el siguiente código en el archivo 'app/calculadora.py':
-
-```python
-# app/calculadora.py
-def potencia(base, exponente):
-    return base ** exponente
-
-def raiz_cuadrada(numero):
-    return numero ** 0.5
-
-def factorial(numero):
-    if numero == 0:
-        return 1
-    else:
-        return numero * factorial(numero - 1)
-
-def porcentaje(numero):
-    return numero / 100
-```
-
-7. **Haz push a tu repositorio y verifica que el pipeline falle debido a la falta de calidad y pruebas unitarias:** 
-
-    * Haz un push a tu repositorio y verifica que el pipeline falle debido a la falta de pruebas unitarias y a los errores de calidad.
-    * **CORRIGE LOS PROBLEMAS (calidad del código y completitud pruebas unitarias)** y vuelve a ejecutar el pipeline **hasta que logres ejecutar el pipeline correctamente y tener en SonarCloud el Quality Gate marcado cómo `Passed`**.
-
+5. **Corrige los problemas:** Corrige los problemas de calidad de código y vuelve a ejecutar el pipeline hasta que logres ejecutar el pipeline correctamente, tener en SonarCloud el Quality Gate marcado cómo `Passed` **y no tener ningún hallazgo de calidad de código nivel C o inferior**.
 
 ## 9. Entregable en grupo
 
 Para completar este taller, envía **un correo por grupo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Taller 2 Pipeline de CI":
 
 1.  **URL del repositorio PUBLICO de GitHub:**  Envía la URL de tu repositorio en GitHub.
-2.  **URL de la ejecución del workflow:**  Envía la URL de la última ejecución de tu workflow en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe ser *exitosa* y debió haber validado todos los pasos sobre los últimos métodos agregados a la calculadora (potencia, raiz_cuadrada, factorial, porcentaje).
+2.  **URL de la ejecución del workflow:**  Envía la URL de la última ejecución de tu workflow en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe ser *exitosa*.
 3.  **URL del proyecto en SonarCloud:** Envía la URL de tu proyecto en SonarCloud (donde se ven los resultados del análisis). **Verifica que la URL sea accesible desde una ventana de incógnito (sin iniciar sesión en SonarCloud).** Valida y asegurate de que el Quality Gate esté marcado como `Passed`, y la cobertura de código sea mayor al 80%.
 4.  **Responde a las siguientes preguntas:**
     *   ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI?  Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
@@ -724,8 +698,8 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 
 **Criterios de evaluación:**
 *   **URL del repositorio:**  Debe ser un repositorio público en GitHub.
-*   **URL del workflow:**  Debe ser la URL de la última ejecución exitosa del pipeline en GitHub Actions. Debe haber validado los últimos métodos agregados a la calculadora (potencia, raiz_cuadrada, factorial, porcentaje).
-*   **URL de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed` y una cobertura de código mayor al 80%.
+*   **URL del workflow:**  Debe ser la URL de la última ejecución exitosa del pipeline en GitHub Actions.
+*   **URL de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed`, una cobertura de código mayor al 80% y sin hallazgos de calidad de código nivel C o inferior.
 *   **Respuestas a las preguntas:**  Deben ser claras, concisas y correctas.  Deben demostrar comprensión de los conceptos y herramientas utilizadas en el taller.
 
 ## 10. (Opcional) Mejoras Adicionales
