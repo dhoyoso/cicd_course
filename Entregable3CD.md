@@ -44,6 +44,7 @@ Para este taller, utilizaremos **Render** como nuestro proveedor de nube.  Rende
 *   **Despliegue automático desde GitHub:**  Se integra directamente con GitHub para despliegues continuos.
 *   **Capa gratuita:**  Suficiente para proyectos pequeños y de aprendizaje.
 *  **Escalabilidad:** Si se requiere en un futuro, es fácil escalar nuestra aplicación en Render.
+*  **Manejo de contenedores implícito**: Render maneja Docker por nosotros, sin necesidad de configuraciones adicionales.
 
 **Pasos para Render:**
 
