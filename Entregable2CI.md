@@ -8,7 +8,6 @@ En este taller construiremos un pipeline de Integración Continua (CI) completo 
 *   Automatizar pruebas de aceptación con Selenium y un headless browser.
 *   Configurar un workflow de GitHub Actions que ejecute todas estas etapas en cada push.
 *   Usar variables de entorno y secretos de forma segura.
-*  (Opcional) Generar un reporte HTML con los resultados de las pruebas.
 
 ## 1. Introducción: ¿Qué es un Pipeline de CI?
 
@@ -43,7 +42,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 ## 3. Configuración del Proyecto
 
-1.  **Crea un nuevo repositorio en GitHub:**  Llámalo, por ejemplo, `ci-pipeline-python`.
+1.  **Crea un nuevo repositorio público en GitHub:**  Llámalo, por ejemplo, `ci-pipeline-python`.
 
 2.  **Clona el repositorio a tu máquina local**
 
@@ -80,10 +79,20 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 4.  **Crea un entorno virtual y activalo:**
 
     ```bash
-    python3 -m venv venv      # En algunos SO puede ser sólo python, si no te funciona instala virtualenv con el comando 'pip install virtualenv'
-    source venv/bin/activate  # En Linux/macOS
+    python -m venv venv      # En algunos SO puede ser python3, si no te funciona por la librería, instala virtualenv con el comando 'pip install virtualenv' y re ejecuta el comando.
+
     venv\Scripts\activate     # En Windows
+    source venv/bin/activate  # En Linux/macOS
     ```
+
+    *Nota:*  El entorno virtual es una instalación de Python aislada que evita conflictos entre paquetes de diferentes proyectos.  Es una buena práctica usar un entorno virtual para cada proyecto de Python.
+    Te debe aparecer en la terminal algo como esto:
+
+    ```plaintext
+    (venv) $
+    ```
+
+    El $ varía dependiendo del sistema operativo, pero lo importante es que aparezca (venv) antes del signo de dolar o de la terminal.
 
 5. **Crea un archivo 'requirements.txt' en la raíz de tu repositorio:**
 
@@ -107,6 +116,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     ```bash
     pip install -r requirements.txt
     ```
+    En la misma terminal donde activaste el entorno virtual.
 
 ## 4. La Aplicación de Ejemplo (Calculadora Web)
 
@@ -131,6 +141,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
             raise ZeroDivisionError("No se puede dividir por cero")
         return a / b
     ```
+    Este archivo contiene las funciones de la calculadora.  Cada función toma dos números y realiza una operación matemática (suma, resta, multiplicación, división).  Si se intenta dividir por cero, se lanza una excepción `ZeroDivisionError`.
 
 3.  **Crea un archivo `app.py` dentro de la carpeta `app`**:
 
@@ -170,6 +181,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     if __name__ == "__main__":
         app.run(debug=True) #  Quita debug=True en producción
     ```
+    Este archivo contiene la lógica de la aplicación web.  La función `index` maneja las peticiones GET y POST en la ruta raíz (`/`).  Si la petición es un POST, intenta obtener los números y la operación del formulario y llama a las funciones de la calculadora.  Luego, renderiza la plantilla `index.html` con el resultado.
 
 4.  **Crea una carpeta `templates` dentro de la carpeta `app`**
 
@@ -200,6 +212,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     </body>
     </html>
     ```
+    Este archivo es una plantilla HTML simple que muestra un formulario con dos campos de entrada (números) y un menú desplegable (operación).  Al enviar el formulario, muestra el resultado de la operación.
 
 6. **Crea un archivo '\_\_init\_\_.py' dentro de la carpeta 'app'**:
 
@@ -227,10 +240,12 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 1.  **Ejecuta Pylint:**
 
     ```bash
-    pylint app
+    pylint app --fail-under=9
     ```
 
     Verás un informe con los problemas encontrados (si los hay) y una puntuación.  Presta atención a los errores (E), warnings (W), convenciones (C) y refactorizaciones (R).
+    Según la configuración por defecto, Pylint considera que una puntuación de 9 o superior es aceptable. Si la puntuación es inferior, el comando fallará (en el pipeline de CI, esto detendría el proceso).
+    No corrijas aún los problemas, solo observa el informe.
 
 2.  **Ejecuta Flake8:**
 
@@ -238,7 +253,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     flake8 app
     ```
 
-    Flake8 mostrará errores de estilo (según PEP 8) y otros problemas.
+    Flake8 mostrará errores de estilo (según PEP 8) y otros problemas de calidad de código.  Presta atención a los errores. No corrijas aún los problemas, solo observa el informe.
 
 3.  **Ejecuta Black:**
 
@@ -246,17 +261,21 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
     black app
     ```
 
-    Black reformateará tu código automáticamente para que cumpla con un estilo consistente.  Después de ejecutar Black, vuelve a ejecutar Pylint y Flake8 para ver si los problemas de estilo han desaparecido. Corrige los problemas faltantes si los hay.
+    Black reformateará tu código automáticamente para que cumpla con un estilo consistente.  Después de ejecutar Black, vuelve a ejecutar Pylint y Flake8 para ver si los problemas de estilo han desaparecido. ¿Algunos desaparecieron? ¿verdad?, Black es una herramienta muy útil para mantener un estilo de código consistente.
+
+    No corrijas aún el resto de problemas, solo observa el informe.
 
     *Importante:*  Es una buena práctica ejecutar estas herramientas *antes* de hacer un commit. Así te aseguras de que tu código cumple con los estándares de calidad y estilo, evitando con antelación que el pipeline de CI falle.
 
 ### 5.2. Integración con SonarCloud (Análisis Estático Continuo)
 
 SonarCloud es una plataforma en la nube que proporciona análisis estático continuo de código.  Es gratuita para proyectos de código abierto y se integra muy bien con GitHub Actions.
+La idea con esta herramienta es que puedas tener un análisis continuo de la calidad de tu código, detectando problemas de seguridad, bugs, code smells y duplicación de código.
+SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará en un panel de control fácil de entender.
 
 1.  **Crea una cuenta en SonarCloud:**  Ve a [https://sonarcloud.io/](https://sonarcloud.io/) y regístrate con tu cuenta de GitHub.
 2.  **Crea una organización:** 
-    * Dale en "Import an organization".
+    * Da click en "Import an organization".
 
 
     ![alt text](Entregable2-images/image.png)
@@ -264,11 +283,11 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
 
 
     ![alt text](Entregable2-images/image-1.png)
-    * Selecciona All repositories (o solo los que desees) y dale en "Install".
+    * Selecciona All repositories y da click en "Install".
 
 
     ![alt text](Entregable2-images/image-2.png)
-    * Crea tu organización (nombre e identificador único), selecciona el plan gratuito y dale en **crear** organización.
+    * Crea tu organización (nombre e identificador único), selecciona el plan gratuito y da click en **crear** organización. **Recuerda el nombre de tu organización (Key), lo necesitarás más adelante.**
 
 3.  **Importa tu repositorio:**
     *   Haz clic  'My Projects' y selecciona "Analyze a new project".
@@ -280,7 +299,7 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
     *   Ve a la pestaña "Security".
     *   Genera un token (dale un nombre, por ejemplo, "GitHub Actions Token").  *Copia este token*.  Lo necesitarás más adelante.
 5.  **Crea los secretos en GitHub:**
-    *   Ve a tu repositorio en GitHub > Settings > Secrets and variables > Actions > New repository secret.
+    *   Ve a tu repositorio en GitHub (`ci-pipeline-python`) > Settings > Secrets and variables > Actions > New repository secret.
     *   Crea *dos* secretos:
         *   **`SONAR_TOKEN`:**  Pega el token que copiaste de SonarCloud.
         *   **`SONAR_HOST_URL`:**  Pon `https://sonarcloud.io`.
@@ -290,19 +309,27 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
     ```properties
     sonar.projectKey=[TU_USUARIO]_ci-pipeline-python
     sonar.organization=[TU_ORGANIZACION]
-    sonar.sources=app  # Analiza solo el código dentro de la carpeta 'app'
-    sonar.python.version=3.x  # Reemplaza x con tu versión de Python (ej: 3.12)
+    sonar.sources=app
+    sonar.python.version=3.12
     sonar.python.pylint.reportPaths=pylint-report.txt
     sonar.python.flake8.reportPaths=flake8-report.txt
-    sonar.coverage.exclusions=**/tests/**,**/setup.py # Excluye los tests y setup.py
+    sonar.coverage.exclusions=**/tests/**,**/setup.py
     sonar.python.coverage.reportPaths=coverage.xml
-
+    sonar.qualitygate.wait=true
+    sonar.qualitygate.timeout=300
     ```
      **Importante:**
-    *   Reemplaza `[TU_USUARIO]` con tu *nombre de usuario de GitHub*.
-    *   Reemplaza `[TU_ORGANIZACION]` con el *nombre de tu organización en SonarCloud* (que puede ser diferente a tu nombre de usuario de GitHub, **AUNQUE usualmente es el mismo usuario de Github**).
+    *   Reemplaza `[TU_USUARIO]` con tu *nombre de usuario de GitHub*. **Si tu repositorio no se llama `ci-pipeline-python`, reemplaza también `ci-pipeline-python` con el nombre de tu repositorio o proyecto en SonarCloud**
+    *   Reemplaza `[TU_ORGANIZACION]` con el *nombre o Key de tu organización en SonarCloud* (que puede ser diferente a tu nombre de usuario de GitHub, pero **USUALMENTE es el mismo usuario de Github si no cambiaste nada al crear la organización en SonarCloud**).
     *   `sonar.sources=app`:  Esto le dice a SonarCloud que solo analice el código dentro de la carpeta `app`.  Si tuvieras código en otros directorios, los añadirías aquí (separados por comas).
-    * Elimina todos los comentario (que empiezan con #) antes de ejecutar el análisis, de lo contrario fallará.
+    *   `sonar.python.version=3.12`:  Indica la versión de Python que estás utilizando.
+    *   `sonar.python.pylint.reportPaths=pylint-report.txt`:  Le dice a SonarCloud dónde encontrar el informe de Pylint.
+    *   `sonar.python.flake8.reportPaths=flake8-report.txt`:  Le dice a SonarCloud dónde encontrar el informe de Flake8.
+    *   `sonar.coverage.exclusions=**/tests/**,**/setup.py`:  Excluye los archivos de prueba y el archivo `setup.py` de la cobertura de código.
+    *   `sonar.python.coverage.reportPaths=coverage.xml`:  Le dice a SonarCloud dónde encontrar el informe de cobertura de código.
+    *   `sonar.qualitygate.wait=true`:  Espera a que se complete el análisis antes de aplicar el Quality Gate. El quality gate es un conjunto de condiciones que tu código debe cumplir para ser considerado "bueno" (por ejemplo, un mínimo de cobertura de código, un máximo de errores, etc.). Si no se cumple el Quality Gate, el análisis fallará. El quality gate que tenemos establecido es el por defecto de SonarCloud:
+    ![alt text](./Entregable2-images/image-3.png)
+    *   `sonar.qualitygate.timeout=300`:  Tiempo máximo de espera para el Quality Gate (en segundos).
 
 ## 6. Pruebas Unitarias con pytest y Cobertura
 
@@ -337,7 +364,9 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
             dividir(1, 0)
     ```
 
-3. Dentro de tests crea un archivo llamado `test_app.py`:
+    Estas pruebas unitarias verifican que las funciones de la calculadora (`sumar`, `restar`, `multiplicar`, `dividir`) funcionen correctamente.  Cada prueba verifica varios casos (números positivos, negativos, cero, división por cero).
+
+3. Dentro de `tests` crea un archivo llamado `test_app.py`:
 
     ```python
     # tests/test_app.py
@@ -391,7 +420,13 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
         assert b'Error: Introduce n\xc3\xbameros v\xc3\xa1lidos' in response.data
     ```
 
-4. Crea un archivo pytest.ini en la raíz de tu repositorio para configurar pytest:
+    Estas pruebas unitarias verifican que la aplicación web Flask (`app.py`) funcione correctamente.  Cada prueba verifica que la página de inicio (`/`) responda correctamente a las peticiones GET y POST, y que las operaciones de la calculadora se realicen correctamente.
+    
+    El método marcado con `@pytest.fixture` es un *fixture* (una función que se ejecuta antes y después de las pruebas).  En este caso, `client` es un *fixture* que crea un cliente de prueba para la aplicación Flask.
+
+    Luego, hay varias pruebas que verifican diferentes escenarios (GET, POST con diferentes operaciones y números).  Por ejemplo, `test_index_post_sumar` verifica que la suma de 2 y 3 devuelva 5.
+
+4. Crea un archivo `pytest.ini` en la raíz de tu repositorio para configurar pytest:
 
     ```ini
     # pytest.ini
@@ -401,6 +436,8 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
     testpaths = tests app/tests  # Look in 'tests' and 'app/tests'
     norecursedirs = .git venv .* _* build dist  # Common exclusions
     ```
+
+    Esta configuración le dice a pytest que busque pruebas en los directorios `tests` y `app/tests`, y que mida la cobertura de código en la carpeta `app`.  También le dice a pytest que genere informes HTML y XML de la cobertura.
 
     *  **`pythonpath = .`:**  Añade el directorio raíz a `sys.path` para que pytest pueda encontrar los módulos de tu aplicación.
     *  **`addopts = ...`:**  Opciones adicionales para pytest.  `-v` es para verbose, `--color=yes` para colores en la consola, `--tb=short` para mostrar solo la parte relevante de los errores, `--cov=app` para medir la cobertura del código en la carpeta `app`, `--cov-report=term-missing` para mostrar las líneas no cubiertas en la consola, `--cov-report=html` para generar un informe HTML y `--cov-report=xml` para generar un informe XML.
@@ -418,10 +455,13 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
 
     * El resumen de las pruebas, su resultado y la cobertura de código se mostrarán en la consola.
     * Con la configuración establecida en el pytest.ini, se genera un informe HTML detallado en una carpeta llamada `htmlcov`. Puedes abrir `htmlcov/index.html` en tu navegador para ver la cobertura línea por línea.
+    * Usualmente en las organizaciones los códigos deben pasar todas las pruebas unitarias y cumplir con un mínimo de cobertura, que si no se cumple, el pipeline fallará.
 
 ## 7. Pruebas de Aceptación con Selenium
 
 Las pruebas de aceptación simulan la interacción de un usuario real con la aplicación, normalmente a través de la interfaz de usuario (en nuestro caso, la página web de la calculadora).  Selenium es un framework que permite automatizar esta interacción.
+
+Dada la naturaleza de las pruebas de aceptación (que requieren la aplicación en ejecución), es necesario instanciar el aplicativo antes de ejecutar las pruebas.  En un entorno de CI, esto se puede hacer con un contenedor Docker o con un servidor de pruebas. En este caso, ejecutaremos la aplicación Flask localmente antes de ejecutar las pruebas de aceptación.
 
 1.  Crea un archivo llamado `tests/test_acceptance_app.py`:
 
@@ -513,8 +553,8 @@ Las pruebas de aceptación simulan la interacción de un usuario real con la apl
     Luego, en *otra* terminal (manteniendo la aplicación Flask en ejecución):
     ```bash
     # activa el entorno virtual
-    source venv/bin/activate  # En Linux/macOS
     venv\Scripts\activate     # En Windows
+    source venv/bin/activate  # En Linux/macOS
     
     pytest tests/test_acceptance_app.py # Ejecuta las pruebas de aceptación
     ```
@@ -541,7 +581,12 @@ Las pruebas de aceptación simulan la interacción de un usuario real con la apl
 
 ## 8. GitHub Actions Workflow (CI Pipeline)
 
-Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub Actions.
+Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub Actions. La idea es que cada vez que hagamos un push a la rama `main` o abramos un pull request, GitHub Actions ejecute la verificación de calidad de código (Pylint, Flake8, Black), las pruebas unitarias (pytest) y las pruebas de aceptación (Selenium) conjunto con la cobertura de código (Coverage.py).  Además, enviaremos los informes de calidad de código y cobertura a SonarCloud para su análisis.
+
+Es importante considerar qué:
+* Si las pruebas unitarias o las pruebas de aceptación fallan, el pipeline falla.
+* El resultado de la calidad de código se parametrizan de tal manera que no fallen si hay hallazgos pero si generarán un reporte que se enviará a SonarCloud para su análisis.
+* Si se elimina del pipeline `|| true` en los comandos de calidad de código y pruebas, el pipeline fallará si hay problemas en cada paso y no continuará a que SonarCloud consolide los resultados hasta que sean corregidos.
 
 1.  Crea el archivo `.github/workflows/ci.yml`:
 
@@ -591,7 +636,7 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
           - name: Run Acceptance Tests with Selenium
             run: |
               python -m app.app 5000 & # Inicia un servidor web simple en segundo plano.
-              pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml
+              pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml # Genera un informe XML con otro nombre, para no sobre-escribir el anterior de  las pruebas unitarias.
             
           - name: SonarCloud Scan
             uses: SonarSource/sonarqube-scan-action@v5.0.0
@@ -611,21 +656,18 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
         *   **`actions/setup-python@v3`:**  Configura Python.
         *   **`Install dependencies`:** Instala dependencias.  Se asume el archivo `requirements.txt`.
         *   **`Run Black`:**  Ejecuta Black en modo de verificación (`--check`).
-        *   **`Run Pylint`:**  Ejecuta Pylint. El `|| true` evita que el workflow falle si Pylint encuentra *warnings* (solo fallará si hay errores, lo cual es deseable).  Guarda el informe para SonarCloud.
-        *   **`Run Flake8`:**  Ejecuta Flake8.  `|| true` para evitar fallos por warnings. Guarda el informe.
-        *   **`Run Unit Tests with pytest and Coverage`:**  Ejecuta las pruebas unitarias con pytest y genera un informe de cobertura en formato XML (`coverage.xml`).  Este informe será usado por SonarCloud.
+        *   **`Run Pylint`:**  Ejecuta Pylint. El `|| true` evita que el workflow falle si hay problemas. Guarda el informe en `pylint-report.txt` para que SonarCloud lo use.
+        *   **`Run Flake8`:**  Ejecuta Flake8.  `|| true` evita que el workflow falle si hay problemas. Guarda el informe en `flake8-report.txt` para que SonarCloud lo use.
+        *   **`Run Unit Tests with pytest and Coverage`:**  Ejecuta las pruebas unitarias con pytest (si fallan, el paso falla) y si son exitosas, genera un informe de cobertura en formato XML (`coverage.xml`). Este informe será usado por SonarCloud.
         *   **`Run Acceptance Tests with Selenium`:**
-            *   `python -m http.server 8000 &`:  Inicia un servidor web *simple* en segundo plano (usando el módulo `http.server` de Python) para servir la aplicación Flask.  Esto es necesario porque las pruebas de Selenium necesitan interactuar con la aplicación web en ejecución.  *No uses este servidor en producción*.  Es solo para pruebas locales y en el entorno de CI.  El `&` al final ejecuta el comando en segundo plano, permitiendo que el workflow continúe.
-            *   `pytest tests/test_app.py`:  Ejecuta las pruebas de aceptación.
+            *  Inicia la aplicación Flask en segundo plano (`python -m app.app 5000 &`) y luego ejecuta las pruebas de aceptación con pytest.  Genera un informe de cobertura en formato XML (`acceptance_coverage.xml`).  Este informe NO será usado por SonarCloud pues el objetivo de las pruebas de aceptación es verificar la funcionalidad de la aplicación, no la cobertura de código.
         *   **`SonarCloud Scan`:**
-            *   **`SonarSource/sonarcloud-github-action@master`:**  La acción oficial de SonarCloud para GitHub Actions.
+            *   **`SonarSource/sonarqube-scan-action@v5.0.0`:**  La acción oficial de SonarCloud para GitHub Actions.
             *   **`env`:**
                 *   **`GITHUB_TOKEN`:**  Token proporcionado automáticamente por GitHub Actions.
                 *   **`SONAR_TOKEN`:**  El token que creaste en SonarCloud (como secreto).
 
-2.  **Asegúrate de que tienes un archivo `requirements.txt`:** Si no lo has creado ya, ejecuta `pip freeze > requirements.txt` en tu entorno virtual *activado* y con todas las dependencias instaladas.
-
-3.  **Sube los cambios a GitHub:**
+2.  **Sube los cambios a GitHub:**
 
     ```bash
     git add .
@@ -633,24 +675,58 @@ Ahora, vamos a crear el archivo YAML que define nuestro pipeline de CI en GitHub
     git push origin main
     ```
 
-4.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub.  Deberías ver tu workflow ejecutándose (o ya completado).  Haz clic en él para ver los detalles y los logs de cada paso. Asegúrate de que todos los pasos se ejecuten correctamente. En caso contrario, revisa los logs para encontrar el problema y corregirlo.
+3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub.  Deberías ver tu workflow ejecutándose (o ya completado).  Haz clic en él para ver los detalles y los logs de cada paso. Asegúrate de que todos los pasos se ejecuten correctamente. En caso contrario, revisa los logs para encontrar el problema y corregirlo.
 
-5.  **Ve a SonarCloud y verifica los resultados del análisis:**  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc.
+4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. El link de tu proyecto en SonarCloud es `https://sonarcloud.io/dashboard?id=[TU_USUARIO]_ci-pipeline-python` (reemplaza `[TU_USUARIO]` con tu nombre de usuario de GitHub). También puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` en GitHub Actions o entrando directamente a SonarCloud Proyects.
+
+5. **Agrega más código sin calidad ni pruebas unitarias:** Al agregar más código sin pruebas unitarias ni buenas prácticas de calidad, el pipeline fallará.  Esto es una buena práctica para asegurarse de que todo el código nuevo esté cubierto por pruebas.
+
+Agrega el siguiente código en el archivo 'app/calculadora.py':
+
+```python
+# app/calculadora.py
+def potencia(base, exponente):
+    return base ** exponente
+
+def raiz_cuadrada(numero):
+    return numero ** 0.5
+
+def factorial(numero):
+    if numero == 0:
+        return 1
+    else:
+        return numero * factorial(numero - 1)
+
+def porcentaje(numero):
+    return numero / 100
+```
+
+7. **Haz push a tu repositorio y verifica que el pipeline falle debido a la falta de calidad y pruebas unitarias:** 
+
+    * Haz un push a tu repositorio y verifica que el pipeline falle debido a la falta de pruebas unitarias y a los errores de calidad.
+    * **CORRIGE LOS PROBLEMAS (calidad del código y completitud pruebas unitarias)** y vuelve a ejecutar el pipeline **hasta que logres ejecutar el pipeline correctamente y tener en SonarCloud el Quality Gate marcado cómo `Passed`**.
+
 
 ## 9. Entregable en grupo
 
-Para completar este taller, envía la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Taller 2 CI":
+Para completar este taller, envía **un correo por grupo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Taller 2 Pipeline de CI":
 
-1.  **URL del repositorio PUBLICO de GitHub:**  Envía la URL de tu repositorio `ci-pipeline-python` en GitHub.
-2.  **URL de la ejecución del workflow:**  Envía la URL de una ejecución *exitosa* de tu workflow en GitHub Actions (de la pestaña "Actions").
-3.  **URL del proyecto en SonarCloud:** Envía la URL de tu proyecto en SonarCloud (donde se ven los resultados del análisis).
+1.  **URL del repositorio PUBLICO de GitHub:**  Envía la URL de tu repositorio en GitHub.
+2.  **URL de la ejecución del workflow:**  Envía la URL de la última ejecución de tu workflow en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe ser *exitosa* y debió haber validado todos los pasos sobre los últimos métodos agregados a la calculadora (potencia, raiz_cuadrada, factorial, porcentaje).
+3.  **URL del proyecto en SonarCloud:** Envía la URL de tu proyecto en SonarCloud (donde se ven los resultados del análisis). **Verifica que la URL sea accesible desde una ventana de incógnito (sin iniciar sesión en SonarCloud).** Valida y asegurate de que el Quality Gate esté marcado como `Passed`, y la cobertura de código sea mayor al 80%.
 4.  **Responde a las siguientes preguntas:**
     *   ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI?  Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
     *   ¿Cuál es la diferencia principal entre una prueba unitaria y una prueba de aceptación?  Da un ejemplo de algo que probarías con una prueba unitaria y algo que probarías con una prueba de aceptación (en el contexto de cualquier aplicación que conozcas (describela primero)).
     *   ¿Qué es la cobertura de código y por qué es útil medirla?  ¿Qué nivel de cobertura consideras aceptable para un proyecto real?
-    *   Describe brevemente qué hace cada uno de los *steps* de tu workflow de GitHub Actions.  Explica el propósito de cada uno (no me digas que hace, sino para qué se hace).
+    *   Describe brevemente qué hace cada uno de los *steps* de tu workflow de GitHub Actions.  Explica el propósito de cada uno **(que hace y para qué se hace)**.
     *   ¿Qué problemas o dificultades encontraste al implementar este taller?  ¿Cómo los solucionaste?  (Si no encontraste ningún problema, describe algo nuevo que hayas aprendido).
 5. **Integrantes del grupo:**  Lista los nombres y apellidos de los integrantes de tu grupo.
+
+**Criterios de evaluación:**
+*   **URL del repositorio:**  Debe ser un repositorio público en GitHub.
+*   **URL del workflow:**  Debe ser la URL de la última ejecución exitosa del pipeline en GitHub Actions. Debe haber validado los últimos métodos agregados a la calculadora (potencia, raiz_cuadrada, factorial, porcentaje).
+*   **URL de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed` y una cobertura de código mayor al 80%.
+*   **Respuestas a las preguntas:**  Deben ser claras, concisas y correctas.  Deben demostrar comprensión de los conceptos y herramientas utilizadas en el taller.
 
 ## 10. (Opcional) Mejoras Adicionales
 
@@ -662,8 +738,7 @@ Si quieres profundizar más, aquí tienes algunas ideas para mejorar tu pipeline
         ```yaml
           - name: Run Unit Tests with pytest and Coverage
             run: |
-              coverage run -m pytest tests/test_calculadora.py --html=report.html --self-contained-html
-              coverage xml -o coverage.xml
+              pytest --cov=app tests/ --ignore=tests/test_acceptance_app.py --cov-report=xml:coverage.xml --cov-report=html:htmlcov --html=report.html
         ```
     *   Sube el archivo `report.html` como un *artefacto* del workflow:
         ```yaml
@@ -676,6 +751,8 @@ Si quieres profundizar más, aquí tienes algunas ideas para mejorar tu pipeline
         ```
         Un artefacto es un archivo o directorio que se guarda y se puede descargar desde la interfaz de GitHub Actions después de que el workflow haya terminado. Es muy útil para guardar informes, logs, código compilado, etc.
 
+        Los artefactos también se pueden utilizar para compartir archivos entre diferentes pasos de un mismo workflow o entre diferentes workflows de un mismo repositorio.
+
 *   **Usar un archivo `.pylintrc`:**  Configura Pylint con un archivo `.pylintrc` para personalizar las reglas.
 *   **Usar un archivo de configuración para Flake8:**  Configura Flake8 con un archivo `.flake8` (o dentro de `setup.cfg` o `tox.ini`).
 *   **Agregar Badges:**  Añade badges (insignias) al README de tu repositorio para mostrar el estado del workflow, la cobertura, etc. (GitHub Actions y SonarCloud proporcionan URLs para generar estos badges).
@@ -683,7 +760,6 @@ Si quieres profundizar más, aquí tienes algunas ideas para mejorar tu pipeline
     *   Herramientas de gestión de vulnerabilidades (ej: Snyk, Dependabot).
     *   Herramientas de análisis de seguridad estático (SAST).
 *   **Ejecutar las pruebas en una matriz (Avanzado):**  Ejecuta las pruebas en múltiples sistemas operativos y versiones de Python:
-
     ```yaml
     jobs:
       build-and-test:
@@ -700,4 +776,5 @@ Si quieres profundizar más, aquí tienes algunas ideas para mejorar tu pipeline
               python-version: ${{ matrix.python-version }}
           # ... el resto de los pasos ...
     ```
-* **Agregar pruebas para app.py:** Se podrían agregar pruebas unitarias para el archivo `app.py`, aunque las pruebas de aceptación con Selenium ya cubren la funcionalidad principal de la aplicación web.
+    Esto ejecutará el pipeline en Ubuntu, Windows y macOS, con diferentes versiones de Python.
+*   **Personalizar reglas de calidad en SonarCloud:**  Personaliza las reglas de calidad en SonarCloud para que se ajusten a las necesidades de tu proyecto. Esta personalización requiere de SonarCloud Developer Edition o superior (versión paga). Podrías, por ejemplo, definir reglas específicas para tu proyecto, establecer umbrales de calidad personalizados, de cobertura, etc.
