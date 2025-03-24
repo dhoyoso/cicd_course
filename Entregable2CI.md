@@ -42,7 +42,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 ## 3. Configuración del Proyecto
 
-1.  **Crea un nuevo repositorio público en GitHub:**  Llámalo, por ejemplo, `ci-pipeline-python`.
+1.  **Crea un nuevo repositorio público en GitHub:**  Llámalo, por ejemplo, `cicd-pipeline-python`.
 
 2.  **Clona el repositorio a tu máquina local**
 
@@ -122,7 +122,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tener algo que probar tanto a nivel unitario como a nivel de aceptación.
 
-1.  **Crea una carpeta `app`**: Dentro de la carpeta raíz de tu proyecto (es decir `ci-pipeline-python`)
+1.  **Crea una carpeta `app`**: Dentro de la carpeta raíz de tu proyecto (es decir `cicd-pipeline-python`)
 2.  **Crea un archivo llamado `calculadora.py` dentro de la carpeta `app`**:
 
     ```python
@@ -291,7 +291,7 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
 
 3.  **Importa tu repositorio:**
     *   Haz clic  'My Projects' y selecciona "Analyze a new project".
-    *   Selecciona tu repositorio (`ci-pipeline-python`) y dale click en "Set Up".
+    *   Selecciona tu repositorio (`cicd-pipeline-python`) y dale click en "Set Up".
     *   Elige "Number of days", elige "30" con el fin de analizar todo el código que sea ha escrito en los últimos 30 días en tu repositorio.
     *   SonarCloud analizará tu repositorio y te mostrará un panel de control con los resultados.  Inicialmente, puede que no muestre mucha información porque no hemos configurado el análisis en el workflow.
 4.  **Obtén tu token de SonarCloud:**
@@ -299,7 +299,7 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
     *   Ve a la pestaña "Security".
     *   Genera un token (dale un nombre, por ejemplo, "GitHub Actions Token").  *Copia este token*.  Lo necesitarás más adelante.
 5.  **Crea los secretos en GitHub:**
-    *   Ve a tu repositorio en GitHub (`ci-pipeline-python`) > Settings > Secrets and variables > Actions > New repository secret.
+    *   Ve a tu repositorio en GitHub (`cicd-pipeline-python`) > Settings > Secrets and variables > Actions > New repository secret.
     *   Crea *dos* secretos:
         *   **`SONAR_TOKEN`:**  Pega el token que copiaste de SonarCloud.
         *   **`SONAR_HOST_URL`:**  Pon `https://sonarcloud.io`.
@@ -307,7 +307,7 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
 6.  **Crea un archivo `sonar-project.properties` en la raíz de tu repositorio:** Este archivo le dice a SonarCloud cómo analizar tu proyecto.
 
     ```properties
-    sonar.projectKey=[TU_USUARIO]_ci-pipeline-python
+    sonar.projectKey=[TU_USUARIO]_cicd-pipeline-python
     sonar.organization=[TU_ORGANIZACION]
     sonar.sources=app
     sonar.python.version=3.12
@@ -319,7 +319,7 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
     sonar.qualitygate.timeout=300
     ```
      **Importante:**
-    *   Reemplaza `[TU_USUARIO]` con tu *nombre de usuario de GitHub*. **Si tu repositorio no se llama `ci-pipeline-python`, reemplaza también `ci-pipeline-python` con el nombre de tu repositorio o proyecto en SonarCloud**
+    *   Reemplaza `[TU_USUARIO]` con tu *nombre de usuario de GitHub*. **Si tu repositorio no se llama `cicd-pipeline-python`, reemplaza también `cicd-pipeline-python` con el nombre de tu repositorio o proyecto en SonarCloud**
     *   Reemplaza `[TU_ORGANIZACION]` con el *nombre o Key de tu organización en SonarCloud* (que puede ser diferente a tu nombre de usuario de GitHub, pero **USUALMENTE es el mismo usuario de Github si no cambiaste nada al crear la organización en SonarCloud**).
     *   `sonar.sources=app`:  Esto le dice a SonarCloud que solo analice el código dentro de la carpeta `app`.  Si tuvieras código en otros directorios, los añadirías aquí (separados por comas).
     *   `sonar.python.version=3.12`:  Indica la versión de Python que estás utilizando.
