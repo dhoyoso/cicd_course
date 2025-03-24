@@ -170,10 +170,11 @@ Un health check es una verificación simple que indica si una aplicación está 
 ```python
 # app/app.py (añadir a tu app existente)
 @app.route("/health")
-
 def health():
     return "OK", 200
 ```
+
+**Añade este health check a tu aplicación Flask.**  Render y otros proveedores de nube pueden usar este endpoint para verificar si tu aplicación está funcionando. **Además lo utilizaremos más adelante.**
 
 Este endpoint `/health` simplemente devuelve "OK" con un código de estado 200. Render, y otros proveedores de nube, pueden usar este endpoint para verificar si tu aplicación está funcionando. Si el endpoint no responde o devuelve un código de error, el proveedor puede tomar medidas (ej: reiniciar la aplicación, escalar horizontalmente, etc.).
 
@@ -185,10 +186,11 @@ Las pruebas de humo son un conjunto pequeño de pruebas que verifican la funcion
 # tests/test_acceptance_app.py (añadir a tus pruebas existentes)
 def test_smoke_test(browser):
     browser.get("http://localhost:5000") #Reemplaza con la URL de tu app en Render, una vez desplegada.
-
     assert "Calculadora" in browser.title  # Verificar que el título de la página sea correcto
     assert browser.find_element(By.TAG_NAME, "h1").text == "Calculadora"
 ```
+
+**Añade esta prueba de humo a tu aplicación Flask.**. **Lo utilizaremos más adelante.**
 
 Esta prueba de humo simplemente verifica que la página principal de la calculadora se cargue correctamente y que el título sea "Calculadora". Si esta prueba de humo falla, *después de un despliegue*, significa que la aplicación no está funcionando en absoluto, o que algo muy básico está roto.
 
@@ -362,10 +364,11 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
           - uses: actions/checkout@v3
           - name: Deploy to Render
 
-            uses: render-oss/deploy-action@v1 #Accion oficial de Render.
+            uses: johnbeynon/render-deploy-action@v0.0.8 #Accion oficial de Render.
             with:
               service-id: ${{ secrets.RENDER_SERVICE_ID }}  # Secreto de Render
               api-key: ${{ secrets.RENDER_API_KEY }}    # Secreto de Render
+              wait-for-success: true # Espera a que el despliegue termine.
     ```
 
     **Explicación:**
@@ -375,30 +378,35 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
     *   `uses: render-oss/deploy-action@v1`:  Usamos la acción oficial de Render para GitHub Actions.
     *   `service-id: ${{ secrets.RENDER_SERVICE_ID }}`:  El ID del servicio de Render (lo obtendremos más adelante).
     *   `api-key: ${{ secrets.RENDER_API_KEY }}`:  La clave API de Render (la obtendremos más adelante).
+    *   `wait-for-success: true`:  Espera a que el despliegue termine antes de continuar con el siguiente paso.
 
 5.  **Crea un nuevo servicio web en Render:**
     *   Ve a tu panel de control de Render ([https://dashboard.render.com/](https://dashboard.render.com/)).
-    *   Haz clic en "New" -> "Web Service".
-    *   Conecta tu repositorio de GitHub (`ci-pipeline-python`).
+    *   Haz clic en "New Web Service".
+    *   Conecta tu repositorio de GitHub (`cicd-pipeline-python` o el nombre de tu repo).
     *   En "Name", dale un nombre a tu servicio (ej: `mi-calculadora`).
     *   En "Branch", asegúrate de que esté seleccionada la rama `main`.
-    *   En "Runtime", selecciona "Python 3".
+    *   En "Language", selecciona "Python 3".
+    *   En "Region", deja el valor por defecto.
+    *   En "Root Directory", deja el valor por defecto (vacío).
     *   En "Build Command", deja el valor por defecto (`pip install -r requirements.txt`).
     *   En "Start Command", pon `gunicorn app.app:app`.
     *   Selecciona el plan "Free".
-    *   Haz clic en "Create Web Service".
+    *   Deja la sección "Environment Variables" vacía.
+    *   Haz clic en "Deploy Web Service".
+    *   El deploy debería comenzar automáticamente pero fallará porque no hemos hecho el commit con los cambios necesarios.
 
 6.  **Obtén el ID del servicio y la clave API de Render:**
-    *   **Service ID:**  En la página de configuración de tu servicio en Render, ve a "Settings". El ID del servicio aparece en la parte superior (ej: `srv-xxxxxxxxxxxxxxxxxxxx`). *Copia este ID*.
+    *   **Service ID:**  De la URL de la página de configuración de tu servicio en Render, obtén el ID del servicio que aparece después de web/ (ej: `srv-xxxxxxxxxxxxxxxxxxxx`). *Copia este ID*.
     *   **API Key:**
-        *   Ve a tu configuración de cuenta de Render (Account Settings).
+        *   Ve a tu configuración de cuenta de Render (Account Settings arriba a la derecha).
         *   Ve a la sección "API Keys".
         *   Haz clic en "Create API Key".
         *   Dale un nombre a la clave (ej: "GitHub Actions").
         *   *Copia la clave API*.
 
 7.  **Crea los secretos en GitHub:**
-    *   Ve a tu repositorio en GitHub (`ci-pipeline-python`) -> Settings -> Secrets and variables -> Actions -> New repository secret.
+    *   Ve a tu repositorio en GitHub (`cicd-pipeline-python`) -> Settings -> Secrets and variables -> Actions -> New repository secret.
     *   Crea *dos* secretos:
         *   **`RENDER_SERVICE_ID`:**  Pega el ID del servicio que copiaste de Render.
         *   **`RENDER_API_KEY`:**  Pega la clave API que copiaste de Render.
@@ -414,14 +422,14 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
     *   Ve a la pestaña "Actions" de tu repositorio en GitHub. Deberías ver tu workflow ejecutándose.
     *   Si todo va bien, el job `deploy` se ejecutará y desplegará tu aplicación a Render.
     *   Ve a tu panel de control de Render. Deberías ver tu servicio desplegado y en ejecución.
-    *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador.
+    *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador. (La URL será algo como `https://mi-calculadora.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
     *   Prueba tu calculadora.
-    *   **Agrega la URL de tu app desplegada en Render, a la prueba de aceptación y humo de tu archivo tests/test_acceptance_app.py.**
+    *   Prueba el health check:  Abre por ejemplo `https://mi-calculadora.onrender.com/health` en tu navegador. Deberías ver "OK".
 
 10. **Mueve las pruebas de aceptación y humo a después del despliegue:**
-    Una mejor práctica, es mover las pruebas de aceptación *después* del despliegue, y que se ejecuten *contra* la aplicación desplegada en Render. Esto asegura que estás probando el entorno real de producción y hace las veces de una prueba de humo más robusta.
+    La mejor práctica, es mover las pruebas de aceptación *después* del despliegue, y que se ejecuten *contra* la aplicación desplegada en Render. Esto asegura que estás probando el entorno real de producción (o del ambiente al que despliegues) y hace las veces de una prueba de humo más robusta.
 
-    Para hacer esto, modifica tu workflow (`.github/workflows/ci-cd.yml`):
+    Para hacer esto, **Agrega la URL de tu app desplegada en Render, a la prueba de aceptación y de humo de tu archivo tests/test_acceptance_app.py. Cambiando el `http://localhost:5000` por la URL de Render.** Luego, modifica tu workflow (`.github/workflows/ci-cd.yml`):
     ```yaml
     name: CI/CD Pipeline 
 
@@ -483,10 +491,11 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
           - uses: actions/checkout@v3
           - name: Deploy to Render
 
-            uses: render-oss/deploy-action@v1 #Accion oficial de Render.
+            uses: johnbeynon/render-deploy-action@v0.0.8 #Accion oficial de Render.
             with:
               service-id: ${{ secrets.RENDER_SERVICE_ID }}  # Secreto de Render
               api-key: ${{ secrets.RENDER_API_KEY }}    # Secreto de Render
+              wait-for-success: true # Espera a que el despliegue termine.
 
       acceptance-smoke-tests:  # Nuevo Job
         needs: deploy # Se ejecuta después de deploy
@@ -507,307 +516,171 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
 
           - name: Run Acceptance Tests with Selenium
             run: |
-              pytest tests/test_acceptance_app.py #Ya no necesitas iniciar un servidor, usa la URL de Render.
+              pytest tests/test_acceptance_app.py # Ya no necesitas iniciar un servidor, usa la URL de Render.
     ```
 
-## 11. Mejoras Adicionales (Obligatorias)
+11.  **Sube los cambios a GitHub:**
 
-Para solidificar y ampliar lo aprendido, implementaremos algunas mejoras importantes en nuestro pipeline y aplicación. Estas mejoras no son opcionales; son pasos esenciales para un pipeline de CI/CD robusto y una aplicación confiable.
+      ```bash
+      git add .
+      git commit -m "Mover pruebas de aceptación y humo después del despliegue"
+      git push origin main
+      ```
 
-### 11.1 Usar un entorno de Staging
+      **Valida** en Github Actions y Render que el despliegue se haya realizado correctamente y que las pruebas de aceptación y humo se ejecuten correctamente **después** del despliegue.
 
-En lugar de desplegar directamente a producción, crearemos un entorno de *staging*. Un entorno de staging es una réplica *casi* exacta del entorno de producción, donde podemos realizar pruebas finales antes de lanzar una nueva versión a los usuarios. Esto reduce significativamente el riesgo de introducir errores en producción.
+## 10. Creación de un Monitor de Salud con GitHub Actions (monitor.yml)
 
-**Pasos:**
+Van a implementar un sistema de monitoreo para nuestra aplicación utilizando GitHub Actions. Este sistema verificará periódicamente el *health check* de nuestra aplicación y, si detecta un fallo, creará automáticamente un *issue* en nuestro repositorio de GitHub.
 
-1.  **Crea un nuevo servicio web en Render:**
-    *   Sigue los mismos pasos que para crear el servicio de producción (sección 9, paso 5), pero dale un nombre diferente (ej: `mi-calculadora-staging`).
-    *   En "Branch", puedes usar una rama diferente (ej: `staging` o `develop`), o usar la misma rama `main` y luego configurar despliegues manuales.
-    *   Configura las mismas variables de entorno que en producción (si las tienes).
-    *   Selecciona el plan "Free" (o el plan que prefieras).
+**Ventajas de este enfoque:**
 
-2.  **Modifica tu workflow de GitHub Actions (`ci-cd.yml`):**
+*   **Simplicidad:** No necesitamos gestionar credenciales de correo electrónico ni dependencias externas complejas.
+*   **Integración:** Se integra directamente con el ecosistema de GitHub. Las notificaciones llegan a través de los mecanismos habituales de GitHub (correo electrónico, notificaciones web, y la sección de "Issues" del repositorio).
+*   **Seguimiento:** Los *issues* de GitHub son una excelente forma de rastrear problemas y su resolución, manteniendo un historial.
+*   **No requiere servicios externos:** Todo se gestiona dentro de GitHub Actions.
 
-    Necesitamos dos flujos de despliegue: uno para staging y otro para producción.
+**Características del monitoreo a implementar:**
 
+*   **trigger**: el monitoreo debe desencadenarse todos los días a las 8 am o también de forma manual.
+*   **permissions**: se le debe dar permisos de escritura a los *issues*:
     ```yaml
-    name: CI/CD Pipeline
-
-    on:
-      push:
-        branches:
-          - main
-          - staging # Nueva rama para staging.
-      pull_request:
-        branches:
-          - main
-          - staging
-      workflow_dispatch:
-
-    jobs:
-      build-and-test:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-          - name: Set up Python
-            uses: actions/setup-python@v3
-            with:
-              python-version: '3.12' #O la de tu proyecto.
-
-          - name: Install dependencies
-            run: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-
-          - name: Run Black (Formatter)
-            run: black app --check
-
-          - name: Run Pylint (Linter)
-            run: pylint app --output-format=text --fail-under=9 > pylint-report.txt || true
-
-          - name: Run Flake8 (Linter)
-            run: flake8 app --output-file=flake8-report.txt || true
-
-          - name: Run Unit Tests with pytest and Coverage
-            run: |
-              pytest --cov=app tests/ --ignore=tests/test_acceptance_app.py --cov-report=xml:coverage.xml
-
-          - name: SonarCloud Scan
-            uses: SonarSource/sonarqube-scan-action@v5.0.0
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      deploy-staging: # Despliegue a Staging
-        needs: build-and-test
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/staging' # Se ejecuta en push a la rama staging.
-        steps:
-          - uses: actions/checkout@v3
-          - name: Deploy to Render (Staging)
-            uses: render-oss/deploy-action@v1
-            with:
-              service-id: ${{ secrets.RENDER_STAGING_SERVICE_ID }}  # Secreto para Staging
-              api-key: ${{ secrets.RENDER_API_KEY }} # Puedes usar la misma API key.
-
-      deploy-production: # Despliegue a Produccion.
-        needs: deploy-staging # Se ejecuta DESPUÉS del despliegue a staging.
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' #Se ejecuta al hacer push a main.
-        steps:
-          - uses: actions/checkout@v3
-          - name: Deploy to Render (Production)
-            uses: render-oss/deploy-action@v1
-            with:
-              service-id: ${{ secrets.RENDER_SERVICE_ID }}  # Secreto para Producción
-              api-key: ${{ secrets.RENDER_API_KEY }}
-
-      acceptance-tests-staging: # Pruebas contra Staging
-        needs: deploy-staging
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-          - name: Set up Python
-            uses: actions/setup-python@v3
-            with:
-              python-version: '3.12'
-
-          - name: Install dependencies
-            run: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-          - name: Run Acceptance Tests with Selenium (Staging)
-            run: |
-              pytest tests/test_acceptance_app.py -v # -v para ver mas detalle
-            env:
-              RENDER_APP_URL: ${{ secrets.RENDER_STAGING_APP_URL }} # URL de la app en staging.
-
-
+    permissions: # No lleva identación, va al mismo nivel de jobs u on.
+      issues: write
     ```
-
-    *   Hemos creado dos jobs de despliegue: `deploy-staging` y `deploy-production`.
-    *   `deploy-staging` se ejecuta cuando se hace un push a la rama `staging`.
-    *   `deploy-production` se ejecuta cuando se hace un push a la rama `main`, *después* de que `deploy-staging` haya terminado con éxito.
-    *   Necesitas crear un nuevo secreto en GitHub: `RENDER_STAGING_SERVICE_ID` (con el ID del servicio de staging en Render).
-    *   Se ha agregado un nuevo job acceptance-tests-staging que corre despues del deploy a staging.
-    *   Se ha agregado un secreto RENDER_APP_URL que contiene la URL de la aplicación en staging. Modifica el archivo tests/test_acceptance_app.py para que use la variable de entorno:
-
-    ```python
-    # tests/test_acceptance_app.py
-    import os
-
-    # ... resto del código ...
-
-    def test_smoke_test(browser):
-        render_url = os.environ.get("RENDER_APP_URL", "http://localhost:5000") # Obtiene URL de variable de entorno
-        browser.get(render_url)
-        assert "Calculadora" in browser.title
-        assert browser.find_element(By.TAG_NAME, "h1").text == "Calculadora"
-
-    # ... resto del código ...
-
-    ```
-    *   **IMPORTANTE**: Debes crear una rama `staging` en tu repositorio, ya sea localmente y luego hacer push o directamente desde GitHub.
-
-3.  **Flujo de trabajo recomendado:**
-
-    *   Desarrolla nuevas funcionalidades en ramas *feature* (ej: `feature/nueva-funcionalidad`).
-    *   Cuando la funcionalidad esté lista, crea un pull request a la rama `staging`.
-    *   GitHub Actions ejecutará el pipeline de CI y, si todo va bien, desplegará la aplicación en el entorno de staging.
-    *   Realiza pruebas manuales y/o automatizadas en el entorno de staging.
-    *   Si todo está OK en staging, crea un pull request de `staging` a `main`.
-    *   Al aprobar y fusionar el pull request a `main`, GitHub Actions ejecutará el pipeline de CI/CD completo, incluyendo el despliegue a producción.
-
-### 11.2 Usar Variables de Entorno para la Configuración
-
-En lugar de tener valores hardcodeados (como la URL de la aplicación), es mejor usar variables de entorno. Esto hace que tu código sea más flexible y portable.
-
-Ya hemos usado variables de entorno para el puerto de la aplicación (`PORT`) y para las credenciales de Render (`RENDER_SERVICE_ID`, `RENDER_API_KEY`). Ahora, usaremos una variable de entorno para la URL de la aplicación en las pruebas de aceptación.
-
-*  Ya realizamos este paso en la sección anterior.
-
-### 11.3 (Opcional - Avanzado) Implementar Blue/Green Deployments o Canary Deployments
-
-Estas son estrategias de despliegue más avanzadas que no cubriremos en detalle, pero es importante que las conozcas. Render *no* las soporta de forma nativa, pero podrías implementarlas con otras herramientas (ej: Kubernetes). Si deseas implementarlas investiga sobre estas estrategias.
-
-## 12. Creación de un Script de Monitoreo (monitor.yml)
-
-Crearemos un script de Python simple que verifique el health check de nuestra aplicación y envíe un correo electrónico si la aplicación no está respondiendo. Luego, usaremos GitHub Actions para ejecutar este script periódicamente.
-
-**Pistas:**
-
-1.  **Script de Python (`monitor.py`):**
-
-    *   **Importar bibliotecas:** Necesitarás `requests` (para hacer la petición HTTP al health check) y `smtplib` (para enviar el correo electrónico).  También `os` para las variables de entorno.
-
-        ```python
-        import requests
-        import smtplib
-        import os
-        from email.mime.text import MIMEText
+*   **runner**: ubuntu linux.
+*   **jobs**: 1 sólo job llamado `health-check`.
+*   **steps y actions**: 
+    - checkout.
+    - validar la salud de la aplicación con un curl a la URL del health `{{ secrets.RENDER_PRODUCTION_APP_URL }}/health`:
+        ```yaml
+      - name: Check Application Health
+        id: health_check
+        continue-on-error: true
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.RENDER_PRODUCTION_APP_URL }}/health")
+          if [[ "$response" != "200" ]]; then
+            echo "::set-output name=status::failed"
+            echo "Health check failed with status code: $response"
+            exit 1
+          else
+            echo "::set-output name=status::success"
+            echo "Health check successful."
+          fi
         ```
+        *   **`- name: Check Application Health`:** Este paso verifica el health check de tu aplicación.
+            *   **`id: health_check`:** Le da un ID al paso. Esto es importante para referenciarlo más tarde.
+            *   **`continue-on-error: true`:** *Crucial*. Esto le dice a GitHub Actions que continúe con el siguiente paso *incluso si este paso falla*. Normalmente, si un paso falla, el workflow se detiene. Pero en este caso, queremos continuar para poder crear el issue.
+            *   **`run:`:** Aquí ejecutamos un script de shell.
+                *   `response=<span class="math-inline">\(curl \-s \-o /dev/null \-w "%\{http\_code\}" "</span>{{ secrets.RENDER_PRODUCTION_APP_URL }}/health")`: Hace una petición HTTP al endpoint `/health` de tu aplicación (usando la variable de entorno `RENDER_PRODUCTION_APP_URL`).
+                    *   `curl`: Es una herramienta de línea de comandos para hacer peticiones HTTP.
+                    *   `-s`: Modo silencioso (no muestra información de progreso).
+                    *   `-o /dev/null`: Descarta la salida del cuerpo de la respuesta (solo nos interesa el código de estado).
+                    *   `-w "%{http_code}"`: Imprime el código de estado HTTP (ej: 200, 500).
+                    *   `${{ secrets.RENDER_PRODUCTION_APP_URL }}`: Usa el secreto de GitHub que contiene la URL de tu aplicación en producción.
+                *   `if [[ "$response" != "200" ]]`: Verifica si el código de estado es diferente de 200 (OK).
+                *   `echo "::set-output name=status::failed"`: Si el código no es 200, establece una *variable de salida* del paso llamada `status` con el valor `failed`. Esto nos permite saber en el siguiente paso si el health check falló.
+                *   `echo "Health check failed..."`: Imprime un mensaje de error (opcional, para los logs).
+                *    `exit 1`: Importante, termina la ejecución del *step* con un código de error.
+                *   `else`: Si el código es 200.
+                *    `echo "::set-output name=status::success"`: Establece la variable de salida del paso llamada `status` con el valor `success`.
+                *   `echo "Health check successful."`: Imprime un mensaje (opcional, para los logs).
 
-    *   **Obtener la URL de la aplicación y las credenciales de correo de variables de entorno:**
-
-        ```python
-        app_url = os.environ.get("RENDER_APP_URL") # Recuerda usar la URL correcta (staging o produccion)
-        sender_email = os.environ.get("SENDER_EMAIL")
-        sender_password = os.environ.get("SENDER_PASSWORD")
-        receiver_email = os.environ.get("RECEIVER_EMAIL")
+    - crear un issue en caso de que el health no funcione:
+        ```yaml
+      - name: Create Issue on Failure
+        if: steps.health_check.outputs.status == 'failed'  # Solo se ejecuta si falló el health check.
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Health Check Failed',
+              body: 'The application health check failed. Please investigate.'
+            })
         ```
+        *   **`- name: Create Issue on Failure`:** Este paso crea un issue en GitHub *solo si el health check falló*.
+            *   **`if: steps.health_check.outputs.status == 'failed'`:** Esta condición asegura que este paso solo se ejecute si el paso anterior (`health_check`) estableció la variable de salida `status` a `failed`.
+            *   **`uses: actions/github-script@v6`:** Usa la acción `github-script`. Esta acción te permite ejecutar scripts de JavaScript que usan la API de GitHub (autenticándose automáticamente).
+            *   **`with: script:`:** Aquí defines el script de JavaScript.
+                *   `github.rest.issues.create(...)`: Llama a la API de GitHub para crear un issue.
+                    *   `owner: context.repo.owner`: El propietario del repositorio (obtenido del contexto del workflow).
+                    *   `repo: context.repo.repo`: El nombre del repositorio (obtenido del contexto del workflow).
+                    *   `title: 'Health Check Failed'`:** El título del issue.
+                    *   `body: 'The application health check failed. Please investigate.'`:** El cuerpo del issue.
 
-    *   **Hacer la petición HTTP al health check:**
+1.  **Crea un nuevo archivo `.github/workflows/monitor.yml` en tu repositorio basado en las instrucciones y características indicadas**
 
-        ```python
-        try:
-            response = requests.get(f"{app_url}/health")
-            response.raise_for_status()  # Lanza una excepción si el código de estado no es 2xx
-            print("La aplicación está funcionando correctamente.")
+2.  **Asegúrate de tener el secreto `RENDER_PRODUCTION_APP_URL` configurado en tu repositorio de GitHub:** Ve a Settings -> Secrets and variables -> Actions -> New repository secret.  El valor del secreto debe ser la URL completa de tu aplicación en producción en Render (ej: `https://mi-calculadora.onrender.com`).
 
-        except requests.exceptions.RequestException as e:
-            print(f"Error al verificar la aplicación: {e}")
-            # Enviar correo electrónico
-        ```
-    * **Enviar correo si hay un error:** Usa `smtplib` para enviar correo.
+3. **Sube el archivo `monitor.yml` a tu repositorio en la carpeta `.github/workflows/`**.
+      ```bash
+      git add .
+      git commit -m "Health Check"
+      git push origin main
+      ```
 
-        ```python
-            #Construcción del mensaje
-            message = MIMEText("La aplicación no está respondiendo.")
-            message["Subject"] = "Alerta: La aplicación está caída"
-            message["From"] = sender_email
-            message["To"] = receiver_email
+4. **Da permisos de escritura a los issues:** En la página del repositorio, ve a Settings -> Code and automation -> Actions -> Permissions -> Workflow permissions, y selecciona `Read and write permissions`.
 
-            # Envío del correo.
-            try:
-                with smtplib.SMTP_SSL("[smtp.gmail.com](https://www.google.com/search?q=smtp.gmail.com)", 465) as server:  # Usar el servidor SMTP de Gmail y el puerto 465 (SSL).
-                    server.login(sender_email, sender_password)
-                    server.sendmail(sender_email, receiver_email, message.as_string())
-                print("Correo electrónico de alerta enviado.")
-            except Exception as e:
-                print(f"Error al enviar el correo electrónico: {e}")
+5. **Verifica que el workflow se ejecute correctamente:**
+    *   Ve a la pestaña "Actions" de tu repositorio en GitHub.
+    *   Ejecuta manualmente el workflow de health con el nombre definido en el `monitor.yml` (desde github actions).
+    *   Deberías ver tu nuevo workflow ejecutándose.
+    *   Si el health check de tu aplicación falla, deberías ver un nuevo issue creado en tu repositorio, cosa que hasta el momento no debería pasar pues tu aplicación está funcionando correctamente.
 
-        ```
-    *   **Importante:**
-        *   Debes configurar tu cuenta de Gmail para permitir el acceso a aplicaciones menos seguras (o, mejor aún, usar una contraseña de aplicación).
-        *   Considera usar un servicio de correo transaccional (ej: SendGrid, Mailgun) en lugar de Gmail para un entorno de producción.
-        *   Este script es un ejemplo básico.  En un entorno real, querrías un sistema de monitoreo más sofisticado (ej: Prometheus, Grafana, Datadog).
+6. **Prueba el monitoreo ante un fallo:**
+    *   Ve a tu aplicación en Render, selecciona `Settings` y baja hasta el final de la página. Encontrarás un botón para `Suspend Service`. Haz clic en él para detener tu aplicación.
+    *   Ejecuta manualmente el workflow de health con el nombre definido en el `monitor.yml` (desde github actions) y valida que se cree un issue en tu repositorio.
+    *   Valida que el workflow se ejecute correctamente y que se cree un issue en tu repositorio con nombre `Health Check Failed`.
+    *   Vuelve a Render y selecciona `Resume Service` para reanudar tu aplicación.
 
-2.  **Workflow de GitHub Actions (`.github/workflows/monitor.yml`):**
+**Cómo funciona:**
 
-    ```yaml
-    name: Monitor Application
+*   El workflow se ejecuta automáticamente todos los días a las horas que definas (según el `cron`). También se podrá ejecutar manualmente.
+*   Hace una petición HTTP al endpoint `/health` de tu aplicación.
+*   Si el código de respuesta es 200, el workflow termina con éxito.
+*   Si el código de respuesta es diferente de 200, el paso `Check Application Health` falla (pero el workflow continúa gracias a `continue-on-error: true`).
+*   Como el paso `Check Application Health` falló, el paso `Create Issue on Failure` se ejecuta.
+*   El paso `Create Issue on Failure` usa la API de GitHub para crear un nuevo issue en tu repositorio.
+*   Recibirás una notificación de GitHub (por correo electrónico y en la web) sobre el nuevo issue, indicando que el health check falló.
+* Si existen issues abiertos con el título "Health Check Failed" y el health check es satisfactorio, se podría agregar un paso adicional para cerrarlos automáticamente. Esto requeriría usar `github.rest.issues.listForRepo` para buscar los issues y `github.rest.issues.update` para cambiar su estado a `closed`.
 
-    on:
-      schedule:
-        - cron: ''  # Define el cron para que corra cada día a cierta hora. Busca en la documentación. Ajusta según tus necesidades.
-      workflow_dispatch:
+Este sistema de monitoreo, aunque básico, es una excelente forma de comenzar a supervisar la salud de tu aplicación y recibir notificaciones automáticas en caso de problemas, todo dentro del ecosistema de GitHub Actions. Sin embargo, **es importante aclarar que para una aplicación productiva es recomendable usar un sistema de monitoreo más robusto y completo, como New Relic, Datadog, Prometheus, Grafana, etc.**
 
-    jobs:
-      monitor:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-          - name: Set up Python
-            uses: actions/setup-python@v3
-            with:
-              python-version: '3.12' # O tu versión.
-
-          # Define los pasos para instalar dependencias y ejecutar el script de monitoreo.
-
-          - name: Run monitoring script
-            run: python monitor.py # Ejecuta tu script.
-            
-            env: # Define las variables de entorno.
-                RENDER_APP_URL: ${{ secrets.RENDER_PRODUCTION_APP_URL }} #Usa la de producción
-                SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
-                SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
-                RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
-    ```
-
-    *   **`on: schedule:`:**  Define un schedule (horario) para la ejecución del workflow.  Usamos una expresión cron.
-    *   **`cron: '0 0 * * *'`:**  Significa "ejecutar a las 00:00 (medianoche) UTC todos los días".  Puedes ajustar esto según tus necesidades.  [https://crontab.guru/](https://crontab.guru/) es una herramienta útil para generar expresiones cron.
-    *   **Variables de entorno:**  Define las variables de entorno necesarias para el script de monitoreo (URL de la aplicación, credenciales de correo).  Debes crear estos secretos en GitHub.
-
-3.  **Crea los secretos en GitHub:**
-    *   `RENDER_PRODUCTION_APP_URL`: La URL de tu aplicación en producción.
-    *   `SENDER_EMAIL`: La dirección de correo electrónico desde la que se enviará la alerta.
-    *   `SENDER_PASSWORD`: La contraseña de la cuenta de correo electrónico del remitente.
-    *   `RECEIVER_EMAIL`: La dirección de correo electrónico que recibirá la alerta.
-
-4. **Crea el archivo monitor.py en la raíz de tu proyecto.**
-
-5.  **Sube los cambios a GitHub:**  Haz commit y push de `monitor.py` y `.github/workflows/monitor.yml`.
-
-6. **Verifica el monitoreo:**  Ve a la pestaña "Actions" de tu repositorio en GitHub. Deberías ver tu nuevo workflow de monitoreo.  Si todo va bien, el script se ejecutará según el cron que hayas definido o lo puedes ejecutar manualmente para probarlo y verificar que funcione.
-
-Con estos pasos, tendrás un sistema básico de monitoreo que verificará la salud de tu aplicación diariamente y te enviará una alerta por correo electrónico si hay algún problema. Este es un punto de partida; puedes (y debes) expandirlo para que sea más robusto y se adapte a tus necesidades específicas.
-
-Con estos pasos, tendrás un sistema básico de monitoreo que verificará el "health check" de tu aplicación diariamente y te enviará una alerta por correo electrónico si hay algún problema. Este es un punto de partida; puedes (y debes) expandirlo para que sea más robusto y se adapte a tus necesidades específicas (ej: monitorear métricas más específicas, usar un servicio de monitoreo dedicado, integrar con Slack/PagerDuty, etc.).
-
-## 13. Entregable Final
+## 13. Entregable en grupo
 
 Para completar este taller, envía **un correo por grupo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Final CI/CD":
 
 1.  **URL del repositorio PÚBLICO de GitHub:** Envía la URL de tu repositorio en GitHub.
-2.  **URL de la ejecución del workflow de CI/CD:** Envía la URL de la última ejecución exitosa de tu workflow `ci-cd.yml` en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe ser *exitosa* y debe incluir el despliegue a *staging* y *producción*, y las pruebas de aceptación contra *staging*.
-3.  **URL de la aplicación desplegada en Render (staging):** Envía la URL de tu aplicación calculadora desplegada en el entorno de *staging* de Render.
-4.  **URL de la aplicación desplegada en Render (producción):** Envía la URL de tu aplicación calculadora desplegada en el entorno de *producción* de Render.
-5.  **URL de la ejecución del workflow de monitoreo:** Envía la URL de la última ejecución de tu workflow `monitor.yml` en GitHub Actions.
-6.  **Responde a las siguientes preguntas:**
-    *   Explica brevemente el flujo de trabajo completo que implementaste (desde que un desarrollador hace un cambio en el código hasta que ese cambio llega a producción), incluyendo los entornos de staging y producción, y las pruebas.
-    *   ¿Por qué es importante tener un entorno de staging?
+
+2.  **URL de la ejecución del workflow de CI/CD:** Envía la URL de la *última ejecución exitosa* de tu workflow `ci-cd.yml` en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe incluir:
+    *   El build y todas las pruebas unitarias y de calidad de código del taller 2.
+    *   El despliegue a *producción*.
+    *   Las pruebas de aceptación y humo contra *producción*.
+
+3.  **URL de la aplicación desplegada en Render (producción):** Envía la URL de tu aplicación calculadora desplegada en el entorno de *producción* de Render.
+
+4.  **URL de la ejecución del workflow de monitoreo:** Envía la URL de la *última ejecución* de tu workflow `monitor.yml` en GitHub Actions.  No es necesario que esta ejecución haya fallado (y creado un issue); basta con que se haya ejecutado.  *Incluye también un pantallazo del issue creado en GitHub cuando probaste el monitor deteniendo la aplicación.*  Si no detuviste la aplicación para probar, detén la aplicación, ejecuta el monitor *manualmente* y envía el pantallazo del issue creado.
+
+5.  **Responde a las siguientes preguntas:**
+
+    *   Explica brevemente el flujo de trabajo completo que implementaste (desde que un desarrollador hace un cambio en el código hasta que ese cambio llega a producción), incluyendo las pruebas y el monitoreo. Sé *específico* sobre *qué se ejecuta en cada etapa y en qué entorno*.
+    *   ¿Qué ventajas encuentras en todo este pipeline de ci/cd implementado a la hora de trabajar con múltiples desarrolladores en un proyecto? ¿Qué mejorarías a este pipeline para hacerlo más eficiente en términos del time to market de la aplicación?
     *   ¿Qué ventajas tiene usar variables de entorno para la configuración de una aplicación?
-    *   Describe brevemente qué hace el script `monitor.py`.
-    *   ¿Qué mejoras le harías al script `monitor.py` para que fuera más adecuado para un entorno de producción? (Menciona al menos tres mejoras).
-    *   ¿Qué problemas o dificultades encontraste al implementar este taller? ¿Cómo los solucionaste? (Si no encontraste ningún problema, describe algo nuevo que hayas aprendido).
-7.  **Integrantes del grupo:** Lista los nombres y apellidos de los integrantes de tu grupo.
+    *   Explica *en detalle* cómo funciona el script de monitoreo (`monitor.yml`). Explica qué hace cada *job* y cada *step*, incluyendo las condiciones (`if`) y las acciones (`uses`).
+    *   ¿Qué mejoras al monitoreo para que fuera más adecuado para un entorno de producción? ¿Cómo implementarías dichas mejoras?(Menciona al menos tres mejoras *concretas* y *justifica* por qué serían mejoras, investiga herramientas de monitoreo más robustas).
+    *   ¿Qué problemas o dificultades encontraste al implementar este taller? ¿Cómo los solucionaste? Sé específico. (Si no encontraste ningún problema, describe algo *nuevo* que hayas aprendido y cómo lo aplicarías en un proyecto futuro).
+    *   ¿Qué partes del ciclo completo de CI/CD crees que le faltan a este pipeline? ¿Por qué? ¿Cómo las implementarías? (Menciona al menos dos partes o características que consideres importantes y cómo las implementarías).
+6.  **Integrantes del grupo:** Lista los nombres y apellidos *completos* de los integrantes de tu grupo.
 
 **Criterios de evaluación:**
+
 *   **URL del repositorio:** Debe ser un repositorio público en GitHub.
-*   **URLs de los workflows:** Deben ser URLs de ejecuciones exitosas de los pipelines en GitHub Actions (`ci-cd.yml` y `monitor.yml`).
-*   **URLs de Render:** Deben ser URLs de tu aplicación calculadora funcionando en los entornos de staging y producción de Render.
-*   **Respuestas a las preguntas:** Deben ser claras, concisas y correctas. Deben demostrar comprensión de los conceptos y herramientas utilizadas en el taller.
-* **Código:** El código debe estar bien estructurado, comentado y seguir buenas prácticas.
-* **Completitud:** Se deben haber implementado todas las mejoras obligatorias (staging, variables de entorno, monitoreo).
+*   **URLs de los workflows:** Deben ser URLs de ejecuciones de los pipelines en GitHub Actions (`ci-cd.yml` y `monitor.yml`). La ejecución de `ci-cd.yml` debe ser *exitosa* y debe incluir todas las pruebas y el despliegue a producción. La ejecución de `monitor.yml` debe haberse ejecutado al menos una vez y en alguna de las ejecuciones debe haber creado un issue en GitHub.
+*   **URL de Render:** Debe ser la URL de tu aplicación calculadora funcionando en el entorno de producción de Render. Debe funcionar el health check.
+*   **Respuestas a las preguntas:** Deben ser claras, concisas, correctas y *completas*. Deben demostrar una *comprensión profunda* de los conceptos y herramientas utilizadas en el taller. No se aceptarán respuestas genéricas o superficiales.
+*   **Completitud:** Se deben haber implementado todas las partes del taller (CI, CD, pruebas de aceptación, monitoreo con creación de issues en GitHub).
+*   **Funcionamiento:** Tanto el pipeline de CI/CD como el monitor de salud deben funcionar correctamente.
 
 Este taller te ha proporcionado una base sólida en CI/CD. Recuerda que esto es solo el comienzo; hay mucho más que aprender y explorar en este campo. ¡Sigue aprendiendo y experimentando!
