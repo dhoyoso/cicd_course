@@ -430,4 +430,4 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 *   **`runs-on`:**  `ubuntu-latest` es una buena opción por defecto.
 *   **Comando `date`:**  Si no conoces el comando `date`, búscalo en la documentación del sistema operativo elegido para el runner (o usa un motor de búsqueda).
 *   **`if __name__ == "__main__":`:**  Esta es una construcción común en Python.  Investiga qué hace.
-* **RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRATIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
+* **RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRARIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
