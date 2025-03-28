@@ -2,13 +2,15 @@
 
 En este taller construiremos un pipeline de Integración Continua (CI) para una aplicación Python simple, utilizando GitHub Actions y herramientas open source.  Aprenderás a:
 
-*   Analizar la calidad de tu código con Pylint, Flake8, Black y medir la cobertura con Coverage.py.
-*   Integrar SonarCloud para análisis estático continuo.
+*   Analizar la calidad y seguridad de tu código con Pylint, Flake8, Black y medir la cobertura con Coverage.py.
+*   Integrar SonarCloud para análisis estático continuo, cobertura, seguridad y gates de calidad.
 *   Escribir y ejecutar pruebas unitarias con pytest.
-*   Automatizar pruebas de aceptación con Selenium y un headless browser. (No realizaremos pruebas de integración pues el código a trabajar es muy simple y no tiene dependencias externas).
+*   Automatizar pruebas de aceptación con Selenium y un headless browser.
 *   Configurar un workflow de GitHub Actions que ejecute todas estas etapas en cada push.
 *   Usar variables de entorno y secretos de forma segura.
-*   No crearemos un release, artefacto o contenedor, pues el código a trabajar es muy simple y no tiene dependencias externas.  Si tuvieras un código más complejo, podrías crear un contenedor Docker o un artefacto (zip, tar, etc.) para desplegarlo en producción. Este artefacto lo retomaremos en el siguiente taller y lo desplegaremos en un proveedor de nube que ya maneja la contenerización por nosotros.
+
+
+**Nota:** No realizaremos pruebas de integración y no crearemos un release, artefacto o contenedor al final del pipeline pues el código a trabajar es muy simple y no tiene dependencias externas.  Si tuvieras un código más complejo, podrías crear un contenedor Docker o un artefacto (zip, tar, etc.) para desplegarlo en producción. Este artefacto lo retomaremos en el siguiente taller y lo desplegaremos en un proveedor de nube que ya maneja la contenerización por nosotros.
 
 ## 1. Introducción: ¿Qué es un Pipeline de CI?
 
@@ -23,7 +25,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 3.  **Test (Pruebas):**  Se ejecutan pruebas automatizadas para verificar que el código funciona correctamente y cumple con los requisitos de calidad.  Esto incluye:
     *   **Análisis de Calidad de Código:**  Herramientas que verifican el estilo del código, la complejidad, la presencia de errores potenciales, code smells y el cumplimiento de estándares (ej: PEP 8 en Python).
     *   **Pruebas Unitarias:**  Prueban unidades individuales de código (funciones, clases, métodos) de forma aislada.
-    *   **Pruebas de Aceptación (o Pruebas Funcionales/E2E):**  Prueban la aplicación desde la perspectiva del usuario, simulando interacciones reales, usualmente a través de la interfaz de usuario (UI).
+    *   **Pruebas de Aceptación (o Pruebas Funcionales/ en algunos lugares también las usan para E2E):**  Prueban la aplicación desde la perspectiva del usuario, simulando interacciones reales, usualmente a través de la interfaz de usuario (UI).
 
 4.  **Release/Deploy (Liberación/Despliegue):**  Si todas las pruebas pasan, el código se considera apto para ser liberado.  En un entorno de *Integración Continua*, esta etapa suele ser solo una verificación (ej: generar un reporte, crear un tag en Git).  En un entorno de *Entrega/Despliegue Continuo (CD)*, esta etapa implicaría el despliegue automático a un entorno (por ejemplo, staging o producción).  *En este taller, nos centraremos en las etapas de CI (Code, Build, Test).*
 
