@@ -1,4 +1,4 @@
-# Taller Individual Entregable 1: Introducción a CI/CD con GitHub y GitHub Actions
+# Taller en Parejas Entregable 1: Introducción a CI/CD con GitHub y GitHub Actions
 
 Este es el primer entregable de tu curso de CI/CD. Aprenderás los fundamentos de GitHub, el control de versiones con Git, la configuración con YAML y cómo automatizar tareas con GitHub Actions.  ¡No te preocupes si no tienes experiencia previa, te guiaremos paso a paso!
 
@@ -407,13 +407,16 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 7.  **Entrega el entregable:**
     *   En la página de la ejecución del workflow en GitHub, copia la URL completa de la página.
     *   Envía un correo electrónico a `dhoyoso@eafit.edu.co` con:
-        *   **Asunto:** Entregable 1 Intro CI/CD - [Tu Nombre]
+        *   **Asunto:** Entregable 1 Intro CI/CD con GitHub Actions
         *   **Cuerpo:**
-            *   Tu nombre completo.
-            *   La URL de la ejecución de tu workflow.
+            *   Nombres y apellidos de los integrantes del grupo.
+            *   La URL de la ejecución de tu workflow (valida en una pestaña de incógnito que la URL sea pública y accesible).
             *   *Responde a las siguientes preguntas*:
                 1.  ¿Qué eventos configuraste para disparar tu workflow y por qué?
                 2.  ¿Qué sistema operativo elegiste para el runner y por qué?
+                3.  Menciona al menos 3 acciones pre-construidas que encuentras en el Marketplace de GitHub Actions y qué hacen.
+                4.  Investiga, ¿qué es un secreto en GitHub Actions y para qué se usa? ¿Cómo lo usarías en tu workflow?
+                5.  Reflexiona sobre el uso de GitHub Actions en tu flujo de trabajo diario. ¿Qué tareas automatizarías? ¿Por qué?
 
 **Criterios de evaluación:**
 
