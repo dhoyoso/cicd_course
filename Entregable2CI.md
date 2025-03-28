@@ -1,13 +1,14 @@
-# Taller Grupal Entregable 2: Pipeline de CI Completo con Python, GitHub Actions y Herramientas Open Source
+# Taller Grupal Entregable 2: Pipeline de CI con Python, GitHub Actions y Herramientas Open Source
 
-En este taller construiremos un pipeline de Integración Continua (CI) completo para una aplicación Python simple, utilizando GitHub Actions y herramientas open source.  Aprenderás a:
+En este taller construiremos un pipeline de Integración Continua (CI) para una aplicación Python simple, utilizando GitHub Actions y herramientas open source.  Aprenderás a:
 
 *   Analizar la calidad de tu código con Pylint, Flake8, Black y medir la cobertura con Coverage.py.
 *   Integrar SonarCloud para análisis estático continuo.
 *   Escribir y ejecutar pruebas unitarias con pytest.
-*   Automatizar pruebas de aceptación con Selenium y un headless browser.
+*   Automatizar pruebas de aceptación con Selenium y un headless browser. (No realizaremos pruebas de integración pues el código a trabajar es muy simple y no tiene dependencias externas).
 *   Configurar un workflow de GitHub Actions que ejecute todas estas etapas en cada push.
 *   Usar variables de entorno y secretos de forma segura.
+*   No crearemos un release, artefacto o contenedor, pues el código a trabajar es muy simple y no tiene dependencias externas.  Si tuvieras un código más complejo, podrías crear un contenedor Docker o un artefacto (zip, tar, etc.) para desplegarlo en producción. Este artefacto lo retomaremos en el siguiente taller y lo desplegaremos en un proveedor de nube que ya maneja la contenerización por nosotros.
 
 ## 1. Introducción: ¿Qué es un Pipeline de CI?
 
@@ -671,7 +672,7 @@ Es importante considerar qué:
 
     ```bash
     git add .
-    git commit -m "Crear pipeline de CI completo"
+    git commit -m "Crear pipeline de CI"
     git push origin main
     ```
 
