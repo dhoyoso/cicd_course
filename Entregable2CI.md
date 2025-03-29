@@ -682,7 +682,7 @@ Es importante considerar qué:
 
 4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto o también puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` después de la validación del gate en GitHub Actions.  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. **Presta atención, sobretodo a cualquier hallazgo nivel C o inferior y a los security hotspots en High**.
 
-5. **Corrige los problemas:** Corrige los problemas de calidad de código y vuelve a ejecutar el pipeline hasta que logres ejecutar el pipeline correctamente, tener en SonarCloud el Quality Gate marcado cómo `Passed` **y no tener ningún hallazgo de calidad de código nivel C o inferior**. Los security hotspots en High deben ser revisados (pero en este caso, no es necesario que los corrijas). Es importante aclarar que para una aplicación productiva es necesario corregir todos los hallazgos de seguridad, y ajustar las reglas de SonarCloud para personalizarlas a las necesidades del proyecto.
+5. **Corrige los problemas:** Corrige los problemas de calidad de código reportados en **OVERALL CODE** y vuelve a ejecutar el pipeline hasta que logres ejecutar el pipeline correctamente, tener en SonarCloud el Quality Gate marcado cómo `Passed` **y no tener ningún hallazgo de calidad de código nivel C o inferior**. Los security hotspots en High deben ser revisados (pero en este caso, no es necesario que los corrijas). Es importante aclarar que para una aplicación productiva es necesario corregir todos los hallazgos de seguridad, y ajustar las reglas de SonarCloud para personalizarlas a las necesidades del proyecto.
 
 ## 9. Entregable en grupo
 
