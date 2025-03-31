@@ -183,6 +183,19 @@ Las pruebas de humo son un conjunto pequeño de pruebas que verifican la funcion
 # tests/test_smoke_app.py (crea este archivo nuevo en tests/)
 import os
 from selenium.webdriver.common.by import By
+from selenium import webdriver
+import pytest
+
+@pytest.fixture
+def browser():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # Ejecuta sin interfaz gráfica
+    options.add_argument("--no-sandbox") # Necesario para algunos entornos
+    options.add_argument("--disable-dev-shm-usage") # Necesario para algunos entornos
+    driver = webdriver.Chrome(options=options)
+
+    yield driver
+    driver.quit()
 
 def test_smoke_test(browser):
     """SMOKE TEST: Verifica carga básica y título."""
@@ -522,7 +535,8 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
 9. **Verifica el despliegue:**
     *   Ve a la pestaña "Actions" de tu repositorio en GitHub. Deberías ver tu workflow ejecutándose.
     *   Si falla en alguna etapa de CI, revisa los logs y corrige el error hasta que pase todas las pruebas y logre el despliegue a Staging. Probablemente sea un tema de cobertura o de linting. Puedes ayudarte de la inteligencia artificial para corregir errores de linting o de cobertura. **Pista:** Si necesitas probar el módulo de `if __name__ == "__main__":` puedes usar `pyrun`, `pytest-mock` y mockear con `mock_run = mocker.patch('flask.Flask.run')` para implementar la prueba unitaria.
-    *   Si todo va bien, el job `deploy` se ejecutará y desplegará tu aplicación a Render.
+    *   Si todo va bien, el job `deploy-staging` se ejecutará y desplegará tu aplicación a Render. Luego, el job `test-staging` ejecutará las pruebas de aceptación contra la URL de Staging. Si todo pasa, el job `deploy-production` se ejecutará y desplegará tu aplicación a producción. Finalmente, el job `smoke-test-production` ejecutará las pruebas de humo contra la URL de Producción. Si alguna de estas etapas falla, el pipeline se detendrá y no se desplegará a producción.
+    * Es posible que alguna de las pruebas que corren contra los ambientes de staging o producción fallen mientras render está haciendo el deploy. Si esto ocurre, puedes volver a correr sólo el job que falló desde la UI de Github Actions con `Re-run jobs` -> `Re-run failed jobs`, también puedes agregar un delay de 5 minutos al job de deploy para que render tenga tiempo de hacer el deploy y luego correr las pruebas. Si el error persiste, revisa los logs de GitHub Actions y Render para identificar el problema.
     *   Ve a tu panel de control de Render. Deberías ver tu servicio desplegado y en ejecución.
     *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador. (La URL será algo como `https://mi-calculadora.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
     *   Prueba tu calculadora.
