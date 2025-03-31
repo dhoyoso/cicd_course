@@ -407,7 +407,7 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
 
       # --- Job de Despliegue a Staging ---
       deploy-staging:
-        needs: build-and-unit-test # Depende de CI
+        needs: build-and-test # Depende de CI
         runs-on: ubuntu-latest
 
         # Solo ejecuta en push a main (no en PRs)
