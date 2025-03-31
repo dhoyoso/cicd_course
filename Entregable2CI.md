@@ -691,7 +691,7 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 
 1.  **URL del repositorio PUBLICO de GitHub:**  Envía la URL de tu repositorio en GitHub.
 2.  **URL de la ejecución del workflow:**  Envía la URL de la última ejecución de tu workflow en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe ser *exitosa*.
-3.  **URL del proyecto en SonarCloud:** Envía la URL de tu proyecto en SonarCloud (donde se ven los resultados del análisis). **Verifica que la URL sea accesible desde una ventana de incógnito (sin iniciar sesión en SonarCloud).** Valida y asegurate de que el Quality Gate esté marcado como `Passed`, y la cobertura de código sea mayor al 80%.
+3.  **URL del proyecto en SonarCloud:** Envía la URL de tu proyecto en SonarCloud (donde se ven los resultados del análisis). **Verifica que la URL sea accesible desde una ventana de incógnito (sin iniciar sesión en SonarCloud).** Valida y asegurate de que el Quality Gate esté marcado como `Passed`, no tengas ningún hallazgo de calidad o seguridad y la cobertura de código sea mayor al 90%. Todas las evaluaciones del código deben ser "A" (Security, Reliability, Maintainability) y los Hotspots deben estar revisados y marcados como seguros.
 4.  **Responde a las siguientes preguntas:**
     *   ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI?  Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
     *   ¿Cuál es la diferencia principal entre una prueba unitaria y una prueba de aceptación?  Da un ejemplo de algo que probarías con una prueba unitaria y algo que probarías con una prueba de aceptación (en el contexto de cualquier aplicación que conozcas (describela primero)).
