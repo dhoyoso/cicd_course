@@ -1,55 +1,48 @@
 # Taller Grupal Entregable 3: Despliegue Continuo (CD) con Proveedores Cloud
 
-Este taller es una continuación del Taller 2, donde construimos un pipeline de Integración Continua (CI). Ahora, nos enfocaremos en la Entrega Continua y el Despliegue Continuo (CD), automatizando el despliegue de nuestra aplicación Python a un proveedor de nube.
+Este taller es una continuación del Taller 2, donde construimos un pipeline de Integración Continua (CI). Ahora, nos enfocaremos en la **Entrega Continua (Continuous Delivery)**, automatizando el despliegue de nuestra aplicación Python primero a un entorno de **Staging** para pruebas de aceptación, y luego (tras posible aprobación) a un entorno de **Producción** en un proveedor de nube.
 
 ## 1. Conceptos de Entrega Continua y Despliegue Continuo (CD)
 
-*   **Entrega Continua (Continuous Delivery):** Es una práctica de desarrollo de software donde los cambios de código se construyen, prueban y preparan *automáticamente* para su lanzamiento a producción.  La *liberación* (release) a producción es un proceso *manual*, que requiere una aprobación.  La idea es tener siempre una versión "lista para producción" que pueda ser desplegada en cualquier momento.
+* **Entrega Continua (Continuous Delivery):** Práctica donde los cambios de código se construyen, prueban y preparan *automáticamente* para producción, desplegándose automáticamente a un entorno de **Staging**. La *liberación* a **Producción** requiere una **aprobación manual** (o un trigger deliberado). El objetivo es tener *siempre* una versión validada lista para ir a producción rápidamente. **Este es el enfoque que implementaremos principalmente en este taller.**
 
-*   **Despliegue Continuo (Continuous Deployment):** Es un paso más allá de la Entrega Continua.  En el Despliegue Continuo, *cada cambio* que pasa todas las etapas del pipeline de CI se *despliega automáticamente a producción*, sin intervención manual.  Es una automatización completa del proceso de lanzamiento.
+* **Despliegue Continuo (Continuous Deployment):** Va un paso más allá. *Cada cambio* que pasa *todas* las etapas automatizadas (incluyendo pruebas en Staging) se despliega **automáticamente a Producción** sin intervención humana. Requiere una confianza extrema en la automatización.
 
-**Flujo de trabajo:**
+**Flujo de trabajo General:**
 
-1.  **CI (Integración Continua):**  Código -> Construcción -> Pruebas (Unitarias, Integración, Aceptación) -> Artefacto (ej: imagen de Docker, paquete).  Esto ya lo cubrimos en el Taller 2.
-2.  **Entrega Continua:**  Artefacto ->  Despliegue a un entorno de pruebas/staging -> Aprobación manual -> Despliegue a producción.
-3.  **Despliegue Continuo:** Artefacto -> Despliegue a un entorno de pruebas/staging -> Despliegue a producción (automático).
+1.  **CI (Integración Continua):** Código -> Build -> Pruebas (Unit, Integ) -> Análisis -> Artefacto. (Cubierto en Taller 2).
+2.  **CD (Este Taller - Delivery con Staging):** Artefacto -> **Deploy Staging (Auto)** -> **Pruebas Aceptación en Staging (Auto)** -> **(Opcional/Configurable) Aprobación Manual** -> **Deploy Producción (Auto/Manual)** -> **Pruebas Humo en Producción (Auto)** -> Monitoreo.
 
 ## 2. Diferencias entre Continuous Deployment y Continuous Delivery
 
-| Característica        | Continuous Delivery                        | Continuous Deployment                           |
-| :-------------------- | :----------------------------------------- | :---------------------------------------------- |
-| **Despliegue a Producción** | Manual (requiere aprobación)              | Automático (sin intervención manual)              |
-| **Frecuencia de Despliegue** | Puede ser frecuente (pero no necesariamente) | Muy frecuente (cada cambio que pasa las pruebas) |
-| **Riesgo**            | Menor                                     | Mayor (requiere alta confianza en las pruebas)  |
-| **Velocidad**         | Más lento                                   | Más rápido                                      |
-| **Automatización**   | Alta (pero no completa)                    | Completa                                        |
-| **Feedback**        | Rápido (pero con un paso manual)         | Muy rápido (directamente de producción)        |
+| Característica         | Continuous Delivery                      | Continuous Deployment                          |
+| :--------------------- | :--------------------------------------- | :--------------------------------------------- |
+| **Despliegue a Prod.** | Manual (requiere aprobación)             | Automático (sin intervención manual)           |
+| **Frecuencia Despl.** | Controlada (puede ser frecuente)         | Muy frecuente (cada cambio validado)           |
+| **Confianza Automat.** | Alta                                     | **Extrema** (requiere pruebas/monitoreo robustos) |
+| **Velocidad (Lead Time)**| Más lento                                | Más rápido                                     |
+| **Intervención Humana**| Sí (para liberar a Prod)                 | No (idealmente)                                |
+| **Feedback Producción**| Retrasado por aprobación                 | Muy rápido (directamente de producción)        |
 
-La elección entre Entrega Continua y Despliegue Continuo depende del contexto del proyecto, el nivel de riesgo que se puede tolerar, la madurez del equipo y la confianza en el pipeline de CI/CD.  Empresas como Netflix, Amazon y Facebook utilizan Despliegue Continuo, mientras que otras prefieren la Entrega Continua para tener un mayor control.
+La elección depende del contexto. En este taller implementaremos un flujo más cercano a Continuous Delivery al introducir un entorno de Staging y una puerta de aprobación (implícita o explícita) antes de Producción.  Empresas como Netflix, Amazon y Facebook utilizan Despliegue Continuo, mientras que otras prefieren la Entrega Continua para tener un mayor control.
 
 ## 3. Introducción a un Proveedor de Nube con Capa Gratuita
 
-Para este taller, utilizaremos **Render** como nuestro proveedor de nube.  Render ofrece una capa gratuita que es suficiente para nuestros propósitos de aprendizaje.  Otras opciones populares con capas gratuitas incluyen:
+Para este taller, utilizaremos **Render** como nuestro proveedor de nube por su simplicidad y capa gratuita, ideal para este ejercicio de aprendizaje. Recuerda que entornos productivos reales suelen usar **AWS, GCP o Azure**.
 
-*   **Heroku:**  Popular plataforma como servicio (PaaS) con una capa gratuita limitada.
-*   **Google Cloud Platform (GCP):**  Ofrece una capa gratuita con acceso a varios servicios (Compute Engine, App Engine, Cloud Functions, etc.).
-*   **Amazon Web Services (AWS):**  También tiene una capa gratuita con acceso a servicios como EC2, Lambda, S3, etc.
-*   **Microsoft Azure:**  Ofrece una capa gratuita con acceso a máquinas virtuales, funciones, almacenamiento, etc.
-*    **Fly.io**: Otra plataforma moderna, enfocada en la simplicidad y velocidad, con una capa gratuita generosa.
+**¿Por qué Render para este taller?**
 
-**¿Por qué Render?**
-
-*   **Facilidad de uso:**  Render es conocido por su simplicidad y facilidad de configuración.
-*   **Soporte para Python:**  Render tiene buen soporte para aplicaciones Python (Flask, Django, etc.).
-*   **Despliegue automático desde GitHub:**  Se integra directamente con GitHub para despliegues continuos.
-*   **Capa gratuita:**  Suficiente para proyectos pequeños y de aprendizaje.
-*  **Escalabilidad:** Si se requiere en un futuro, es fácil escalar nuestra aplicación en Render.
-*  **Manejo de contenedores implícito**: Render maneja Docker por nosotros, sin necesidad de configuraciones adicionales.
+* Facilidad de uso.
+* Soporte Python y Gunicorn.
+* Despliegue automático desde GitHub.
+* Capa gratuita adecuada.
+* Manejo implícito de contenedores.
 
 **Pasos para Render:**
 
 1.  **Crea una cuenta en Render:** Ve a [https://render.com/](https://render.com/) y regístrate con tu cuenta de GitHub.
 2.  **Conecta tu cuenta de GitHub:**  Render te pedirá permiso para acceder a tus repositorios de GitHub.  Esto es necesario para el despliegue automático.
+3.  **IMPORTANTE:** Para este taller, necesitarás crear **DOS** servicios web en Render: uno para **Staging** y otro para **Producción**.
 
 ## 4. CI/CD en Arquitecturas Modernas
 
@@ -106,7 +99,7 @@ Serverless es un modelo de computación en la nube donde el proveedor de nube ge
 1.  **Frameworks Serverless:**  Herramientas como Serverless Framework, AWS SAM, etc., simplifican el desarrollo y despliegue de aplicaciones serverless.
 2.  **Despliegue:**  El pipeline de CI despliega las funciones y configura los eventos que las desencadenan.
 
-**En este taller, usaremos un enfoque más simple (despliegue directo a Render sin Docker, Kubernetes o Serverless), pero es importante conocer estas tecnologías para proyectos más avanzados.**
+**Nota:** **En este taller específico**, desplegaremos directamente código Python a Render (que usa contenedores internamente pero lo abstrae). No gestionaremos Dockerfiles, K8s o FaaS explícitamente.
 
 ## 5. Despliegue Continuo: Automatización Completa y Rollbacks
 
@@ -130,7 +123,7 @@ Un rollback es la capacidad de volver a una versión anterior de la aplicación 
 *  **Blue/Green Deployments**: Se mantienen dos entornos idénticos (azul y verde). Uno está activo (azul) y el otro inactivo (verde). Se despliega en el entorno inactivo, se prueba y luego se cambia el tráfico al entorno verde. Si hay problemas se puede volver al azul rápidamente.
 *   **Canary Deployments:** Se despliega una nueva versión a un pequeño subconjunto de usuarios.  Si todo va bien, se despliega gradualmente a más usuarios.  Si hay problemas, se revierte.
 
-**Render simplifica los rollbacks.**  Permite volver a una versión anterior con un solo clic en su interfaz web.
+**Nota sobre Render y Rollbacks:** Render facilita volver a desplegar un commit anterior desde su UI, lo que sirve como un rollback manual simple para este taller.
 
 ## 6. Importancia del Monitoreo en Despliegues Continuos
 
@@ -147,6 +140,8 @@ El monitoreo es *crítico* en un entorno de Despliegue Continuo.  Dado que los c
 *   **Logs:**  Registros de eventos de la aplicación.  Útiles para diagnosticar problemas.
 *   **Disponibilidad (uptime):**  Asegurarse de que la aplicación esté disponible y respondiendo.
 *   **Alertas:**  Configurar alertas para ser notificado cuando algo va mal (ej: alta tasa de errores, tiempo de respuesta lento, uso excesivo de recursos).
+
+El monitoreo es **CRÍTICO**. Permite validar despliegues, detectar regresiones, tomar decisiones (rollback) y entender el impacto. Monitorear: Métricas Clave, Logs, Disponibilidad (Health Checks), Alertas.
 
 ## 7. Herramientas de Observabilidad, Monitoreo - Health - Pruebas de Humo (Smoke Tests)
 
@@ -180,15 +175,18 @@ def health():
 Este endpoint `/health` simplemente devuelve "OK" con un código de estado 200. Render, y otros proveedores de nube, pueden usar este endpoint para verificar si tu aplicación está funcionando. Si el endpoint no responde o devuelve un código de error, el proveedor puede tomar medidas (ej: reiniciar la aplicación, escalar horizontalmente, etc.).
 
 ### 7.4 Pruebas de Humo (Smoke Tests)
-Las pruebas de humo son un conjunto pequeño de pruebas que verifican la funcionalidad *básica* de una aplicación después de un despliegue. Son una forma rápida de detectar problemas graves. No reemplazan a las pruebas unitarias, de integración o de aceptación, sino que las complementan.  Las pruebas de humo se ejecutan *después* del despliegue para asegurar que la aplicación está, al menos, "viva".
+Las pruebas de humo son un conjunto pequeño de pruebas que verifican la funcionalidad *básica* de una aplicación después de un despliegue. Son una forma rápida de detectar problemas graves. No reemplazan a las pruebas unitarias, de integración o de aceptación, sino que las complementan.  Las pruebas de humo se ejecutan *después* del despliegue para asegurar que la aplicación está, al menos, "funcionando de manera básica".
 
 **Ejemplo de prueba de humo:**
 ```python
-# tests/test_acceptance_app.py (añadir a tus pruebas existentes)
+# tests/test_smoke_app.py (crea este archivo nuevo en tests/)
 def test_smoke_test(browser):
-    browser.get("http://localhost:5000") #Reemplaza con la URL de tu app en Render, una vez desplegada.
-    assert "Calculadora" in browser.title  # Verificar que el título de la página sea correcto
-    assert browser.find_element(By.TAG_NAME, "h1").text == "Calculadora"
+    """SMOKE TEST: Verifica carga básica y título."""
+    app_url = os.environ.get("APP_URL", "http://localhost:5000")
+    browser.get(app_url + "/")
+    assert "Calculadora" in browser.title
+    h1_element = browser.find_element(By.TAG_NAME, "h1")
+    assert h1_element.text == "Calculadora"
 ```
 
 **Añade esta prueba de humo a tu aplicación Flask.**. **Lo utilizaremos más adelante.**
@@ -197,6 +195,10 @@ Esta prueba de humo simplemente verifica que la página principal de la calculad
 
 **Es importante ejecutar las pruebas de humo *después* de cada despliegue.** En un pipeline de CD, las pruebas de humo serían un paso *posterior* al despliegue.
 
+**Clarificación Importante:**
+* **Health Check:** ¿Está vivo/responde? (Nivel Infra/Proceso)
+* **Smoke Test:** ¿Funciona lo más básico? (Nivel Funcional Crítico Post-Deploy)
+* **Acceptance Test:** ¿Cumple los requisitos/historias de usuario? (Nivel Funcional Completo)
 
 ## 8. Diferencias entre Entornos On-Premise, Cloud e Híbridos
 *   **On-Premise:**  La infraestructura (servidores, red, almacenamiento) se encuentra en las instalaciones de la empresa, y la empresa es responsable de *todo* el hardware y software.
@@ -217,11 +219,17 @@ Esta prueba de humo simplemente verifica que la página principal de la calculad
 
     *   **Desventajas:**  Mayor complejidad de gestión (hay que gestionar dos entornos diferentes), puede ser más difícil de asegurar (hay que asegurar la conexión entre los dos entornos).
 
-## 9. Implementación del Despliegue Continuo a Render
+## 9. Implementación del Pipeline con Staging y Producción en Render
 
 Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Render. Usaremos la integración de Render con GitHub para que cada push a la rama `main` desencadene un nuevo despliegue.
 
 1.  **Modifica `app/app.py` para usar un puerto configurable (necesario para Render):**
+
+    Asegúrate que `app.py` usa puerto configurable (`os.environ.get("PORT", 5000)`) y tiene `debug=False` en `app.run`.
+
+    Asegúrate de tener el endpoint `/health` en `app.py`.
+
+    Asegúrate de tener las pruebas de aceptación y humo en `tests/test_acceptance_app.py` y `tests/test_smoke_app.py` respectivamente para verificar el funcionamiento de la aplicación después del despliegue en **staging** y **producción** respectivamente.
 
     ```python
     # app/app.py
@@ -278,6 +286,8 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
     *   `app.run(host='0.0.0.0', port=port, debug=False)`:  Ejecutamos la aplicación en el host `0.0.0.0` (para que sea accesible desde fuera del contenedor) y en el puerto especificado.  `debug=False` es importante para producción.
 
 2.  **Añade al archivo `requirements.txt`:**
+    
+    Asegúrate que `requirements.txt` incluye `flask` y `gunicorn`.
     ```
     pylint
     flake8
@@ -295,98 +305,19 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
     **Importante:** Agrega `gunicorn` a tu `requirements.txt`.  Gunicorn es un servidor WSGI HTTP para aplicaciones Python.  Es necesario para ejecutar aplicaciones Flask en producción (el servidor de desarrollo de Flask no es adecuado para producción).
 
 3.  **Crea un archivo `Procfile` en la raíz de tu repositorio:**
+
+    Asegúrate que `Procfile` contiene `web: gunicorn app.app:app`.
     ```
     web: gunicorn app.app:app
     ```
     Este archivo le dice a Render cómo ejecutar tu aplicación.  `web:` indica que es un servicio web.  `gunicorn app.app:app` le dice a Gunicorn que ejecute la aplicación `app` que se encuentra en el archivo `app.py`.
 
-4.  **Modifica y renombra tu archivo `ci.yml` existente a `ci-cd.yml`:**
-    ```yaml
-    name: CI/CD Pipeline # Renombralo, ahora contiene tanto CI cómo CD.
-
-    on:
-      push:
-        branches:
-          - main
-      pull_request:
-        branches:
-          - main
-      workflow_dispatch:
-
-    jobs:
-      build-and-test:
-        runs-on: ubuntu-latest  # Usamos Ubuntu
-
-        steps:
-          - uses: actions/checkout@v3
-
-          - name: Set up Python
-            uses: actions/setup-python@v3
-            with:
-              python-version: '3.12' # Reemplaza con tu versión de Python
-
-          - name: Install dependencies
-            run: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
-              pip install flask
-
-          - name: Run Black (Formatter)
-            run: black app --check  # --check solo verifica, no modifica
-
-          - name: Run Pylint (Linter)
-            run: pylint app --output-format=text --fail-under=9 > pylint-report.txt || true
-
-          - name: Run Flake8 (Linter)
-            run: flake8 app --output-file=flake8-report.txt || true
-
-          - name: Run Unit Tests with pytest and Coverage
-            run: |
-              pytest --cov=app tests/ --ignore=tests/test_acceptance_app.py  # Genera un informe XML para SonarCloud
-
-          - name: Run Acceptance Tests with Selenium
-            run: |
-              python -m app.app 5000 & # Inicia un servidor web simple en segundo plano.
-              pytest tests/test_acceptance_app.py --cov-report=xml:acceptance_coverage.xml # Genera un informe XML con otro nombre, para no sobre-escribir el anterior de  las pruebas unitarias.
-            
-          - name: SonarCloud Scan
-            uses: SonarSource/sonarqube-scan-action@v5.0.0
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Automáticamente proporcionado
-              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
-
-      deploy: # Nuevo Job
-        needs: build-and-test  # Se ejecuta DESPUÉS del job build-and-test
-        runs-on: ubuntu-latest
-
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Solo se despliega en push a main
-
-        steps:
-          - uses: actions/checkout@v3
-          - name: Deploy to Render
-
-            uses: johnbeynon/render-deploy-action@v0.0.8 #Accion oficial de Render.
-            with:
-              service-id: ${{ secrets.RENDER_SERVICE_ID }}  # Secreto de Render
-              api-key: ${{ secrets.RENDER_API_KEY }}    # Secreto de Render
-              wait-for-success: true # Espera a que el despliegue termine.
-    ```
-
-    **Explicación:**
-    *   Se ha creado un nuevo *job* llamado `deploy`.
-    *   `needs: build-and-test`:  El job `deploy` se ejecuta *después* de que el job `build-and-test` haya terminado con éxito.
-    *   `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`:  El job `deploy` solo se ejecuta cuando se hace un *push* a la rama `main`.
-    *   `uses: render-oss/deploy-action@v1`:  Usamos la acción oficial de Render para GitHub Actions.
-    *   `service-id: ${{ secrets.RENDER_SERVICE_ID }}`:  El ID del servicio de Render (lo obtendremos más adelante).
-    *   `api-key: ${{ secrets.RENDER_API_KEY }}`:  La clave API de Render (la obtendremos más adelante).
-    *   `wait-for-success: true`:  Espera a que el despliegue termine antes de continuar con el siguiente paso.
-
-5.  **Crea un nuevo servicio web en Render:**
+4.  **Crea DOS nuevos servicios web en Render:**
     *   Ve a tu panel de control de Render ([https://dashboard.render.com/](https://dashboard.render.com/)).
     *   Haz clic en "New Web Service".
     *   Conecta tu repositorio de GitHub (`cicd-pipeline-python` o el nombre de tu repo).
-    *   En "Name", dale un nombre a tu servicio (ej: `mi-calculadora`).
-    *   En "Branch", asegúrate de que esté seleccionada la rama `main`.
+    *   En "Name", dale un nombre a tu servicio (ej: `mi-calculadora-staging`).
+    *   En "Branch", asegúrate de que esté seleccionada la rama `main` (desplegaremos `main` a staging primero).
     *   En "Language", selecciona "Python 3".
     *   En "Region", deja el valor por defecto.
     *   En "Root Directory", deja el valor por defecto (vacío).
@@ -396,9 +327,11 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
     *   Deja la sección "Environment Variables" vacía.
     *   Haz clic en "Deploy Web Service".
     *   El deploy debería comenzar automáticamente pero fallará porque no hemos hecho el commit con los cambios necesarios.
+    *   Repite el proceso para crear otro servicio, pero esta vez nómbralo `mi-calculadora` (o como prefieras) y asegúrate de que el "Branch" esté en `main` también. Este será tu servicio de producción.
 
-6.  **Obtén el ID del servicio y la clave API de Render:**
+5.  **Obtén el ID del servicio y la clave API de Render:**
     *   **Service ID:**  De la URL de la página de configuración de tu servicio en Render, obtén el ID del servicio que aparece después de web/ (ej: `srv-xxxxxxxxxxxxxxxxxxxx`). *Copia este ID*.
+    *   **Nota:**  Repite el proceso para ambos servicios (staging y producción).  Necesitarás el ID del servicio de ambos.
     *   **API Key:**
         *   Ve a tu configuración de cuenta de Render (Account Settings arriba a la derecha).
         *   Ve a la sección "API Keys".
@@ -406,31 +339,19 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
         *   Dale un nombre a la clave (ej: "GitHub Actions").
         *   *Copia la clave API*.
 
-7.  **Crea los secretos en GitHub:**
+6.  **Crea los secretos en GitHub:**
     *   Ve a tu repositorio en GitHub (`cicd-pipeline-python`) -> Settings -> Secrets and variables -> Actions -> New repository secret.
-    *   Crea *dos* secretos:
-        *   **`RENDER_SERVICE_ID`:**  Pega el ID del servicio que copiaste de Render.
+    *   Crea *cinco* secretos:
         *   **`RENDER_API_KEY`:**  Pega la clave API que copiaste de Render.
+        *   **`RENDER_SERVICE_ID`:**  Pega el ID del servicio **productivo** que copiaste de Render.
+        *   **`RENDER_APP_URL`:** Pega la URL completa (https://...) de tu app **productiva**.
+        *   **`RENDER_SERVICE_ID_STAGING`:**  Pega el ID del servicio de **staging** que copiaste de Render.
+        *   **`RENDER_APP_URL_STAGING`:** Pega la URL completa (https://...) de tu app **Staging**.
 
-8.  **Sube los cambios a GitHub:**
-    ```bash
-    git add .
-    git commit -m "Implementar Despliegue Continuo a Render"
-    git push origin main
-    ```
+7.  **Modifica y renombra tu archivo `ci.yml` existente a `ci-cd.yml` y modificalo para incluir el despliegue a Render:**
 
-9. **Verifica el despliegue:**
-    *   Ve a la pestaña "Actions" de tu repositorio en GitHub. Deberías ver tu workflow ejecutándose.
-    *   Si todo va bien, el job `deploy` se ejecutará y desplegará tu aplicación a Render.
-    *   Ve a tu panel de control de Render. Deberías ver tu servicio desplegado y en ejecución.
-    *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador. (La URL será algo como `https://mi-calculadora.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
-    *   Prueba tu calculadora.
-    *   Prueba el health check:  Abre por ejemplo `https://mi-calculadora.onrender.com/health` en tu navegador. Deberías ver "OK".
+    La mejor práctica, es mover las pruebas de aceptación *después* del despliegue en **staging**, y que se ejecuten *contra* la aplicación desplegada en Render. Esto asegura que estás probando un entorno idéntico de producción. Adicionalmente, las pruebas de humo se ejecutan después del despliegue en producción.
 
-10. **Mueve las pruebas de aceptación y humo a después del despliegue:**
-    La mejor práctica, es mover las pruebas de aceptación *después* del despliegue, y que se ejecuten *contra* la aplicación desplegada en Render. Esto asegura que estás probando el entorno real de producción (o del ambiente al que despliegues) y hace las veces de una prueba de humo más robusta.
-
-    Para hacer esto, **Agrega la URL de tu app desplegada en Render, a la prueba de aceptación y de humo de tu archivo tests/test_acceptance_app.py. Cambiando el `http://localhost:5000` por la URL de Render.** Luego, modifica tu workflow (`.github/workflows/ci-cd.yml`):
     ```yaml
     name: CI/CD Pipeline 
 
@@ -459,7 +380,6 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
             run: |
               python -m pip install --upgrade pip
               pip install -r requirements.txt
-              pip install flask
 
           - name: Run Black (Formatter)
             run: black app --check  # --check solo verifica, no modifica
@@ -472,7 +392,8 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
 
           - name: Run Unit Tests with pytest and Coverage
             run: |
-              pytest --cov=app tests/ --ignore=tests/test_acceptance_app.py  # Genera un informe XML para SonarCloud
+              pytest --cov=app tests/ --ignore=tests/test_acceptance_app.py --ignore=tests/test_smoke_app.py # Genera un informe XML para SonarCloud
+              # No olvides ignorar las pruebas de aceptación y humo aquí.
 
           # Se eliminan las pruebas de aceptación y humo de aquí.
             
@@ -482,26 +403,77 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Automáticamente proporcionado
               SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
 
-      deploy: # Nuevo Job
-        needs: build-and-test  # Se ejecuta DESPUÉS del job build-and-test
+
+      # --- Job de Despliegue a Staging ---
+      deploy-staging:
+        needs: build-and-unit-test # Depende de CI
         runs-on: ubuntu-latest
 
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Solo se despliega en push a main
+        # Solo ejecuta en push a main (no en PRs)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+        steps:
+          - uses: actions/checkout@v3
+          - name: Deploy to Staging Environment
+            uses: johnbeynon/render-deploy-action@v0.0.8 # Accion oficial de Render.
+            with:
+              service-id: ${{ secrets.RENDER_SERVICE_ID_STAGING }}  # Secreto de Render para Staging.
+              api-key: ${{ secrets.RENDER_API_KEY }}    # Secreto de Render
+              wait-for-success: true # Espera a que el despliegue termine.
+
+      # --- Job de Pruebas de Aceptación en Staging ---
+      test-staging:
+        needs: deploy-staging # Depende del despliegue a Staging
+        runs-on: ubuntu-latest
+
+        # Solo ejecuta en push a main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+        steps:
+          - uses: actions/checkout@v3
+
+          - name: Set up Python
+            uses: actions/setup-python@v3
+            with:
+              python-version: '3.12' # Reemplaza con tu versión de Python
+
+          - name: Install test dependencies
+            run: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt # Instala dependencias de test (selenium, pytest)
+
+          - name: Run Acceptance Tests against Staging
+            env:
+              APP_URL: ${{ secrets.RENDER_APP_URL_STAGING }} # URL de Staging
+            run: |
+              # Ejecuta TODAS las pruebas de aceptación/humo definidas en el archivo
+              pytest tests/test_acceptance_app.py
+
+      # --- Job de Despliegue a Producción ---
+      deploy-production:
+        needs: test-staging # Depende de las pruebas en Staging
+        runs-on: ubuntu-latest
+
+        # Solo ejecuta en push a main (no en PRs)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
         steps:
           - uses: actions/checkout@v3
           - name: Deploy to Render
 
-            uses: johnbeynon/render-deploy-action@v0.0.8 #Accion oficial de Render.
+            uses: johnbeynon/render-deploy-action@v0.0.8 # Accion oficial de Render.
             with:
               service-id: ${{ secrets.RENDER_SERVICE_ID }}  # Secreto de Render
               api-key: ${{ secrets.RENDER_API_KEY }}    # Secreto de Render
               wait-for-success: true # Espera a que el despliegue termine.
 
-      acceptance-smoke-tests:  # Nuevo Job
-        needs: deploy # Se ejecuta después de deploy
-
+      # --- Job de Pruebas de Humo en Producción ---
+      smoke-test-production:
+        needs: deploy-production # Depende del despliegue a Producción
         runs-on: ubuntu-latest
+
+        # Solo ejecuta en push a main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
         steps:
           - uses: actions/checkout@v3
@@ -515,20 +487,43 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
               python -m pip install --upgrade pip
               pip install -r requirements.txt
 
-          - name: Run Acceptance Tests with Selenium
+          - name: Run Smoke Tests against Production
+            env:
+              APP_URL: ${{ secrets.RENDER_APP_URL }} # URL de Producción
             run: |
-              pytest tests/test_acceptance_app.py # Ya no necesitas iniciar un servidor, usa la URL de Render.
+              pytest tests/test_smoke_app.py # Ejecuta las pruebas de humo definidas en el archivo
     ```
 
-11.  **Sube los cambios a GitHub:**
+    **Explicación de la Nueva Estructura:**
+    * `build-and-unit-test`: Job de CI (sin cambios mayores).
+    * `deploy-staging`: Despliega a Render Staging (usa `RENDER_SERVICE_ID_STAGING`).
+    * `test-staging`: Ejecuta **todas** las pruebas de `test_acceptance_app.py` contra la URL de Staging (`RENDER_APP_URL_STAGING`).
+    * `deploy-production`: **¡NUEVO!**
+        * Depende de `test-staging`.
+        * Despliega a Render Producción (usa `RENDER_SERVICE_ID`).
+    * `smoke-test-production`: **¡NUEVO!**
+        * Depende de `deploy-production`.
+        * Ejecuta **sólo** las pruebas de humo (usando `test_smoke_app.py`) contra la URL de Producción (`RENDER_APP_URL`).
+    * Se movió las pruebas de aceptación y humo a los jobs correspondientes para que se ejecuten después del despliegue cómo se espera en un pipeline de CD.
 
-      ```bash
-      git add .
-      git commit -m "Mover pruebas de aceptación y humo después del despliegue"
-      git push origin main
-      ```
+8.  **Sube los cambios a GitHub:**
+    ```bash
+    git add .
+    git commit -m "Implement CD pipeline with Staging and Production environments"
+    git push origin main
+    ```
+
+9. **Verifica el despliegue:**
+    *   Ve a la pestaña "Actions" de tu repositorio en GitHub. Deberías ver tu workflow ejecutándose.
+    *   Si todo va bien, el job `deploy` se ejecutará y desplegará tu aplicación a Render.
+    *   Ve a tu panel de control de Render. Deberías ver tu servicio desplegado y en ejecución.
+    *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador. (La URL será algo como `https://mi-calculadora.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
+    *   Prueba tu calculadora.
+    *   Prueba el health check:  Abre por ejemplo `https://mi-calculadora.onrender.com/health` en tu navegador. Deberías ver "OK".
 
       **Valida** en Github Actions y Render que el despliegue se haya realizado correctamente y que las pruebas de aceptación y humo se ejecuten correctamente **después** del despliegue.
+
+
 
 ## 10. Creación de un Monitor de Salud con GitHub Actions (monitor.yml)
 
@@ -553,13 +548,13 @@ Van a implementar un sistema de monitoreo para nuestra aplicación utilizando Gi
 *   **jobs**: 1 sólo job llamado `health-check`.
 *   **steps y actions**: 
     - checkout.
-    - validar la salud de la aplicación con un curl a la URL del health `{{ secrets.RENDER_PRODUCTION_APP_URL }}/health`:
+    - validar la salud de la aplicación con un curl a la URL del health `{{ secrets.RENDER_APP_URL }}/health`:
         ```yaml
       - name: Check Application Health
         id: health_check
         continue-on-error: true
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.RENDER_PRODUCTION_APP_URL }}/health")
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.RENDER_APP_URL }}/health")
           if [[ "$response" != "200" ]]; then
             echo "::set-output name=status::failed"
             echo "Health check failed with status code: $response"
@@ -573,12 +568,12 @@ Van a implementar un sistema de monitoreo para nuestra aplicación utilizando Gi
             *   **`id: health_check`:** Le da un ID al paso. Esto es importante para referenciarlo más tarde.
             *   **`continue-on-error: true`:** *Crucial*. Esto le dice a GitHub Actions que continúe con el siguiente paso *incluso si este paso falla*. Normalmente, si un paso falla, el workflow se detiene. Pero en este caso, queremos continuar para poder crear el issue.
             *   **`run:`:** Aquí ejecutamos un script de shell.
-                *   `response=<span class="math-inline">\(curl \-s \-o /dev/null \-w "%\{http\_code\}" "</span>{{ secrets.RENDER_PRODUCTION_APP_URL }}/health")`: Hace una petición HTTP al endpoint `/health` de tu aplicación (usando la variable de entorno `RENDER_PRODUCTION_APP_URL`).
+                *   `response=<span class="math-inline">\(curl \-s \-o /dev/null \-w "%\{http\_code\}" "</span>{{ secrets.RENDER_APP_URL }}/health")`: Hace una petición HTTP al endpoint `/health` de tu aplicación (usando la variable de entorno `RENDER_APP_URL`).
                     *   `curl`: Es una herramienta de línea de comandos para hacer peticiones HTTP.
                     *   `-s`: Modo silencioso (no muestra información de progreso).
                     *   `-o /dev/null`: Descarta la salida del cuerpo de la respuesta (solo nos interesa el código de estado).
                     *   `-w "%{http_code}"`: Imprime el código de estado HTTP (ej: 200, 500).
-                    *   `${{ secrets.RENDER_PRODUCTION_APP_URL }}`: Usa el secreto de GitHub que contiene la URL de tu aplicación en producción.
+                    *   `${{ secrets.RENDER_APP_URL }}`: Usa el secreto de GitHub que contiene la URL de tu aplicación en producción.
                 *   `if [[ "$response" != "200" ]]`: Verifica si el código de estado es diferente de 200 (OK).
                 *   `echo "::set-output name=status::failed"`: Si el código no es 200, establece una *variable de salida* del paso llamada `status` con el valor `failed`. Esto nos permite saber en el siguiente paso si el health check falló.
                 *   `echo "Health check failed..."`: Imprime un mensaje de error (opcional, para los logs).
@@ -613,7 +608,7 @@ Van a implementar un sistema de monitoreo para nuestra aplicación utilizando Gi
 
 1.  **Crea un nuevo archivo `.github/workflows/monitor.yml` en tu repositorio basado en las instrucciones y características indicadas**
 
-2.  **Asegúrate de tener el secreto `RENDER_PRODUCTION_APP_URL` configurado en tu repositorio de GitHub:** Ve a Settings -> Secrets and variables -> Actions -> New repository secret.  El valor del secreto debe ser la URL completa de tu aplicación en producción en Render (ej: `https://mi-calculadora.onrender.com`).
+2.  **Asegúrate de tener el secreto `RENDER_APP_URL` configurado en tu repositorio de GitHub:** Ve a Settings -> Secrets and variables -> Actions -> New repository secret.  El valor del secreto debe ser la URL completa de tu aplicación en producción en Render (ej: `https://mi-calculadora.onrender.com`).
 
 3. **Sube el archivo `monitor.yml` a tu repositorio en la carpeta `.github/workflows/`**.
       ```bash
@@ -655,33 +650,32 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 
 1.  **URL del repositorio PÚBLICO de GitHub:** Envía la URL de tu repositorio en GitHub.
 
-2.  **URL de la ejecución del workflow de CI/CD:** Envía la URL de la *última ejecución exitosa* de tu workflow `ci-cd.yml` en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe incluir:
-    *   El build y todas las pruebas unitarias y de calidad de código del taller 2.
-    *   El despliegue a *producción*.
-    *   Las pruebas de aceptación y humo contra *producción*.
+2.  **URL de la ejecución COMPLETA del workflow `ci-cd.yml`:** Envía la URL de una ejecución que haya completado **todos** los jobs exitosamente (build -> deploy-staging -> test-staging -> deploy-prod -> smoke-test-prod). Si configuraste aprobación manual, asegúrate de haberla aprobado para que se complete.
 
-3.  **URL de la aplicación desplegada en Render (producción):** Envía la URL de tu aplicación calculadora desplegada en el entorno de *producción* de Render.
+3.  **URL de la aplicación desplegada en RENDER (STAGING):** Envía la URL de tu app en el entorno de **Staging**.
 
-4.  **URL de la ejecución del workflow de monitoreo:** Envía la URL de la *última ejecución* de tu workflow `monitor.yml` en GitHub Actions.  No es necesario que esta ejecución haya fallado (y creado un issue); basta con que se haya ejecutado.  *Incluye también un pantallazo del issue creado en GitHub cuando probaste el monitor deteniendo la aplicación.*  Si no detuviste la aplicación para probar, detén la aplicación, ejecuta el monitor *manualmente* y envía el pantallazo del issue creado.
+4.  **URL de la aplicación desplegada en RENDER (PRODUCCIÓN):** Envía la URL de tu app en el entorno de **Producción**. Debe funcionar el health check (`/health`).
+
+4.  **URL de la ejecución del workflow de monitoreo:** Envía la URL de una ejecución de tu workflow `monitor.yml` en GitHub Actions.  No es necesario que esta ejecución haya fallado (y creado un issue); basta con que se haya ejecutado.  *Incluye también un pantallazo del issue creado en GitHub cuando probaste el monitor deteniendo la aplicación.*  Si no detuviste la aplicación para probar, detén la aplicación, ejecuta el monitor *manualmente* y envía el pantallazo del issue creado.
 
 5.  **Responde a las siguientes preguntas:**
 
-    *   Explica brevemente el flujo de trabajo completo que implementaste (desde que un desarrollador hace un cambio en el código hasta que ese cambio llega a producción), incluyendo las pruebas y el monitoreo. Sé *específico* sobre *qué se ejecuta en cada etapa y en qué entorno*.
+    * Explica brevemente el flujo de trabajo **nuevo** completo que implementaste (commit -> CI -> Deploy Staging -> Test Staging -> Deploy Prod -> Smoke Test Prod). Sé *específico* sobre *qué se ejecuta en cada job, en qué entorno, y qué valida cada tipo de prueba*.
     *   ¿Qué ventajas encuentras en todo este pipeline de ci/cd implementado a la hora de trabajar con múltiples desarrolladores en un proyecto? ¿Qué mejorarías a este pipeline para hacerlo más eficiente en términos del time to market de la aplicación?
+    * ¿Qué ventajas y desventajas tiene introducir un entorno de Staging en el pipeline? ¿Cómo impacta esto la velocidad vs. la seguridad?
+    * ¿Qué diferencia hay entre las pruebas ejecutadas contra Staging (`test-staging`) y las ejecutadas contra Producción (`smoke-test-production`) en tu pipeline? ¿Por qué esta diferencia?
     *   ¿Qué ventajas tiene usar variables de entorno para la configuración de una aplicación?
     *   Explica *en detalle* cómo funciona el script de monitoreo (`monitor.yml`). Explica qué hace cada *job* y cada *step*, incluyendo las condiciones (`if`) y las acciones (`uses`).
-    *   ¿Qué mejoras al monitoreo para que fuera más adecuado para un entorno de producción? ¿Cómo implementarías dichas mejoras?(Menciona al menos tres mejoras *concretas* y *justifica* por qué serían mejoras, investiga herramientas de monitoreo más robustas).
-    *   ¿Qué problemas o dificultades encontraste al implementar este taller? ¿Cómo los solucionaste? Sé específico. (Si no encontraste ningún problema, describe algo *nuevo* que hayas aprendido y cómo lo aplicarías en un proyecto futuro).
-    *   ¿Qué partes del ciclo completo de CI/CD crees que le faltan a este pipeline? ¿Por qué? ¿Cómo las implementarías? (Menciona al menos dos partes o características que consideres importantes y cómo las implementarías).
+    * ¿Qué mejoras harías al monitoreo para producción? (Menciona 3 mejoras concretas, justifica, investiga herramientas).
+    * ¿Qué problemas/dificultades encontraste? ¿Soluciones? ¿Aprendizaje nuevo?
+    * ¿Qué partes del ciclo CI/CD le faltan a este pipeline? (Menciona 2, por qué, cómo implementarlas).
+
 6.  **Integrantes del grupo:** Lista los nombres y apellidos *completos* de los integrantes de tu grupo.
 
 **Criterios de evaluación:**
 
-*   **URL del repositorio:** Debe ser un repositorio público en GitHub.
-*   **URLs de los workflows:** Deben ser URLs de ejecuciones de los pipelines en GitHub Actions (`ci-cd.yml` y `monitor.yml`). La ejecución de `ci-cd.yml` debe ser *exitosa* y debe incluir todas las pruebas y el despliegue a producción. La ejecución de `monitor.yml` debe haberse ejecutado al menos una vez y en alguna de las ejecuciones debe haber creado un issue en GitHub.
-*   **URL de Render:** Debe ser la URL de tu aplicación calculadora funcionando en el entorno de producción de Render. Debe funcionar el health check.
-*   **Respuestas a las preguntas:** Deben ser claras, concisas, correctas y *completas*. Deben demostrar una *comprensión profunda* de los conceptos y herramientas utilizadas en el taller. No se aceptarán respuestas genéricas o superficiales.
-*   **Completitud:** Se deben haber implementado todas las partes del taller (CI, CD, pruebas de aceptación, monitoreo con creación de issues en GitHub).
-*   **Funcionamiento:** Tanto el pipeline de CI/CD como el monitor de salud deben funcionar correctamente.
-
-Este taller te ha proporcionado una base sólida en CI/CD. Recuerda que esto es solo el comienzo; hay mucho más que aprender y explorar en este campo. ¡Sigue aprendiendo y experimentando!
+* URLs del repo y workflows correctas y funcionales. La ejecución de `ci-cd.yml` debe mostrar todos los jobs completados.
+* URLs de **ambas** aplicaciones (Staging y Producción) funcionando. `/health` debe funcionar en Producción.
+* Ejecución del monitor y pantallazo del issue de fallo **contra producción**.
+* Respuestas claras, correctas, completas y profundas, **reflejando la nueva estructura con Staging**.
+* Completitud y funcionamiento de todos los pasos del taller.
