@@ -682,7 +682,7 @@ Es importante considerar qué:
 
 4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto o también puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` después de la validación del gate en GitHub Actions.  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. **Presta atención, sobretodo a cualquier hallazgo nivel C o inferior y a los security hotspots en High**.
 
-5. **Corrige los problemas:** Corrige los problemas de calidad de código reportados en **OVERALL CODE** y vuelve a ejecutar el pipeline hasta que logres ejecutar el pipeline correctamente, tener en SonarCloud el Quality Gate marcado cómo `Passed` **y no tener ningún hallazgo de calidad de código nivel C o inferior**. Los security hotspots en High deben ser revisados (pero en este caso, no es necesario que los corrijas). Es importante aclarar que para una aplicación productiva es necesario corregir todos los hallazgos de seguridad, y ajustar las reglas de SonarCloud para personalizarlas a las necesidades del proyecto.
+5. **Corrige los problemas:** Corrige **TODOS** los problemas de calidad de código reportados en **OVERALL CODE (Reliability y Maintainability)** y vuelve a ejecutar el pipeline hasta que logres ejecutar el pipeline correctamente, también debes tener en SonarCloud el Quality Gate marcado cómo `Passed`. Los security hotspots en High deben ser revisados y entendidos (pero en este caso, no es necesario que los corrijas). Es importante aclarar que para una aplicación productiva es necesario corregir todos los hallazgos de seguridad, y ajustar las reglas de SonarCloud para personalizarlas a las necesidades del proyecto.
 
 ## 9. Entregable en grupo
 
@@ -694,6 +694,7 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 4.  **Responde a las siguientes preguntas:**
     *   ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI?  Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
     *   ¿Cuál es la diferencia principal entre una prueba unitaria y una prueba de aceptación?  Da un ejemplo de algo que probarías con una prueba unitaria y algo que probarías con una prueba de aceptación (en el contexto de cualquier aplicación que conozcas (describela primero)).
+    *   Describe los hallazgos de seguridad (security hotspots) que encontraste en SonarCloud.  ¿Qué significan?  ¿Qué acciones tomarías para resolverlos?
     *   ¿Qué es la cobertura de código y por qué es útil medirla?  ¿Qué nivel de cobertura consideras aceptable para un proyecto real?
     *   Describe brevemente qué hace cada uno de los *steps* de tu workflow de GitHub Actions.  Explica el propósito de cada uno **(que hace y para qué se hace)**.
     *   ¿Qué problemas o dificultades encontraste al implementar este taller?  ¿Cómo los solucionaste?  (Si no encontraste ningún problema, describe algo nuevo que hayas aprendido).
