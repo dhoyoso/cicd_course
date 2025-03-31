@@ -537,13 +537,35 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
     *   Si falla en alguna etapa de CI, revisa los logs y corrige el error hasta que pase todas las pruebas y logre el despliegue a Staging. Probablemente sea un tema de cobertura o de linting. Puedes ayudarte de la inteligencia artificial para corregir errores de linting o de cobertura. **Pista:** Si necesitas probar el módulo de `if __name__ == "__main__":` puedes usar `pyrun`, `pytest-mock` y mockear con `mock_run = mocker.patch('flask.Flask.run')` para implementar la prueba unitaria.
     *   Si todo va bien, el job `deploy-staging` se ejecutará y desplegará tu aplicación a Render. Luego, el job `test-staging` ejecutará las pruebas de aceptación contra la URL de Staging. Si todo pasa, el job `deploy-production` se ejecutará y desplegará tu aplicación a producción. Finalmente, el job `smoke-test-production` ejecutará las pruebas de humo contra la URL de Producción. Si alguna de estas etapas falla, el pipeline se detendrá y no se desplegará a producción.
     * Es posible que alguna de las pruebas que corren contra los ambientes de staging o producción fallen mientras render está haciendo el deploy. Si esto ocurre, puedes volver a correr sólo el job que falló desde la UI de Github Actions con `Re-run jobs` -> `Re-run failed jobs`, también puedes agregar un delay de 5 minutos al job de deploy para que render tenga tiempo de hacer el deploy y luego correr las pruebas. Si el error persiste, revisa los logs de GitHub Actions y Render para identificar el problema.
-    *   Ve a tu panel de control de Render. Deberías ver tu servicio desplegado y en ejecución.
-    *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador. (La URL será algo como `https://mi-calculadora.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
-    *   Prueba tu calculadora.
+    *   Ve a tu panel de control de Render. Deberías ver tus servicios desplegados y en ejecución.
+    *   Haz clic en el enlace de tus servicios para abrir tus aplicaciones en el navegador (**staging** y **producción**). (La URL será algo como `https://mi-calculadora.onrender.com` / `https://mi-calculadora-staging.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
+    *   Prueba tu calculadora en ambos ambientes (**staging** y **producción**).
     *   Prueba el health check:  Abre por ejemplo `https://mi-calculadora.onrender.com/health` en tu navegador. Deberías ver "OK".
 
-      **Valida** en Github Actions y Render que el despliegue se haya realizado correctamente y que las pruebas de aceptación y humo se ejecuten correctamente **después** del despliegue.
+      **Valida** en Github Actions y Render que el despliegue se haya realizado correctamente y que las pruebas de aceptación y humo se ejecuten correctamente **después** del despliegue en **staging** y **producción** respectivamente.
 
+10. **Introduce 2 nuevas operaciones a la calculadora:**
+      *   **Potencia:**  `x^y` (x elevado a la y).
+      *   **Módulo:**  `x % y` (resto de la división de x entre y).
+  
+      **Implementa estas operaciones en tu calculadora.**  Asegúrate de que las pruebas unitarias y de aceptación cubran estas nuevas funcionalidades.  Luego, haz un commit y push a `main`.  Verifica que el pipeline se ejecute correctamente y que las pruebas pasen. 
+      
+      **Pista:** Modifica `app/calculadora.py` para agregar las nuevas funciones.  Luego, modifica `app/app.py` para incluir las nuevas operaciones en el formulario y en la lógica de la aplicación, y finalmente, modifica `templates/index.html` para incluir las nuevas opciones de operación.  Prueba en local, y luego ajusta las pruebas unitarias y de aceptación para incluir las nuevas operaciones.  Asegúrate de que las pruebas unitarias y de aceptación cubran estas nuevas funcionalidades.  Luego, haz un commit y push a `main`.  Verifica que el pipeline se ejecute correctamente y que las pruebas pasen.
+
+      **Nota:** Al igual que en el taller 2, no deben haber hallazgos de linting, errores de cobertura, errores de pruebas unitarias, errores de pruebas de aceptación ni hallazgos en SonarCloud en el commit que subas a `main`.  Si hay errores, corrígelos antes de hacer el commit.  Si no puedes corregirlos, pide ayuda a tus compañeros o al profesor.  No olvides que la calidad del código es importante y que debes esforzarte por mantenerla alta.
+
+      ![alt text](Entregable2-images/image-5.png)
+
+      **Reflexiona:** cómo fue el proceso de integrar nuevos cambios y desplegarlos a producción. ¿Qué aprendiste? ¿Qué mejorarías en el proceso? ¿Qué herramientas o prácticas te ayudaron a mantener la calidad del código y la estabilidad de la aplicación durante el despliegue?
+
+11. **Validación final:**
+  
+      *   Asegúrate de que el pipeline de CI/CD esté funcionando correctamente y que todas las etapas y pruebas pasen.
+      *   Asegúrate de que el despliegue a **staging** y **producción** esté funcionando correctamente.
+      *   Asegúrate de que el health check esté funcionando correctamente en ambos ambientes (staging y producción).
+      *   Asegúrate de que las pruebas de aceptación y humo estén funcionando correctamente en ambos ambientes (staging y producción).
+      *   Asegúrate de no tener hallazgos de linting, errores de cobertura, errores de pruebas unitarias, errores de pruebas de aceptación ni hallazgos en SonarCloud en el commit que subas a `main`.
+      *  Asegúrate de que las 2 nuevas operaciones (potencia y módulo) estén funcionando correctamente en los ambientes de staging y producción. Además de que las pruebas unitarias y de aceptación cubran estas nuevas funcionalidades.
 
 
 ## 10. Creación de un Monitor de Salud con GitHub Actions (monitor.yml)
@@ -665,7 +687,7 @@ Van a implementar un sistema de monitoreo para nuestra aplicación utilizando Gi
 
 Este sistema de monitoreo, aunque básico, es una excelente forma de comenzar a supervisar la salud de tu aplicación y recibir notificaciones automáticas en caso de problemas, todo dentro del ecosistema de GitHub Actions. Sin embargo, **es importante aclarar que para una aplicación productiva es recomendable usar un sistema de monitoreo más robusto y completo, como New Relic, Datadog, Prometheus, Grafana, etc.**
 
-## 13. Entregable en grupo
+## 11. Entregable en grupo
 
 Para completar este taller, envía **un correo por grupo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Final CI/CD":
 
@@ -673,13 +695,15 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 
 2.  **URL de la ejecución COMPLETA del workflow `ci-cd.yml`:** Envía la URL de una ejecución que haya completado **todos** los jobs exitosamente (build -> deploy-staging -> test-staging -> deploy-prod -> smoke-test-prod). Si configuraste aprobación manual, asegúrate de haberla aprobado para que se complete.
 
-3.  **URL de la aplicación desplegada en RENDER (STAGING):** Envía la URL de tu app en el entorno de **Staging**.
+3. **URL de SonarCloud y captura de pantalla:** Envía la URL de tu proyecto en SonarCloud y una captura de pantalla del dashboard de SonarCloud mostrando el estado de calidad del código (similar al presentado en esta guía).
 
-4.  **URL de la aplicación desplegada en RENDER (PRODUCCIÓN):** Envía la URL de tu app en el entorno de **Producción**. Debe funcionar el health check (`/health`).
+4.  **URL y pantallazo de la aplicación desplegada en RENDER (STAGING):** Envía la URL y una captura de pantalla de tu app funcionando en el entorno de **Staging** (la URL debe ser visible en la captura de pantalla).
 
-4.  **URL de la ejecución del workflow de monitoreo:** Envía la URL de una ejecución de tu workflow `monitor.yml` en GitHub Actions.  No es necesario que esta ejecución haya fallado (y creado un issue); basta con que se haya ejecutado.  *Incluye también un pantallazo del issue creado en GitHub cuando probaste el monitor deteniendo la aplicación.*  Si no detuviste la aplicación para probar, detén la aplicación, ejecuta el monitor *manualmente* y envía el pantallazo del issue creado.
+5.  **URL y pantallazo de la aplicación desplegada en RENDER (PRODUCCIÓN):** Envía la URL y una captura de pantalla de tu app funcionando en el entorno de **Producción** (la URL debe ser visible en la captura de pantalla).
 
-5.  **Responde a las siguientes preguntas:**
+6.  **URL de la ejecución del workflow de monitoreo:** Envía la URL de una ejecución de tu workflow `monitor.yml` en GitHub Actions.  No es necesario que esta ejecución haya fallado (y creado un issue); basta con que se haya ejecutado.  *Incluye también un pantallazo del issue creado en GitHub cuando probaste el monitor deteniendo la aplicación.*  Si no detuviste la aplicación para probar, detén la aplicación, ejecuta el monitor *manualmente* y envía el pantallazo del issue creado.
+
+6.  **Responde a las siguientes preguntas:**
 
     * Explica brevemente el flujo de trabajo **nuevo** completo que implementaste (commit -> CI -> Deploy Staging -> Test Staging -> Deploy Prod -> Smoke Test Prod). Sé *específico* sobre *qué se ejecuta en cada job, en qué entorno, y qué valida cada tipo de prueba*.
     *   ¿Qué ventajas encuentras en todo este pipeline de ci/cd implementado a la hora de trabajar con múltiples desarrolladores en un proyecto? ¿Qué mejorarías a este pipeline para hacerlo más eficiente en términos del time to market de la aplicación?
@@ -687,16 +711,18 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
     * ¿Qué diferencia hay entre las pruebas ejecutadas contra Staging (`test-staging`) y las ejecutadas contra Producción (`smoke-test-production`) en tu pipeline? ¿Por qué esta diferencia?
     *   ¿Qué ventajas tiene usar variables de entorno para la configuración de una aplicación?
     *   Explica *en detalle* cómo funciona el script de monitoreo (`monitor.yml`). Explica qué hace cada *job* y cada *step*, incluyendo las condiciones (`if`) y las acciones (`uses`).
+    *   ¿Cómo te pareció incluir nuevas funcionalidades (potencia y módulo) en la aplicación? ¿Qué pasos seguiste para implementar estas nuevas funcionalidades? ¿Qué pruebas hiciste para validar que todo funcionara correctamente? ¿Le viste alguna ventaja a tener un pipeline de CI/CD para hacer esto? ¿Por qué?
     * ¿Qué mejoras harías al monitoreo para producción? (Menciona 3 mejoras concretas, justifica, investiga herramientas).
     * ¿Qué problemas/dificultades encontraste? ¿Soluciones? ¿Aprendizaje nuevo?
     * ¿Qué partes del ciclo CI/CD le faltan a este pipeline? (Menciona 2, por qué, cómo implementarlas).
 
-6.  **Integrantes del grupo:** Lista los nombres y apellidos *completos* de los integrantes de tu grupo.
+7.  **Integrantes del grupo:** Lista los nombres y apellidos *completos* de los integrantes de tu grupo.
 
 **Criterios de evaluación:**
 
 * URLs del repo y workflows correctas y funcionales. La ejecución de `ci-cd.yml` debe mostrar todos los jobs completados.
-* URLs de **ambas** aplicaciones (Staging y Producción) funcionando. `/health` debe funcionar en Producción.
+* Capturas de pantalla de SonarCloud y del dashboard de calidad de código evidenciando el estado de calidad del código (similar al presentado en esta guía), sin errores de linting, cobertura, pruebas unitarias o de aceptación.
+* URLs de **ambas** aplicaciones (Staging y Producción) funcionando. `/health` debe funcionar en Producción + Pantallazo de evidencia en caso de que Render tumbe los servicios por inactividad. Las nuevas operaciones deben funcionar correctamente en ambos ambientes (Staging y Producción).
 * Ejecución del monitor y pantallazo del issue de fallo **contra producción**.
 * Respuestas claras, correctas, completas y profundas, **reflejando la nueva estructura con Staging**.
 * Completitud y funcionamiento de todos los pasos del taller.
