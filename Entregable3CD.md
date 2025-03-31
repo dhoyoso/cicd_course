@@ -4,9 +4,9 @@ Este taller es una continuación del Taller 2, donde construimos un pipeline de 
 
 ## 1. Conceptos de Entrega Continua y Despliegue Continuo (CD)
 
-* **Entrega Continua (Continuous Delivery):** Práctica donde los cambios de código se construyen, prueban y preparan *automáticamente* para producción, desplegándose automáticamente a un entorno de **Staging**. La *liberación* a **Producción** requiere una **aprobación manual** (o un trigger deliberado). El objetivo es tener *siempre* una versión validada lista para ir a producción rápidamente. **Este es el enfoque que implementaremos principalmente en este taller.**
+* **Entrega Continua (Continuous Delivery):** Práctica donde los cambios de código se construyen, prueban y preparan *automáticamente* para producción, desplegándose automáticamente a un entorno de **Staging**. La *liberación* a **Producción** requiere una **aprobación manual** (o un trigger deliberado). El objetivo es tener *siempre* una versión validada lista para ir a producción rápidamente.
 
-* **Despliegue Continuo (Continuous Deployment):** Va un paso más allá. *Cada cambio* que pasa *todas* las etapas automatizadas (incluyendo pruebas en Staging) se despliega **automáticamente a Producción** sin intervención humana. Requiere una confianza extrema en la automatización.
+* **Despliegue Continuo (Continuous Deployment):** Va un paso más allá. *Cada cambio* que pasa *todas* las etapas automatizadas (incluyendo pruebas en Staging) se despliega **automáticamente a Producción** sin intervención humana. Requiere una confianza extrema en la automatización.  **Este es el enfoque que implementaremos principalmente en este taller.**
 
 **Flujo de trabajo General:**
 
