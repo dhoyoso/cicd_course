@@ -11,7 +11,7 @@ Este taller es una continuación del Taller 2, donde construimos un pipeline de 
 **Flujo de trabajo General:**
 
 1.  **CI (Integración Continua):** Código -> Build -> Pruebas (Unit, Integ) -> Análisis -> Artefacto. (Cubierto en Taller 2).
-2.  **CD (Este Taller - Delivery con Staging):** Artefacto -> **Deploy Staging (Auto)** -> **Pruebas Aceptación en Staging (Auto)** -> **(Opcional/Configurable) Aprobación Manual** -> **Deploy Producción (Auto/Manual)** -> **Pruebas Humo en Producción (Auto)** -> Monitoreo.
+2.  **CD (Este Taller - Deployment con Staging):** Artefacto -> **Deploy Staging (Auto)** -> **Pruebas Aceptación en Staging (Auto)** -> **Deploy Producción (Auto)** -> **Pruebas Humo en Producción (Auto)** -> Monitoreo.
 
 ## 2. Diferencias entre Continuous Deployment y Continuous Delivery
 
@@ -24,7 +24,7 @@ Este taller es una continuación del Taller 2, donde construimos un pipeline de 
 | **Intervención Humana**| Sí (para liberar a Prod)                 | No (idealmente)                                |
 | **Feedback Producción**| Retrasado por aprobación                 | Muy rápido (directamente de producción)        |
 
-La elección depende del contexto. En este taller implementaremos un flujo más cercano a Continuous Delivery al introducir un entorno de Staging y una puerta de aprobación (implícita o explícita) antes de Producción.  Empresas como Netflix, Amazon y Facebook utilizan Despliegue Continuo, mientras que otras prefieren la Entrega Continua para tener un mayor control.
+La elección depende del contexto. En este taller implementaremos un flujo más cercano a Continuous Deployment al introducir un entorno de Staging y un despliegue automático en Producción.  Empresas como Netflix, Amazon y Facebook utilizan Despliegue Continuo, mientras que otras prefieren la Entrega Continua para tener un mayor control.
 
 ## 3. Introducción a un Proveedor de Nube con Capa Gratuita
 
