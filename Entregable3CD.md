@@ -1,6 +1,6 @@
 # Taller Grupal Entregable 3: Despliegue Continuo (CD) con Proveedores Cloud
 
-Este taller es una continuación del Taller 2, donde construimos un pipeline de Integración Continua (CI). Ahora, nos enfocaremos en la **Entrega Continua (Continuous Delivery)**, automatizando el despliegue de nuestra aplicación Python primero a un entorno de **Staging** para pruebas de aceptación, y luego (tras posible aprobación) a un entorno de **Producción** en un proveedor de nube.
+Este taller es una continuación del Taller 2, donde construimos un pipeline de Integración Continua (CI). Ahora, nos enfocaremos en la **Entrega Continua (Continuous Delivery)**, automatizando el despliegue de nuestra aplicación Python primero a un entorno de **Staging** para pruebas de aceptación, y luego a un entorno de **Producción** en un proveedor de nube.
 
 ## 1. Conceptos de Entrega Continua y Despliegue Continuo (CD)
 
