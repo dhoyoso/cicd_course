@@ -704,7 +704,7 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 **Criterios de evaluación:**
 *   **URL del repositorio:**  Debe ser un repositorio público en GitHub.
 *   **URL del workflow:**  Debe ser la URL de la última ejecución exitosa del pipeline en GitHub Actions.
-*   **URL de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed`, una cobertura de código mayor al 80% y sin hallazgos de calidad de código nivel C o inferior.
+*   **URL y pantallazo de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed`, una cobertura de código mayor al 80% y sin hallazgos de calidad de código (Reliability, Maintainability) o de seguridad (Security).  El pantallazo debe mostrar el panel de control de SonarCloud con los resultados del análisis.
 *   **Respuestas a las preguntas:**  Deben ser claras, concisas y correctas.  Deben demostrar comprensión de los conceptos y herramientas utilizadas en el taller.
 
 ## 10. (Opcional) Mejoras Adicionales
