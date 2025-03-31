@@ -167,6 +167,7 @@ Un health check es una verificación simple que indica si una aplicación está 
 # app/app.py (añadir a tu app existente)
 @app.route("/health")
 def health():
+    """Health Check Endpoint."""
     return "OK", 200
 ```
 
