@@ -181,6 +181,9 @@ Las pruebas de humo son un conjunto pequeño de pruebas que verifican la funcion
 **Ejemplo de prueba de humo:**
 ```python
 # tests/test_smoke_app.py (crea este archivo nuevo en tests/)
+import os
+from selenium.webdriver.common.by import By
+
 def test_smoke_test(browser):
     """SMOKE TEST: Verifica carga básica y título."""
     app_url = os.environ.get("APP_URL", "http://localhost:5000")
@@ -352,6 +355,8 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
 7.  **Modifica y renombra tu archivo `ci.yml` existente a `ci-cd.yml` y modificalo para incluir el despliegue a Render:**
 
     La mejor práctica, es mover las pruebas de aceptación *después* del despliegue en **staging**, y que se ejecuten *contra* la aplicación desplegada en Render. Esto asegura que estás probando un entorno idéntico de producción. Adicionalmente, las pruebas de humo se ejecutan después del despliegue en producción.
+
+    ** NOTA: ** No olvides cambiar el puerto en la prueba de aceptación para que use la URL de Staging.  Puedes usar `os.environ.get("APP_URL", "http://localhost:5000")` para obtener la URL de Staging desde las variables de entorno.
 
     ```yaml
     name: CI/CD Pipeline 
