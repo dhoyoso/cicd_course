@@ -521,6 +521,7 @@ Ahora, vamos a implementar el Despliegue Continuo de nuestra aplicación a Rende
 
 9. **Verifica el despliegue:**
     *   Ve a la pestaña "Actions" de tu repositorio en GitHub. Deberías ver tu workflow ejecutándose.
+    *   Si falla en alguna etapa de CI, revisa los logs y corrige el error hasta que pase todas las pruebas y logre el despliegue a Staging. Probablemente sea un tema de cobertura o de linting. Puedes ayudarte de la inteligencia artificial para corregir errores de linting o de cobertura.
     *   Si todo va bien, el job `deploy` se ejecutará y desplegará tu aplicación a Render.
     *   Ve a tu panel de control de Render. Deberías ver tu servicio desplegado y en ejecución.
     *   Haz clic en el enlace de tu servicio para abrir tu aplicación en el navegador. (La URL será algo como `https://mi-calculadora.onrender.com`, cambia al inicio `mi-calculadora` por el nombre que le diste a tu servicio).
