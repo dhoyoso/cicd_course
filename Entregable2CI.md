@@ -313,6 +313,60 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 
     *Nota:*  Para detener la aplicación Flask, presiona `Ctrl+C` en la terminal.
 
+### 4.1. Construcción y Prueba Local de la Imagen Docker
+
+Antes de configurar el pipeline de CI completo, es una buena práctica verificar que tu `Dockerfile` funciona correctamente y que la aplicación se ejecuta como se espera dentro del contenedor Docker.
+
+**Asegúrate de tener Docker Desktop (o Docker Engine) instalado y en ejecución en tu máquina.**
+
+1.  **Construye la imagen Docker localmente:**
+    Abre tu terminal en la raíz del proyecto (donde están tu `Dockerfile` y la carpeta `app`) y ejecuta el siguiente comando:
+
+    ```bash
+    docker build -t mi-calculadora-local .
+    ```
+    * `docker build`: El comando para construir una imagen Docker.
+    * `-t mi-calculadora-local`: La opción `-t` (tag) asigna un nombre y, opcionalmente, una etiqueta a la imagen. Aquí la llamamos `mi-calculadora-local` (puedes elegir otro nombre).
+    * `.`: El punto al final indica que el contexto de construcción (los archivos necesarios para construir la imagen, incluyendo el `Dockerfile`) se encuentra en el directorio actual.
+
+    Docker ejecutará los pasos definidos en tu `Dockerfile`, descargando la imagen base, instalando dependencias y copiando tu código.
+
+    Si quieres ver las imágenes que has construido, puedes ejecutar:
+
+    ```bash
+    docker images
+    ```
+
+2.  **Ejecuta un contenedor a partir de la imagen:**
+    Una vez construida la imagen, puedes crear y ejecutar un contenedor basado en ella:
+
+    ```bash
+    docker run -d --name calculadora-container -p 8080:8000 mi-calculadora-local
+    ```
+    * `docker run`: El comando para ejecutar un contenedor a partir de una imagen.
+    * `-d`: (Detached) Ejecuta el contenedor en segundo plano, liberando tu terminal.
+    * `--name calculadora-container`: Asigna un nombre fácil de recordar al contenedor en ejecución (`calculadora-container`). Esto facilita la gestión posterior (parar, eliminar, ver logs).
+    * `-p 8080:8000`: (Publish) Mapea un puerto de tu máquina local (host) al puerto expuesto por el contenedor.
+        * `8080`: El puerto en tu máquina local al que accederás (puedes usar otro si el 8080 está ocupado).
+        * `8000`: El puerto *dentro* del contenedor que `gunicorn` está usando (según lo definido en el `EXPOSE` y `CMD` del `Dockerfile`).
+    * `mi-calculadora-local`: El nombre de la imagen que construiste en el paso anterior y desde la cual quieres crear el contenedor.
+
+3.  **Verifica la aplicación en el navegador:**
+    Abre tu navegador web y navega a `http://localhost:8080` (o el puerto que hayas elegido en el `-p`). Deberías ver tu aplicación de calculadora funcionando exactamente igual que cuando la ejecutaste con `python -m app.app`, pero esta vez está corriendo dentro de un contenedor Docker aislado. Realiza algunas operaciones para confirmar que todo funciona.
+
+4.  **Detén y elimina el contenedor (limpieza):**
+    Cuando hayas terminado de probar, es bueno detener y eliminar el contenedor para liberar recursos:
+
+    ```bash
+    docker stop calculadora-container
+    docker rm calculadora-container
+    ```
+    * `docker stop`: Detiene el contenedor especificado por su nombre.
+    * `docker rm`: Elimina el contenedor detenido especificado por su nombre.
+
+    Este ciclo de construir, ejecutar y probar localmente te permite depurar tu `Dockerfile` y asegurarte de que tu aplicación está correctamente empaquetada antes de integrarla en el pipeline de CI/CD.
+
+
 ## 5. Análisis de Calidad de Código
 
 ### 5.1. Pylint, Flake8 y Black (Local)
