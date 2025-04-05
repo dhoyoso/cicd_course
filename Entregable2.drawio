@@ -1,126 +1,126 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.3">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.2">
   <diagram name="Page-1" id="Q2PNZZAiVQnd3YWHy0P9">
-    <mxGraphModel dx="1434" dy="746" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1428" dy="751" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="omNPKrV_28EajRQt6ibP-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-2" target="omNPKrV_28EajRQt6ibP-10">
+        <mxCell id="omNPKrV_28EajRQt6ibP-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-2" target="omNPKrV_28EajRQt6ibP-10" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-2" value="INICIO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-2" value="INICIO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="30" y="250" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-10" target="omNPKrV_28EajRQt6ibP-12">
+        <mxCell id="omNPKrV_28EajRQt6ibP-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-10" target="omNPKrV_28EajRQt6ibP-12" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-10" value="Lectura introductoria y herramientas a usar" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-10" value="Lectura introductoria y herramientas a usar" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="170" y="250" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-12" target="omNPKrV_28EajRQt6ibP-19">
+        <mxCell id="omNPKrV_28EajRQt6ibP-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-12" target="omNPKrV_28EajRQt6ibP-19" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="525" y="280" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-12" value="Crear&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;repositorio&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-12" value="Crear&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;repositorio&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="310" y="250" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-19" target="omNPKrV_28EajRQt6ibP-39">
+        <mxCell id="omNPKrV_28EajRQt6ibP-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-19" target="omNPKrV_28EajRQt6ibP-39" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-19" value="Clonar repositorio" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-19" value="Clonar repositorio" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="450" y="250" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-24" target="omNPKrV_28EajRQt6ibP-42">
+        <mxCell id="omNPKrV_28EajRQt6ibP-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-24" target="omNPKrV_28EajRQt6ibP-42" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-24" value="Instalar dependencias en entorno virtual" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-24" value="Crear cuenta en Docker Hub" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="730" y="250" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-26" target="omNPKrV_28EajRQt6ibP-28">
+        <mxCell id="omNPKrV_28EajRQt6ibP-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-26" target="omNPKrV_28EajRQt6ibP-28" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-26" value="Probar funcionamiento app local" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-26" value="Probar funcionamiento app local" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="610" y="330" width="95" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-28" target="omNPKrV_28EajRQt6ibP-30">
+        <mxCell id="omNPKrV_28EajRQt6ibP-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-28" target="omNPKrV_28EajRQt6ibP-30" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-28" value="Análisis de calidad de código local (pylint, flake, black)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-28" value="Análisis de calidad de código local (pylint, flake, black)" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="450" y="330" width="130" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-30" target="omNPKrV_28EajRQt6ibP-32">
+        <mxCell id="omNPKrV_28EajRQt6ibP-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-30" target="omNPKrV_28EajRQt6ibP-32" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-30" value="Creación de cuenta y organización en SonarCloud" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-30" value="Creación de cuenta y organización en SonarCloud" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="310" y="330" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-32" target="omNPKrV_28EajRQt6ibP-34">
+        <mxCell id="omNPKrV_28EajRQt6ibP-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-32" target="omNPKrV_28EajRQt6ibP-34" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-32" value="Configuración SonarCloud en Repositorio" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-32" value="Configuración SonarCloud en Repositorio" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="180" y="330" width="110" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-34" target="omNPKrV_28EajRQt6ibP-47">
+        <mxCell id="omNPKrV_28EajRQt6ibP-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-34" target="omNPKrV_28EajRQt6ibP-47" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-34" value="Copiar archivos de pruebas unitarias + ejecución de pruebas unitarias en local" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-34" value="Copiar archivos de pruebas unitarias + ejecución de pruebas unitarias en local" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="30" y="330" width="130" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-35" value="FIN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-35" value="FIN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
           <mxGeometry x="740" y="500" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-39" target="omNPKrV_28EajRQt6ibP-24">
+        <mxCell id="omNPKrV_28EajRQt6ibP-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-39" target="omNPKrV_28EajRQt6ibP-24" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-39" value="Crear .gitignore, requirements.txt y entorno virtual" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-39" value="Crear .gitignore, requirements.txt, Dockerfile y entorno virtual" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="590" y="250" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-42" target="omNPKrV_28EajRQt6ibP-26">
+        <mxCell id="omNPKrV_28EajRQt6ibP-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-42" target="omNPKrV_28EajRQt6ibP-26" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-42" value="Copiar archivos de la app (calculadora, app, __init__ y html)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-42" value="Copiar archivos de la app (calculadora, app, __init__ y html)" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="730" y="330" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-47" target="omNPKrV_28EajRQt6ibP-48">
+        <mxCell id="omNPKrV_28EajRQt6ibP-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="omNPKrV_28EajRQt6ibP-47" target="omNPKrV_28EajRQt6ibP-48" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-47" value="Copiar archivos de pruebas de aceptación + ejecución de prueba de aceptación en local" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-47" value="Copiar archivos de pruebas de aceptación + ejecución de prueba de aceptación en local" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="30" y="420" width="130" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-48" target="omNPKrV_28EajRQt6ibP-50">
+        <mxCell id="omNPKrV_28EajRQt6ibP-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-48" target="omNPKrV_28EajRQt6ibP-50" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-48" value="Creación y versionamiento de pipeline de CI" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-48" value="Creación y versionamiento de pipeline de CI" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="180" y="420" width="100" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-50" target="omNPKrV_28EajRQt6ibP-52">
+        <mxCell id="omNPKrV_28EajRQt6ibP-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-50" target="omNPKrV_28EajRQt6ibP-52" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-50" value="Validación de ejecución y hallazgos en SonarCloud" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-50" value="Validación de ejecución y hallazgos en SonarCloud" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="300" y="420" width="110" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-52" target="omNPKrV_28EajRQt6ibP-54">
+        <mxCell id="omNPKrV_28EajRQt6ibP-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-52" target="omNPKrV_28EajRQt6ibP-54" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-52" value="Corrección de problemas" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-52" value="Corrección de problemas" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="430" y="420" width="70" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-54" target="omNPKrV_28EajRQt6ibP-56">
+        <mxCell id="omNPKrV_28EajRQt6ibP-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-54" target="omNPKrV_28EajRQt6ibP-56" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-54" value="Re ejecución correcta del pipeline" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-54" value="Re ejecución correcta del pipeline" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="520" y="420" width="89" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-56" target="omNPKrV_28EajRQt6ibP-60">
+        <mxCell id="omNPKrV_28EajRQt6ibP-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-56" target="omNPKrV_28EajRQt6ibP-60" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-56" value="(Opcional) Mejoras adicionales" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-56" value="Validar imagen en DockerHub" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="630" y="420" width="100" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-66" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="omNPKrV_28EajRQt6ibP-60" target="omNPKrV_28EajRQt6ibP-35">
+        <mxCell id="omNPKrV_28EajRQt6ibP-66" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="omNPKrV_28EajRQt6ibP-60" target="omNPKrV_28EajRQt6ibP-35" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="omNPKrV_28EajRQt6ibP-60" value="Construcción y envío del entregable" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="omNPKrV_28EajRQt6ibP-60" value="Construcción y envío del entregable" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="750" y="420" width="100" height="60" as="geometry" />
         </mxCell>
       </root>
