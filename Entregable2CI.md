@@ -885,8 +885,6 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 4.  **Responde a las siguientes preguntas:**
     *   ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI?  Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
     *   ¿Cuál es la diferencia principal entre una prueba unitaria y una prueba de aceptación?  Da un ejemplo de algo que probarías con una prueba unitaria y algo que probarías con una prueba de aceptación (en el contexto de cualquier aplicación que conozcas (describela primero)).
-    *   Describe los hallazgos de seguridad (security hotspots) que encontraste en SonarCloud.  ¿Qué significan?  ¿Qué acciones tomarías para resolverlos?
-    *   ¿Qué es la cobertura de código y por qué es útil medirla?  ¿Qué nivel de cobertura consideras aceptable para un proyecto real?
     * Describe brevemente qué hace cada uno de los *steps* principales de tu workflow de GitHub Actions (desde el checkout hasta el push de Docker). Explica el propósito de cada uno **(qué hace y para qué se hace)**.
     *   ¿Qué problemas o dificultades encontraste al implementar este taller?  ¿Cómo los solucionaste?  (Si no encontraste ningún problema, describe algo nuevo que hayas aprendido).
     * ¿Qué ventajas ofrece empaquetar la aplicación en una imagen Docker al final del pipeline en lugar de simplemente validar el código?
@@ -899,35 +897,3 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 *   **URL y pantallazo de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed`, una cobertura de código mayor al 80% y sin hallazgos de calidad de código (Reliability, Maintainability) o de seguridad (Security).  El pantallazo debe mostrar el panel de control de SonarCloud con los resultados del análisis.
 * **Nombre de Imagen Docker Hub:** Repositorio público existente en Docker Hub con etiquetas `latest` y SHA.
 *   **Respuestas a las preguntas:**  Deben ser claras, concisas y correctas.  Deben demostrar comprensión de los conceptos y herramientas utilizadas en el taller.
-
-## 10. (Opcional) Mejoras Adicionales
-
-Si quieres profundizar más, aquí tienes algunas ideas para mejorar tu pipeline:
-
-*   **Usar archivos de configuración específicos:** `.pylintrc`, `.flake8`, `pyproject.toml` para personalizar reglas.
-*   **Usar un archivo de configuración para Flake8:**  Configura Flake8 con un archivo `.flake8` (o dentro de `setup.cfg` o `tox.ini`).
-*   **Agregar Badges:**  Añade badges (insignias) al README de tu repositorio para mostrar el estado del workflow, la cobertura, el estado de la imágen Docker, etc. (GitHub Actions y SonarCloud proporcionan URLs para generar estos badges).
-*   **Integración con otras herramientas:**  Podrías integrar tu pipeline con otras herramientas, como:
-    *   Herramientas de gestión de vulnerabilidades (ej: Snyk, Dependabot).
-    *   Herramientas de análisis de seguridad estático (SAST).
-*   **Ejecutar las pruebas en una matriz (Avanzado):**  Ejecuta las pruebas en múltiples sistemas operativos y versiones de Python:
-    ```yaml
-    jobs:
-      build-and-test:
-        runs-on: ${{ matrix.os }}
-        strategy:
-          matrix:
-            os: [ubuntu-latest, windows-latest, macos-latest]
-            python-version: ['3.8', '3.9', '3.10', '3.11']
-        steps:
-          - uses: actions/checkout@v3
-          - name: Set up Python ${{ matrix.python-version }}
-            uses: actions/setup-python@v3
-            with:
-              python-version: ${{ matrix.python-version }}
-          # ... el resto de los pasos ...
-    ```
-    Esto ejecutará el pipeline en Ubuntu, Windows y macOS, con diferentes versiones de Python.
-*   **Escaneo de Seguridad de la Imagen Docker:** Integra Trivy o Docker Scout para escanear la imagen construida en busca de vulnerabilidades.
-*   **Personalizar reglas de calidad en SonarCloud:**  Personaliza las reglas de calidad en SonarCloud para que se ajusten a las necesidades de tu proyecto. Esta personalización requiere de SonarCloud Developer Edition o superior (versión paga). Podrías, por ejemplo, definir reglas específicas para tu proyecto, establecer umbrales de calidad personalizados, de cobertura, etc.
-* **Multi-Stage Builds en Dockerfile:** Optimiza el `Dockerfile` para reducir el tamaño de la imagen final.
