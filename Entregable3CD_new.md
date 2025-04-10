@@ -915,11 +915,9 @@ jobs:
 12. **Validación final:**
     * Asegúrate de que el pipeline CI/CD con CloudFormation funcione correctamente.
     * Verifica los despliegues en Staging y Producción.
-    * Confirma que el health check `/health` funcione y los Target Groups estén saludables.
+    * Confirma que el health check `/health` funcione y los Target Groups estén saludables. Desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS y el ALB para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
     * Valida que las pruebas de aceptación y humo pasen.
     * Asegúrate de no tener hallazgos de calidad/seguridad (SonarCloud, linters).
-    * Confirma que las operaciones de potencia y módulo funcionen en ambos entornos.
-    * Asegúrate de que `template.yaml` esté en el repositorio.
     * **Gestión de Costos (Learner Lab):** Considera eliminar los stacks (`aws cloudformation delete-stack --stack-name ...`) al finalizar para conservar tu presupuesto (**PELIGRO: HACERLO DESPUÉS DE HACER EL ENTREGABLE FINAL**).
 
 ## 8. Monitoreo y Health Checks en AWS ECS (con CloudFormation)
