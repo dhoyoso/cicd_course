@@ -542,11 +542,11 @@ Outputs:
         * `AWS_ACCESS_KEY_ID`: Tu AWS Access Key ID.
         * `AWS_SECRET_ACCESS_KEY`: Tu AWS Secret Access Key.
         * `AWS_SESSION_TOKEN`: Tu AWS Session Token.
-        * `AWS_REGION`: La región de AWS que usaste (`us-east-1` o `us-west-2`).
-        * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub.
-        * `DOCKERHUB_TOKEN`: Tu token de Docker Hub.
-        * `SONAR_TOKEN`: Tu token de SonarCloud.
-        * `SONAR_HOST_URL`: `https://sonarcloud.io`.
+        * `AWS_REGION`: La región de AWS que usaste (`us-east-1`).
+        * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+        * `DOCKERHUB_TOKEN`: Tu token de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+        * `SONAR_TOKEN`: Tu token de SonarCloud. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+        * `SONAR_HOST_URL`: `https://sonarcloud.io`. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * **`LAB_ROLE_ARN`**: El ARN completo de tu `LabRole`.
         * **`VPC_ID`**: El ID de tu VPC por defecto.
         * **`SUBNET_IDS`**: Los IDs de tus dos subredes públicas, separados por coma (ej: `subnet-xxx,subnet-yyy`).
