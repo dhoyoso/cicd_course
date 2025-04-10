@@ -180,9 +180,7 @@ En nuestro pipeline de GitHub Actions, no usaremos `aws configure` interactivame
 * **Permisos:** CloudFormation ejecutará las acciones usando las credenciales con las que se invoca (tu rol de Learner Lab). Como no tienes el permiso `iam:CreateRole`, **no podemos definir recursos `AWS::IAM::Role`** en la plantilla. Debemos referenciar el `LabRole` existente.
 * **VPC por Defecto:** Para simplificar y evitar posibles problemas de permisos al crear VPCs/Subnets/Gateways, usaremos la **VPC por defecto** y sus **subredes públicas**. Deberás identificar los IDs de estas subredes en tu cuenta/región.
 
-## 7. Implementación del Pipeline con Staging y Producción en AWS ECS usando CloudFormation
-
-Ahora, adaptaremos el proceso para usar CloudFormation.
+## 7. Implementación del Pipeline CD con Staging y Producción en AWS ECS usando CloudFormation
 
 1.  **Asegúrate de que el código de la aplicación y las pruebas estén listos:**
 
