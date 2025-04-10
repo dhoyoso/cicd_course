@@ -953,3 +953,10 @@ Para completar este taller, envía **un correo por grupo** con la siguiente info
 * Captura de pantalla del Target Group en AWS mostrando estado `healthy` de los targets (Staging y Producción).
 * Respuestas claras, correctas, completas y profundas a las preguntas planteadas.
 * Completitud y funcionamiento de todos los pasos del taller.
+
+
+## Mejora opcional pero recomendada
+
+Incluye 2 funciones adicionales en tu aplicación de la calculadora (ej: potencia y módulo) y asegúrate de que las pruebas unitarias y de aceptación cubran estas nuevas funciones. Esto te ayudará a practicar la integración continua y la entrega continua, asegurando que tu aplicación esté siempre lista para producción.
+
+Tras incluir estas funciones deberías poder ver que el pipeline de CI/CD funciona correctamente y si pasan todas las pruebas, la aplicación debería estar disponible en Staging y Producción con las nuevas funciones.
