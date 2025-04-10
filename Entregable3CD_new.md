@@ -44,7 +44,7 @@ Aquí algunos links útiles para ello:
             * Debes monitorear constantemente tu presupuesto restante en la interfaz del laboratorio.
             * Esta información del presupuesto se actualiza cada 8 a 12 horas, por lo que puede no reflejar tu gasto más reciente inmediatamente.
             * **Si excedes tu presupuesto, tu cuenta será desactivada y perderás TODO tu progreso y recursos.** Es fundamental que administres tus gastos para evitarlo.
-            * Monitoriza tu gasto en la interfaz de Learner Lab. Usa los recursos mínimos sugeridos y considera **destruir los stacks (infraestructura)** (`cdk destroy`) después de validar el taller para ahorrar presupuesto.
+            * Monitoriza tu gasto en la interfaz de Learner Lab. Usa los recursos mínimos sugeridos y considera **eliminar los stacks de cloudformation (infraestructura)** desde la consola después de validar el taller para ahorrar presupuesto.
         4. **Región:**
             * **SOLO** puedes usar las regiones `us-east-1` (N. Virginia) o `us-west-2` (Oregón) para todos tus recursos (CLI, secretos). Cualquier intento de usar otra región fallará.
             * **La región que utilizaremos en este taller es `us-east-1` (N. Virginia)**. Asegúrate de que tu configuración local (AWS CLI) y el pipeline de GitHub Actions estén configurados para esta región.
