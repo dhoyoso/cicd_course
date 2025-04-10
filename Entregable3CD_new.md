@@ -928,7 +928,7 @@ Si el ECS o ALB no pueden acceder a la ruta `/health` intentarán reiniciar auto
 
 ## 9. Entregable en grupo
 
-Para completar este taller, envía **un correo por grupo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Final CI/CD CloudFormation":
+Para completar este taller, envía **un correo por grupo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable CI/CD CloudFormation":
 
 1.  **URL del repositorio PÚBLICO de GitHub:** Debe contener el código de la aplicación, tests, Dockerfile, la plantilla `template.yaml` y el workflow `ci-cd.yml` actualizado.
 2.  **URL de la ejecución COMPLETA del workflow `ci-cd.yml`:** Envía la URL de una ejecución que haya completado **todos** los jobs exitosamente (build -> deploy-cfn-staging -> update-service-staging -> test-staging -> deploy-cfn-prod -> update-service-prod -> smoke-test-prod) en Github Actions.
