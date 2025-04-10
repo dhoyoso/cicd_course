@@ -541,6 +541,7 @@ Outputs:
     * Crea los siguientes secretos (ajustados para CloudFormation):
         * `AWS_ACCESS_KEY_ID`: Tu AWS Access Key ID.
         * `AWS_SECRET_ACCESS_KEY`: Tu AWS Secret Access Key.
+        * `AWS_SESSION_TOKEN`: Tu AWS Session Token.
         * `AWS_REGION`: La región de AWS que usaste (`us-east-1` o `us-west-2`).
         * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub.
         * `DOCKERHUB_TOKEN`: Tu token de Docker Hub.
