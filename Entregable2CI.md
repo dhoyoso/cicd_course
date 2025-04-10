@@ -759,7 +759,6 @@ Es importante considerar qué:
             run: |
               python -m pip install --upgrade pip
               pip install -r requirements.txt
-              pip install flask
 
           - name: Run Black (Formatter)
             run: black app --check  # --check solo verifica, no modifica
