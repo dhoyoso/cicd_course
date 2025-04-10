@@ -259,7 +259,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 
         return render_template("index.html", resultado=resultado)
 
-    if __name__ == "__main__":
+    if __name__ == "__main__":  # pragma: no cover
         app.run(debug=True, port=5000, host='0.0.0.0') # Quita debug=True para producción
     ```
     Este archivo contiene la lógica de la aplicación web.  La función `index` maneja las peticiones GET y POST en la ruta raíz (`/`).  Si la petición es un POST, intenta obtener los números y la operación del formulario y llama a las funciones de la calculadora.  Luego, renderiza la plantilla `index.html` con el resultado.
