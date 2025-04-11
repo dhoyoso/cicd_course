@@ -534,6 +534,7 @@ Outputs:
     * **Obtén las Salidas:** Anota las URLs de los ALBs, los nombres de los Clusters y los nombres de los Servicios de las salidas de los stacks (ya sea desde la consola de CloudFormation o usando el comando `describe-stacks`).
     * **Valida el despliege correcto de la imágen Docker en Staging:** Abre la URL del ALB de Staging en tu navegador que te arrojó el comando `describe-stacks` en la variable `ALBDnsName` o desde la consola de CloudFormation en Outputs del stack `calculadora-staging-stack` (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com` o similar) y verifica que la página cargue correctamente (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar). Deberías ver la página de la calculadora. Si no, revisa los logs de ECS y el ALB para identificar problemas.
     * **Valida el despliegue correcto de la imágen Docker en Producción:** repite el paso anterior pero con la URL del ALB de Producción (ej: `http://calculadora-prod-alb-xxxxxx.us-east-1.elb.amazonaws.com` o similar). Deberías ver la página de la calculadora. Si no, revisa los logs de ECS y el ALB para identificar problemas.
+    * **Finalmente, elimina manualmente los stacks de CloudFormation:** Si todo está bien, puedes eliminar los stacks de CloudFormation desde la consola de AWS o usando el comando `aws cloudformation delete-stack --stack-name <nombre_del_stack>`. Esto eliminará todos los recursos creados por CloudFormation. **Asegurate que desaparezcan los stacks en la consola de AWS CloudFormation.**
 
 8.  **Crea los secretos en GitHub:**
     * Antes de hacer lo siguiente, reinicia la sesión de AWS Academy (stop y start) para que se generen nuevas credenciales temporales. Esto es importante porque los secretos de GitHub Actions usarán estas credenciales para interactuar con AWS y Docker Hub (**recuerda que son temporales y tienen un tiempo de vida limitado**).
@@ -542,7 +543,6 @@ Outputs:
         * `AWS_ACCESS_KEY_ID`: Tu AWS Access Key ID.
         * `AWS_SECRET_ACCESS_KEY`: Tu AWS Secret Access Key.
         * `AWS_SESSION_TOKEN`: Tu AWS Session Token.
-        * `AWS_REGION`: La región de AWS que usaste (`us-east-1`).
         * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * `DOCKERHUB_TOKEN`: Tu token de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * `SONAR_TOKEN`: Tu token de SonarCloud. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
@@ -550,12 +550,6 @@ Outputs:
         * **`LAB_ROLE_ARN`**: El ARN completo de tu `LabRole`.
         * **`VPC_ID`**: El ID de tu VPC por defecto.
         * **`SUBNET_IDS`**: Los IDs de tus dos subredes públicas, separados por coma (ej: `subnet-xxx,subnet-yyy`).
-        * **`AWS_ALB_URL_STAGING`**: La URL completa (http://...) del ALB de **Staging** (Output del stack CFN).
-        * **`AWS_ALB_URL_PROD`**: La URL completa (http://...) del ALB de **Producción** (Output del stack CFN).
-        * **`AWS_ECS_CLUSTER_STAGING`**: El nombre del cluster ECS de Staging (Output del stack CFN).
-        * **`AWS_ECS_SERVICE_STAGING`**: El nombre del servicio ECS de Staging (Output del stack CFN).
-        * **`AWS_ECS_CLUSTER_PROD`**: El nombre del cluster ECS de Producción (Output del stack CFN).
-        * **`AWS_ECS_SERVICE_PROD`**: El nombre del servicio ECS de Producción (Output del stack CFN).
 
 9.  **Renombra y modifica el archivo `.github/workflows/ci.yml` por `.github/workflows/ci-cd.yml`:**
 
@@ -691,6 +685,10 @@ jobs:
     needs: build-test-publish # Depende del job anterior (necesita image_uri)
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Solo en push a main
+    outputs:
+      alb_url_staging: ${{ steps.get_stack_outputs.outputs.alb_url }}
+      cluster_name_staging: "calculadora-staging-cluster"
+      service_name_staging: "calculadora-staging-service"
 
     steps:
       # 1. Checkout del código (para acceder a template.yaml)
@@ -704,7 +702,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # 3. Desplegar/Actualizar el stack CloudFormation de Staging
       - name: Deploy CloudFormation Staging Stack
@@ -725,6 +723,31 @@ jobs:
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changes # No falla si no hay cambios en la plantilla
 
+      # 4. Obtener las salidas del Stack CloudFormation Staging
+      - name: Get Staging Stack Outputs
+        id: get_stack_outputs
+        run: |
+          # Instalar jq si no está presente (común en ubuntu-latest, pero por si acaso)
+          if ! command -v jq &> /dev/null; then
+             sudo apt-get update && sudo apt-get install -y jq
+          fi
+
+          STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name calculadora-staging-stack --query "Stacks[0].Outputs" --region us-east-1 --output json)
+          echo "Raw Stack Outputs: $STACK_OUTPUTS" # Log para depuración
+
+          # Extraer la URL del ALB (ALBDnsName)
+          ALB_URL=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="ALBDnsName") | .OutputValue')
+
+          if [ -z "$ALB_URL" ] || [ "$ALB_URL" == "null" ]; then
+            echo "Error: No se pudo obtener ALBDnsName del stack de Staging."
+            exit 1
+          fi
+
+          # Añadir http:// al inicio ya que el DNSName no lo incluye
+          ALB_URL_HTTP="http://${ALB_URL}/"
+          echo "ALB URL Staging: $ALB_URL_HTTP"
+          echo "alb_url=${ALB_URL_HTTP}" >> $GITHUB_OUTPUT
+
   # -------------------------------------
   # Job de Actualización Servicio Staging (ECS - Forzar despliegue)
   # -------------------------------------
@@ -742,26 +765,26 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # 2. Forzar un nuevo despliegue en el servicio ECS de Staging
       - name: Force New Deployment ECS Service Staging
         run: |
           echo "Forcing new deployment for Staging service..."
-          aws ecs update-service --cluster ${{ secrets.AWS_ECS_CLUSTER_STAGING }} \
-                                --service ${{ secrets.AWS_ECS_SERVICE_STAGING }} \
+          aws ecs update-service --cluster ${{ needs.deploy-cfn-staging.outputs.cluster_name_staging }} \
+                                --service ${{ needs.deploy-cfn-staging.outputs.service_name_staging }} \
                                 --force-new-deployment \
-                                --region ${{ secrets.AWS_REGION }}
+                                --region us-east-1
           # Esperar a que el despliegue se estabilice
           echo "Waiting for Staging service deployment to stabilize..."
-          aws ecs wait services-stable --cluster ${{ secrets.AWS_ECS_CLUSTER_STAGING }} --services ${{ secrets.AWS_ECS_SERVICE_STAGING }} --region ${{ secrets.AWS_REGION }}
+          aws ecs wait services-stable --cluster ${{ needs.deploy-cfn-staging.outputs.cluster_name_staging }} --services ${{ needs.deploy-cfn-staging.outputs.service_name_staging }} --region us-east-1
           echo "Staging service deployment stable."
 
   # -------------------------------------
   # Job de Pruebas de Aceptación en Staging
   # -------------------------------------
   test-staging:
-    needs: update-service-staging # Depende de que el servicio esté estable con la nueva versión
+    needs: [update-service-staging, deploy-cfn-staging] # Depende de que el servicio esté estable con la nueva versión
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -785,7 +808,7 @@ jobs:
       # 4. Ejecutar pruebas de aceptación contra el entorno de Staging
       - name: Run Acceptance Tests against Staging
         env:
-          APP_BASE_URL: ${{ secrets.AWS_ALB_URL_STAGING }} # URL del ALB de Staging desde secretos
+          APP_BASE_URL: ${{ needs.deploy-cfn-staging.outputs.alb_url_staging }} # URL del ALB de Staging desde salidas
         run: |
           echo "Running acceptance tests against: $APP_BASE_URL"
           sleep 30 # Espera prudencial para el registro del target en el ALB
@@ -798,6 +821,10 @@ jobs:
     needs: [build-test-publish, test-staging] # Depende de la imagen y de que Staging esté OK
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs: # Definir salida para la URL del ALB de producción
+      alb_url_prod: ${{ steps.get_stack_outputs.outputs.alb_url }}
+      cluster_name_prod: "calculadora-production-cluster"
+      service_name_prod: "calculadora-production-service"
 
     steps:
       # 1. Checkout del código
@@ -811,7 +838,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # 3. Desplegar/Actualizar el stack CloudFormation de Producción
       - name: Deploy CloudFormation Production Stack
@@ -832,6 +859,31 @@ jobs:
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changes
 
+      # 4. Obtener las salidas del Stack CloudFormation Producción
+      - name: Get Production Stack Outputs
+        id: get_stack_outputs
+        run: |
+          # Instalar jq si no está presente
+          if ! command -v jq &> /dev/null; then
+             sudo apt-get update && sudo apt-get install -y jq
+          fi
+
+          STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name calculadora-prod-stack --query "Stacks[0].Outputs" --region us-east-1 --output json)
+          echo "Raw Stack Outputs: $STACK_OUTPUTS" # Log
+
+          # Extraer la URL del ALB (ALBDnsName)
+          ALB_URL=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="ALBDnsName") | .OutputValue')
+
+          if [ -z "$ALB_URL" ] || [ "$ALB_URL" == "null" ]; then
+            echo "Error: No se pudo obtener ALBDnsName del stack de Producción."
+            exit 1
+          fi
+
+          # Añadir http:// al inicio
+          ALB_URL_HTTP="http://${ALB_URL}/"
+          echo "ALB URL Production: $ALB_URL_HTTP"
+          echo "alb_url=${ALB_URL_HTTP}" >> $GITHUB_OUTPUT
+
   # -------------------------------------
   # Job de Actualización Servicio Producción (ECS - Forzar despliegue)
   # -------------------------------------
@@ -848,26 +900,26 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # 2. Forzar un nuevo despliegue en el servicio ECS de Producción
       - name: Force New Deployment ECS Service Production
         run: |
           echo "Forcing new deployment for Production service..."
-          aws ecs update-service --cluster ${{ secrets.AWS_ECS_CLUSTER_PROD }} \
-                                --service ${{ secrets.AWS_ECS_SERVICE_PROD }} \
+          aws ecs update-service --cluster ${{ needs.deploy-cfn-prod.outputs.cluster_name_prod }} \
+                                --service ${{ needs.deploy-cfn-prod.outputs.service_name_prod }} \
                                 --force-new-deployment \
-                                --region ${{ secrets.AWS_REGION }}
+                                --region us-east-1
           # Esperar a que el despliegue se estabilice
           echo "Waiting for Production service deployment to stabilize..."
-          aws ecs wait services-stable --cluster ${{ secrets.AWS_ECS_CLUSTER_PROD }} --services ${{ secrets.AWS_ECS_SERVICE_PROD }} --region ${{ secrets.AWS_REGION }}
+          aws ecs wait services-stable --cluster ${{ needs.deploy-cfn-prod.outputs.cluster_name_prod }} --services ${{ needs.deploy-cfn-prod.outputs.service_name_prod }} --region us-east-1
           echo "Production service deployment stable."
 
   # -------------------------------------
   # Job de Pruebas de Humo en Producción
   # -------------------------------------
   smoke-test-prod:
-    needs: update-service-prod # Depende de que el servicio de prod esté estable
+    needs: [update-service-prod, deploy-cfn-prod] # Depende de que el servicio de prod esté estable
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -891,7 +943,7 @@ jobs:
       # 4. Ejecutar pruebas de humo contra el entorno de Producción
       - name: Run Smoke Tests against Production
         env:
-          APP_BASE_URL: ${{ secrets.AWS_ALB_URL_PROD }} # URL del ALB de Producción desde secretos
+          APP_BASE_URL: ${{ needs.deploy-cfn-prod.outputs.alb_url_prod }} # URL del ALB de Producción desde salidas
         run: |
           echo "Running smoke tests against: $APP_BASE_URL"
           sleep 30 # Espera prudencial
@@ -910,7 +962,7 @@ jobs:
     * Monitoriza la ejecución. Los jobs `deploy-cfn-*` ejecutarán `aws cloudformation deploy`. Puedes ver el progreso detallado en la consola de AWS CloudFormation.
     * Los jobs `update-service-*` forzarán el despliegue de la nueva imagen en ECS.
     * Verifica que las pruebas de aceptación y humo pasen contra las URLs de los ALBs correctos.
-    * Accede a las URLs de los ALBs de Staging y Producción para probar la aplicación manualmente.
+    * Accede a las URLs de los ALBs de Staging y Producción para probar la aplicación manualmente (puedes ver las URL en las salidas de los jobs `deploy-cfn-*` en el paso de "Get Stack Outputs" o en la consola de CloudFormation). Abre las URLs en tu navegador (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar para Staging y `http://calculadora-production-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar para Producción) y verifica que la página cargue correctamente.
 
 12. **Validación final:**
     * Asegúrate de que el pipeline CI/CD con CloudFormation funcione correctamente.
