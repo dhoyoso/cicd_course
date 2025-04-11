@@ -299,7 +299,7 @@ Parameters:
     Description: Lista de al menos DOS IDs de subredes PuBLICAS de la VPC por defecto en diferentes AZs.
 
 Resources:
-  # --- Grupo de Logs para ECS (NUEVO) ---
+  # --- Grupo de Logs para ECS ---
   ECSLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -671,7 +671,7 @@ jobs:
 
       # 13. Establecer las salidas del job usadas para el despliegue
       - name: Set Job Outputs
-        id: set_outputs # Nuevo ID para este paso
+        id: set_outputs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           echo "repo_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
