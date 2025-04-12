@@ -479,7 +479,7 @@ Outputs:
 5. **Versiona los cambios en tu repositorio:**
 
     ```bash
-    git add *
+    git add .
     git commit -m "Ajustes código, pruebas de humo y CloudFormation template"
     git push origin main
     ```
