@@ -1,4 +1,4 @@
-# Taller en Parejas Entregable 1: Introducción a CI/CD con GitHub y GitHub Actions
+# Taller Entregable 1: Introducción a CI/CD con GitHub y GitHub Actions
 
 Este es el primer entregable de tu curso de CI/CD. Aprenderás los fundamentos de GitHub, el control de versiones con Git, la configuración con YAML y cómo automatizar tareas con GitHub Actions.  ¡No te preocupes si no tienes experiencia previa, te guiaremos paso a paso!
 
@@ -404,17 +404,16 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     *   Verás el resultado del job "imprimir_info".
     *   **Inspecciona cada paso y mira los logs para entender lo que sucedió y validar el correcto funcionamiento antes de realizar la entrega.**
 
-7.  **Entrega el entregable:**
+7.  **Entrega:**
     *   En la página de la ejecución del workflow en GitHub, copia la URL completa de la página.
     *   Envía un correo electrónico a `dhoyoso@eafit.edu.co` con:
         *   **Asunto:** Entregable 1 Intro CI/CD con GitHub Actions
         *   **Cuerpo:**
-            *   Nombres y apellidos de los integrantes del grupo.
             *   La URL de la ejecución de tu workflow (valida en una pestaña de incógnito que la URL sea pública y accesible).
             *   *Responde a las siguientes preguntas*:
                 1.  ¿Qué eventos configuraste para disparar tu workflow y por qué?
                 2.  ¿Qué sistema operativo elegiste para el runner y por qué?
-                3.  Menciona al menos 3 acciones pre-construidas que encuentras en el Marketplace de GitHub Actions y qué hacen.
+                3.  Menciona al menos 3 acciones pre-construidas que encuentras en el Marketplace de GitHub Actions diferentes a las utilizadas en el workflow de este taller. Describe qué hacen y para qué sirven.
                 4.  Investiga, ¿qué es un secreto en GitHub Actions y para qué se usa? ¿Cómo lo usarías en tu workflow?
                 5.  Reflexiona sobre el uso de GitHub Actions en tu flujo de trabajo diario. ¿Qué tareas automatizarías? ¿Por qué?
 
@@ -427,10 +426,4 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 *   Mensaje personalizado correcto.
 *   Respuestas correctas y *completas* a las preguntas del correo.  (Esto es importante para evaluar la comprensión).
 
-**Pistas:**
-
-*   **Evento `on`:** Piensa en cuándo quieres que se ejecute el workflow.  ¿Quieres que se ejecute cada vez que subes cambios? ¿Quieres poder ejecutarlo manualmente?
-*   **`runs-on`:**  `ubuntu-latest` es una buena opción por defecto.
-*   **Comando `date`:**  Si no conoces el comando `date`, búscalo en la documentación del sistema operativo elegido para el runner (o usa un motor de búsqueda).
-*   **`if __name__ == "__main__":`:**  Esta es una construcción común en Python.  Investiga qué hace.
-* **RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRARIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
+**RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRARIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
