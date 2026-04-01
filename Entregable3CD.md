@@ -1,36 +1,38 @@
 # Taller Entregable 3: Despliegue Continuo (CD) con AWS ECS e Infraestructura como Código
 
-Este taller es una continuación del Taller 2, donde construimos un pipeline de Integración Continua (CI) que genera una imagen Docker de nuestra aplicación. Ahora, nos enfocaremos en la **Entrega Continua (Continuous Delivery)** y el **Despliegue Continuo (Continuous Deployment)**, automatizando el despliegue de esa imagen Docker a **AWS Elastic Container Service (ECS)**, primero a un entorno de **Staging** y luego a **Producción**, utilizando **Infraestructura como Código (IaC)** con **AWS CloudFormation**.
+Este taller es una continuación del Taller 2, donde construimos un pipeline de Integración Continua (CI) que genera una imagen Docker de nuestra aplicación. Ahora, nos enfocaremos en la **Entrega Continua (Continuous Delivery)** y el **Despliegue Continuo (Continuous Deployment)**, automatizando el despliegue de esa imagen Docker a **AWS Elastic Container Service (ECS)**, primero a un entorno de **Staging** y luego a **Producción**, utilizando **Infraestructura como Código (IaC)** con **Terraform**.
 
 Te invito a que investigues un poco sobre estos servicios y conceptos antes de comenzar, ya que son fundamentales para el desarrollo moderno de software y la entrega continua.
 
 Aquí algunos links útiles para ello:
 * [AWS ECS](https://aws.amazon.com/ecs/)
-* [AWS Cloudformation](https://aws.amazon.com/cloudformation/)
+* [Terraform](https://developer.hashicorp.com/terraform/docs)
+* [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 
 ## Conceptos Previos
 * **AWS CLI**: Interfaz de línea de comandos para interactuar con AWS. Permite gestionar recursos y servicios de AWS desde la terminal.
-* **AWS Cloudformation**: Servicio que permite crear y gestionar recursos de AWS mediante plantillas de infraestructura como código. Permite definir la infraestructura de manera declarativa y reproducible.
+* **Terraform**: Herramienta de Infraestructura como Código (IaC) de HashiCorp que permite crear, modificar y eliminar recursos en múltiples proveedores cloud (AWS, Azure, GCP, etc.) mediante archivos de configuración declarativos escritos en HCL (HashiCorp Configuration Language).
 * **Docker**: Plataforma para desarrollar, enviar y ejecutar aplicaciones en contenedores. Permite empaquetar aplicaciones y sus dependencias en un solo contenedor, asegurando que funcionen de manera consistente en diferentes entornos.
 
 ## Pre requisitos
 * Haber finalizado el taller 2 y tener los artefactos desarrollados en ese taller (app, Dockerfile, tests, pipeline de CI, etc.).
 * Instalar AWS CLI. Puedes seguir la guía oficial [aquí](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+* Instalar Terraform. Puedes seguir la guía oficial [aquí](https://developer.hashicorp.com/terraform/install). Verifica la instalación ejecutando `terraform --version` (debe retornar versión ≥ 1.6.0).
 * Instalar Docker. Puedes seguir la guía oficial [aquí](https://docs.docker.com/get-docker/). Puedes omitir este paso si ya tienes Docker instalado y funcionando en tu máquina. Asegúrate de que Docker esté corriendo y que puedas ejecutar comandos de Docker desde la terminal. Puedes verificarlo ejecutando `docker --version`.
 * Tener acceso a una cuenta de AWS:
   * Para este curso, les debió haber llegado en la(s) ultima(s) semanas un correo electrónico con asunto "Course Invitation" de AWS Academy. 
-  ![alt text](Entregable3-images/image.png)
+  ![alt text](images/e3-image-1.png)
   * Lo abren, hacen click en el botón "Get Started" y siguen las instrucciones para crear su cuenta de Canvas y AWS Academy.
   * Una vez tienen su cuenta creada, pueden ingresar usando el siguiente [link](https://www.awsacademy.com/vforcesite/LMS_Login), en el botón "Student Login" con su correo y contraseña.
   * Una vez ingresan, van a estar en el dashboard y deben hacer click en el curso llamado "AWS Academy Learning Lab".
   * Una vez dentro del curso, van a la sección "Modules" o "Modulos" y buscan el apartado "AWS Academy Learning Lab" y dan click en "Launch AWS Academy Learning Lab".
-  ![alt text](Entregable3-images/image-1.png)
+  ![alt text](images/e3-image-2.png)
   * Bajan hasta el final y aceptan los términos y condiciones "I agree".
   * Luego, les debe aparecer una consola como esta, allí deben dar click en "Start Lab" (aparecerá un icono de carga que puede tomar varios minutos). Esto les va a habilitar una cuenta de AWS con un presupuesto de $50 USD para que puedan hacer los ejercicios de este taller. Cada vez que dan "Start Lab" se inicia una sesión que dura 4 horas, al finalizarse la sesión se suspende la cuenta y su uso.
-  ![alt text](Entregable3-images/image-2.png)
+  ![alt text](images/e3-image-3.png)
   * Una vez el botón al lado de AWS (que estaba en rojo y durante el encendido estaba en amarillo) se pone en verde, pueden dar click en "AWS Details" para ver los detalles de su cuenta de AWS. Allí pueden dar click en `AWS CLI: Show` para ver sus credenciales de acceso programático (Access Key ID, Secret Access Key y Session Token) que necesitarán para configurar el AWS CLI. **¡Nunca compartas tus credenciales ni las subas a GitHub directamente!**. En la parte de abajo también pueden ver el ID y región de su cuenta de AWS, que es importante para la configuración del pipeline de GitHub Actions.
-  ![alt text](Entregable3-images/image-3.png)
-  * Si dan click al botón de "AWS" en la parte superior, se abrirá una consola de AWS en una nueva pestaña. Allí pueden ver todos los servicios de AWS disponibles para su cuenta. **Recuerden que esta cuenta tiene un presupuesto limitado de $50 USD, así que deben tener cuidado con los recursos que crean y eliminarlos cuando terminen de usarlos.** En el taller no será necesario crear recursos manualmente, ya que todo se hará a través del Cloudformation y el pipeline de GitHub Actions. Sin embargo, si necesitan crear recursos manualmente o validar la creación de los recursos y la salud de los mismos, pueden hacerlo desde esta consola.
+  ![alt text](images/e3-image-4.png)
+  * Si dan click al botón de "AWS" en la parte superior, se abrirá una consola de AWS en una nueva pestaña. Allí pueden ver todos los servicios de AWS disponibles para su cuenta. **Recuerden que esta cuenta tiene un presupuesto limitado de $50 USD, así que deben tener cuidado con los recursos que crean y eliminarlos cuando terminen de usarlos.** En el taller no será necesario crear recursos manualmente, ya que todo se hará a través de Terraform y el pipeline de GitHub Actions. Sin embargo, si necesitan crear recursos manualmente o validar la creación de los recursos y la salud de los mismos, pueden hacerlo desde esta consola.
   * **¡MUY IMPORTANTE!**: Recuerden que esta cuenta de AWS es temporal y solo está disponible durante la duración del curso. No deben usarla para proyectos personales o producción. Al finalizar el curso, su cuenta será desactivada y perderán acceso a todos los recursos creados.
 
   *  **Características clave de la sesión y la cuenta de AWS:**
@@ -44,11 +46,11 @@ Aquí algunos links útiles para ello:
             * Debes monitorear constantemente tu presupuesto restante en la interfaz del laboratorio.
             * Esta información del presupuesto se actualiza cada 8 a 12 horas, por lo que puede no reflejar tu gasto más reciente inmediatamente.
             * **Si excedes tu presupuesto, tu cuenta será desactivada y perderás TODO tu progreso y recursos.** Es fundamental que administres tus gastos para evitarlo.
-            * Monitoriza tu gasto en la interfaz de Learner Lab. Usa los recursos mínimos sugeridos y considera **eliminar los stacks de cloudformation (infraestructura)** desde la consola después de validar el taller para ahorrar presupuesto.
+            * Monitoriza tu gasto en la interfaz de Learner Lab. Usa los recursos mínimos sugeridos y considera **destruir la infraestructura con `terraform destroy`** después de validar el taller para ahorrar presupuesto.
         4. **Región:**
             * **SOLO** puedes usar las regiones `us-east-1` (N. Virginia) o `us-west-2` (Oregón) para todos tus recursos (CLI, secretos). Cualquier intento de usar otra región fallará.
             * **La región que utilizaremos en este taller es `us-east-1` (N. Virginia)**. Asegúrate de que tu configuración local (AWS CLI) y el pipeline de GitHub Actions estén configurados para esta región (ver sección 5.1).
-        5. **Rol IAM `LabRole`:** No puedes crear roles IAM libremente. Debes usar el rol pre-creado `LabRole` donde sea necesario (especialmente en la configuración de tareas ECS). El template de CloudFormation ya lo tiene en cuenta. Este rol tiene permisos limitados y no puedes modificarlo.
+        5. **Rol IAM `LabRole`:** No puedes crear roles IAM libremente. Debes usar el rol pre-creado `LabRole` donde sea necesario (especialmente en la configuración de tareas ECS). Los archivos de Terraform ya lo tienen en cuenta. Este rol tiene permisos limitados y no puedes modificarlo.
 
 
 ## 1. Conceptos de Entrega Continua y Despliegue Continuo (CD)
@@ -59,7 +61,7 @@ Aquí algunos links útiles para ello:
 **Flujo de trabajo General:**
 
 1.  **CI (Integración Continua):** Código -> Build -> Pruebas (Unit) -> Análisis -> **Imagen Docker (Artefacto)** -> Push a Docker Hub. (Cubierto en Taller 2).
-2.  **CD (Este Taller - Deployment con Staging y CloudFormation):** Imagen Docker -> **Deploy Infra Staging (CloudFormation - Auto)** -> **Pruebas Aceptación en Staging (Auto)** -> **Deploy Infra Producción (CloudFormation - Auto)** -> **Pruebas Humo en Producción (Auto)** -> Monitoreo (Inherente en ECS).
+2.  **CD (Este Taller - Deployment con Staging y Terraform):** Imagen Docker -> **Deploy Infra Staging (Terraform - Auto)** -> **Pruebas Aceptación en Staging (Auto)** -> **Deploy Infra Producción (Terraform - Auto)** -> **Pruebas Humo en Producción (Auto)** -> Monitoreo (Inherente en ECS).
 
 ## 2. Diferencias entre Continuous Deployment y Continuous Delivery
 
@@ -72,7 +74,7 @@ Aquí algunos links útiles para ello:
 | **Intervención Humana**| Sí (para liberar a Prod)                 | No (idealmente)                               |
 | **Feedback Producción**| Retrasado por aprobación                   | Muy rápido (directamente de producción)       |
 
-La elección depende del contexto. En este taller implementaremos un flujo de Despliegue Continuo utilizando AWS ECS y CloudFormation, introduciendo un entorno de Staging y un despliegue automático a Producción una vez validadas las pruebas en Staging.
+La elección depende del contexto. En este taller implementaremos un flujo de Despliegue Continuo utilizando AWS ECS y Terraform, introduciendo un entorno de Staging y un despliegue automático a Producción una vez validadas las pruebas en Staging.
 
 ## 3. Introducción a AWS y ECS
 
@@ -84,7 +86,7 @@ Para este taller, utilizaremos **Amazon Web Services (AWS)**, el proveedor líde
 * Se integra nativamente con otros servicios de AWS (VPC, Load Balancing, IAM, CloudWatch).
 * Ofrece opciones flexibles de cómputo (EC2 y Fargate). Usaremos **Fargate** para simplificar la gestión.
 * Los créditos iniciales pueden cubrir los costos de este ejercicio si se usan recursos mínimos (instancias `nano` o configuraciones Fargate pequeñas).
-* Nos permite implementar **Infraestructura como Código** usando CloudFormation.
+* Nos permite implementar **Infraestructura como Código** usando Terraform.
 
 ## 4. CI/CD en Arquitecturas Modernas
 
@@ -147,46 +149,59 @@ Esto indica que la CLI está configurada correctamente y puede interactuar con t
 
 ### 5.2 Uso en el Pipeline
 
-En nuestro pipeline de GitHub Actions, no usaremos `aws configure` interactivamente. En su lugar, utilizaremos una acción específica (`aws-actions/configure-aws-credentials`) que configura las credenciales de forma segura usando secretos almacenados en GitHub. Los comandos de la AWS CLI (como `aws cloudformation deploy` y `aws ecs update-service`) se ejecutarán directamente en los pasos del workflow después de configurar las credenciales.
+En nuestro pipeline de GitHub Actions, no usaremos `aws configure` interactivamente. En su lugar, utilizaremos una acción específica (`aws-actions/configure-aws-credentials`) que configura las credenciales de forma segura usando secretos almacenados en GitHub. Los comandos de Terraform (`terraform init`, `terraform apply`, `terraform output`) y de la AWS CLI (como `aws ecs update-service`) se ejecutarán directamente en los pasos del workflow después de configurar las credenciales.
 
 **Ten en cuenta que las credenciales que setearemos en el pipeline de GitHub Actions son temporales** y solo tienen acceso a los recursos que les otorguemos. Esto es una buena práctica de seguridad, ya que minimiza el riesgo de exposición de credenciales permanentes.
 
 **Al ser temporales quiere decir que tienen un tiempo de vida limitado usualmente de 1 a 4 horas. Esto significa que si pasa ese tiempo y queremos re ejecutar el pipeline, las credenciales ya no serán válidas y tendremos que volver a configurar las variables de entorno en los secretos de GitHub Actions para que el pipeline pueda acceder a los recursos de AWS nuevamente.**
 
-## 6. Infraestructura como Código (IaC) con AWS CloudFormation
+## 6. Infraestructura como Código (IaC) con Terraform
 
-**Infraestructura como Código (IaC)** es la práctica de gestionar infraestructura mediante código. AWS CloudFormation es el servicio de IaC nativo de AWS que te permite modelar y aprovisionar recursos de AWS de forma segura y repetible usando plantillas declarativas.
+**Infraestructura como Código (IaC)** es la práctica de gestionar infraestructura mediante código. Terraform es la herramienta de IaC open source de HashiCorp que permite modelar y aprovisionar recursos en múltiples proveedores cloud de forma segura y repetible usando archivos de configuración declarativos.
 
-**Ventajas de CloudFormation:**
+**Ventajas de Terraform:**
 
-* **Declarativo:** Defines el estado deseado, CloudFormation se encarga de alcanzarlo.
+* **Declarativo:** Defines el estado deseado, Terraform se encarga de alcanzarlo.
+* **Multi-cloud:** El mismo lenguaje (HCL) funciona con AWS, Azure, GCP y más de 1.000 proveedores.
 * **Automatización y Consistencia:** Despliegues rápidos, repetibles y consistentes entre entornos.
-* **Versionado:** Las plantillas se pueden versionar en Git.
-* **Gestión de Dependencias:** CloudFormation entiende las dependencias entre recursos.
-* **Gestión de Estado:** Mantiene el estado del stack y permite actualizaciones y eliminaciones controladas.
+* **Versionado:** Los archivos `.tf` se pueden versionar en Git.
+* **Plan antes de aplicar:** `terraform plan` muestra exactamente qué va a cambiar *antes* de hacerlo, reduciendo el riesgo de cambios inesperados.
+* **Gestión de Estado:** Mantiene el estado de la infraestructura y permite actualizaciones y eliminaciones controladas.
 
-**Plantillas CloudFormation:**
+**Archivos de configuración de Terraform:**
 
-* Son archivos de texto en formato **YAML** o JSON. Usaremos YAML por ser más legible.
+* Son archivos de texto con extensión **`.tf`** escritos en HCL (HashiCorp Configuration Language).
 * **Estructura Principal:**
-    * `AWSTemplateFormatVersion`: Versión de la plantilla (opcional pero recomendado).
-    * `Description`: Descripción de la plantilla.
-    * `Parameters`: Valores de entrada para personalizar el stack (ej: nombre del entorno, ARN del rol, URI de la imagen).
-    * `Resources`: La definición de los recursos AWS a crear (VPC, Subnets, ECS Cluster, Service, ALB, etc.). **Esta es la sección principal.**
-    * `Outputs`: Valores que el stack expone después de crearse (ej: URL del ALB).
+    * `terraform {}`: Bloque de configuración del backend y los proveedores requeridos.
+    * `provider "aws" {}`: Configuración del proveedor de AWS (región, credenciales).
+    * `variable {}`: Valores de entrada para parametrizar la configuración (ej: nombre del entorno, ARN del rol, URI de la imagen).
+    * `resource {}`: La definición de los recursos AWS a crear (ECS Cluster, Service, ALB, etc.). **Esta es la sección principal.**
+    * `output {}`: Valores que se exponen después de aplicar la configuración (ej: URL del ALB).
+* **Archivos que crearemos:**
+    * `infra/variables.tf`: Declara los parámetros de entrada.
+    * `infra/main.tf`: Define todos los recursos AWS.
+    * `infra/outputs.tf`: Expone los valores de salida (URL del ALB, nombres del cluster y servicio).
 
 **Consideraciones para Learner Lab:**
 
-* **Permisos:** CloudFormation ejecutará las acciones usando las credenciales con las que se invoca (tu rol de Learner Lab). Como no tienes el permiso `iam:CreateRole`, **no podemos definir recursos `AWS::IAM::Role`** en la plantilla. Debemos referenciar el `LabRole` existente.
+* **Permisos:** Terraform ejecutará las acciones usando las credenciales con las que se invoca (tu rol de Learner Lab). Como no tienes el permiso `iam:CreateRole`, **no podemos crear recursos de tipo `aws_iam_role`** en Terraform. Debemos referenciar el `LabRole` existente mediante un `data source`.
 * **VPC por Defecto:** Para simplificar y evitar posibles problemas de permisos al crear VPCs/Subnets/Gateways, usaremos la **VPC por defecto** y sus **subredes públicas**. Deberás identificar los IDs de estas subredes en tu cuenta/región.
+* **Estado de Terraform (`terraform.tfstate`):** Terraform guarda el estado de la infraestructura en un archivo local `terraform.tfstate`. **Este archivo nunca debe subirse a Git** (contiene información sensible). Agrégalo al `.gitignore`. En un entorno de producción real se usaría un backend remoto (S3 + DynamoDB), pero para este laboratorio trabajaremos con estado local.
 
-## 7. Implementación del Pipeline CD con Staging y Producción en AWS ECS usando CloudFormation
+## 7. Implementación del Pipeline CD con Staging y Producción en AWS ECS usando Terraform
 
 1.  **Asegúrate de que el código de la aplicación y las pruebas estén listos:**
 
     * **`app/app.py`**:
         * Debe usar un puerto configurable: `app_port = int(os.environ.get("PORT", 5000))` (ECS suele inyectar la variable `PORT`). Gunicorn en el Dockerfile ya expone el puerto 8000.
         * Debe tener `debug=False`.
+        * **Debe tener configurado el `secret_key` para Flask-WTF (CSRF).** Flask-WTF requiere un `secret_key` para generar tokens CSRF. En ECS el contenedor no tiene acceso a archivos locales ni a variables que no se le pasen explícitamente. Terraform inyectará la variable de entorno `FLASK_SECRET_KEY` al contenedor (ver paso 4 y 8).
+            * **Si tu `app.py` usa `app.config.from_prefixed_env()`** (la forma recomendada): no necesitas ninguna línea adicional. Flask lee automáticamente `FLASK_SECRET_KEY` del entorno y lo mapea a `app.secret_key`.
+            * **Si tu `app.py` NO usa `from_prefixed_env()`**: añade esta línea después de crear la instancia `app`:
+            ```python
+            app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-only-insecure-key")
+            ```
+            El valor de fallback `"dev-only-insecure-key"` solo sirve para desarrollo local. En ECS se usará el valor del secreto `SECRET_KEY` de GitHub Actions, que Terraform inyectará al contenedor como `FLASK_SECRET_KEY`.
         * Debe incluir el endpoint `/health`:
             ```python
             @app.route("/health")
@@ -270,286 +285,562 @@ En nuestro pipeline de GitHub Actions, no usaremos `aws configure` interactivame
         * Identifica al menos **dos** subredes en diferentes Zonas de Disponibilidad dentro de esa VPC por defecto. Verifica que sus tablas de rutas asociadas tengan una ruta `0.0.0.0/0` apuntando a un Internet Gateway (`igw-...`). Estas son tus subredes públicas.
         * Copia los **IDs** de estas subredes (ej: `subnet-xxxxxxxxxxxxxxxxx`, `subnet-yyyyyyyyyyyyyyyyy`). **Los necesitarás.**
 
-4.  **Crea la Plantilla CloudFormation (`template.yaml`):**
-    * Crea un archivo llamado `template.yaml` en la raíz de tu repositorio.
-    * Pega el siguiente contenido YAML en él. Lee los comentarios cuidadosamente.
+4.  **Crea los archivos de Terraform en la carpeta `infra/`:**
+    * Crea una carpeta llamada `infra/` en la raíz de tu repositorio.
+    * Dentro de ella, crea los tres archivos siguientes. Lee los comentarios cuidadosamente.
 
-```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Description: >
-  CloudFormation template para desplegar la aplicacion Calculadora en ECS Fargate
-  con ALB. Usa la VPC por defecto y el LabRole existente.
+**`infra/variables.tf`**
 
-Parameters:
-  EnvironmentName:
-    Type: String
-    Description: "Nombre del entorno (ej: staging, production). Usado para nombrar recursos."
-    AllowedValues: [staging, production]
-  DockerImageUri:
-    Type: String
-    Description: "URI completo de la imagen Docker a desplegar (ej: usuario/repo:tag)."
-  LabRoleArn:
-    Type: String
-    Description: ARN completo del rol IAM 'LabRole' existente en la cuenta.
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-    Description: ID de la VPC por defecto donde desplegar.
-  SubnetIds:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: Lista de al menos DOS IDs de subredes PuBLICAS de la VPC por defecto en diferentes AZs.
+```hcl
+# infra/variables.tf
 
-Resources:
-  # --- Grupo de Logs para ECS ---
-  ECSLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/ecs/calculadora-${EnvironmentName}-task'
-      RetentionInDays: 7 # Retener logs por 7 días (ajusta si es necesario)
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+variable "environment_name" {
+  description = "Nombre del entorno (ej: staging, production). Usado para nombrar recursos."
+  type        = string
+  validation {
+    condition     = contains(["staging", "production"], var.environment_name)
+    error_message = "El entorno debe ser 'staging' o 'production'."
+  }
+}
 
-  # --- Cluster ECS ---
-  ECSCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub 'calculadora-${EnvironmentName}-cluster'
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+variable "docker_image_uri" {
+  description = "URI completo de la imagen Docker a desplegar (ej: usuario/repo:tag)."
+  type        = string
+}
 
-  # --- Seguridad ---
-  # Security Group para el Load Balancer (permite HTTP desde internet)
-  ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Sub 'alb-sg-${EnvironmentName}'
-      GroupDescription: Permite trafico HTTP al ALB
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+variable "lab_role_arn" {
+  description = "ARN completo del rol IAM 'LabRole' existente en la cuenta."
+  type        = string
+}
 
-  # Security Group para el Servicio ECS (permite trafico desde el ALB en el puerto 8000)
-  ECSServiceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Sub 'ecs-service-sg-${EnvironmentName}'
-      GroupDescription: Permite trafico desde el ALB al servicio ECS
-      VpcId: !Ref VpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 8000 # Puerto del contenedor
-          ToPort: 8000
-          SourceSecurityGroupId: !Ref ALBSecurityGroup # Solo permite desde el ALB SG
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+variable "vpc_id" {
+  description = "ID de la VPC por defecto donde desplegar."
+  type        = string
+}
 
-  # --- Load Balancer ---
-  ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: !Sub 'calculadora-${EnvironmentName}-alb'
-      Subnets: !Ref SubnetIds # Debe estar en subredes publicas
-      SecurityGroups:
-        - !Ref ALBSecurityGroup
-      Scheme: internet-facing
-      Type: application
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+variable "subnet_ids" {
+  description = "Lista de al menos DOS IDs de subredes públicas de la VPC por defecto en diferentes AZs."
+  type        = list(string)
+}
 
-  # Listener HTTP en el puerto 80
-  ALBListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref ApplicationLoadBalancer
-      Port: 80
-      Protocol: HTTP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref ECSTargetGroup
+variable "aws_region" {
+  description = "Región de AWS a usar."
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "secret_key" {
+  description = "Clave secreta para Flask (usada por flask-wtf para tokens CSRF). Nunca se imprime en logs gracias a sensitive = true."
+  type        = string
+  sensitive   = true
+  default     = "dev-only-insecure-key"
+}
+```
+
+**`infra/main.tf`**
+
+```hcl
+# infra/main.tf
+
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# --- Grupo de Logs para ECS ---
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/calculadora-${var.environment_name}-task"
+  retention_in_days = 7
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
+
+# --- Cluster ECS ---
+resource "aws_ecs_cluster" "main" {
+  name = "calculadora-${var.environment_name}-cluster"
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
+
+# --- Seguridad ---
+# Security Group para el Load Balancer (permite HTTP desde internet)
+resource "aws_security_group" "alb_sg" {
+  name        = "alb-sg-${var.environment_name}"
+  description = "Permite trafico HTTP al ALB"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "HTTP desde internet"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
+
+# Security Group para el Servicio ECS (permite trafico desde el ALB en el puerto 8000)
+resource "aws_security_group" "ecs_sg" {
+  name        = "ecs-service-sg-${var.environment_name}"
+  description = "Permite trafico desde el ALB al servicio ECS"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description     = "Trafico desde el ALB"
+    from_port       = 8000 # Puerto del contenedor
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id] # Solo permite desde el ALB SG
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
+
+# --- Load Balancer ---
+resource "aws_lb" "main" {
+  name               = "calculadora-${var.environment_name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = var.subnet_ids # Debe estar en subredes publicas
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
 
 # Target Group para las tareas ECS
-  ECSTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub 'tg-ecs-${EnvironmentName}'
-      VpcId: !Ref VpcId
-      Port: 8000 # Puerto del contenedor
-      Protocol: HTTP
-      TargetType: ip # Necesario para Fargate
-      # --- Propiedades de Health Check (CORREGIDO) ---
-      HealthCheckEnabled: true
-      HealthCheckPath: /health # Endpoint de health check de la app
-      HealthCheckPort: '8000' # Puerto del contenedor
-      HealthCheckProtocol: HTTP
-      HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 2
-      HealthCheckIntervalSeconds: 15 # Nombre corregido
-      HealthCheckTimeoutSeconds: 5  # Nombre corregido
-      # --- Fin Propiedades de Health Check ---
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+resource "aws_lb_target_group" "ecs_tg" {
+  name        = "tg-ecs-${var.environment_name}"
+  port        = 8000 # Puerto del contenedor
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip" # Necesario para Fargate
 
-  # --- Definicion de Tarea ECS ---
-  ECSTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    DependsOn: ECSLogGroup # Asegura que el Log Group exista primero
-    Properties:
-      Family: !Sub 'calculadora-${EnvironmentName}-task'
-      RequiresCompatibilities:
-        - FARGATE
-      NetworkMode: awsvpc
-      Cpu: '256' # 0.25 vCPU (minimo Fargate)
-      Memory: '512' # 0.5 GB (minimo Fargate)
-      TaskRoleArn: !Ref LabRoleArn # Rol para permisos DENTRO del contenedor (si necesita llamar a otros servicios AWS)
-      ExecutionRoleArn: !Ref LabRoleArn # Rol para que ECS/Fargate pueda descargar imagen, enviar logs, etc.
-      ContainerDefinitions:
-        - Name: !Sub 'calculadora-${EnvironmentName}-container'
-          Image: !Ref DockerImageUri # Imagen de Docker Hub
-          PortMappings:
-            - ContainerPort: 8000
-              Protocol: tcp
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              # Usar !Ref para hacer referencia al Log Group creado
-              awslogs-group: !Ref ECSLogGroup
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: ecs
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+  health_check {
+    enabled             = true
+    path                = "/health" # Endpoint de health check de la app
+    port                = "8000"    # Puerto del contenedor
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 15
+    timeout             = 5
+    matcher             = "200"
+  }
 
-  # --- Servicio ECS ---
-  ECSService:
-    Type: AWS::ECS::Service
-    Properties:
-      ServiceName: !Sub 'calculadora-${EnvironmentName}-service'
-      Cluster: !Ref ECSCluster
-      TaskDefinition: !Ref ECSTaskDefinition
-      DesiredCount: 1 # Numero inicial de tareas
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: ENABLED # Necesario en subredes publicas sin NAT Gateway
-          Subnets: !Ref SubnetIds # Las mismas subredes publicas del ALB
-          SecurityGroups:
-            - !Ref ECSServiceSecurityGroup
-      LoadBalancers:
-        - ContainerName: !Sub 'calculadora-${EnvironmentName}-container'
-          ContainerPort: 8000
-          TargetGroupArn: !Ref ECSTargetGroup
-      # DesiredCount y TaskDefinition se actualizan en despliegues posteriores
-      DeploymentConfiguration:
-        MinimumHealthyPercent: 50 # Permite que baje al 50% durante el deploy
-        MaximumPercent: 200 # Permite que suba al 200% temporalmente
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
-    DependsOn: # Asegura que el listener exista antes de crear el servicio
-      - ALBListener
+  tags = {
+    Environment = var.environment_name
+  }
+}
 
-Outputs:
-  ALBDnsName:
-    Description: DNS Name of the Application Load Balancer
-    Value: !GetAtt ApplicationLoadBalancer.DNSName
-    Export:
-      Name: !Sub '${AWS::StackName}-ALBDnsName'
-  ECSClusterName:
-    Description: Name of the ECS Cluster
-    Value: !Ref ECSCluster
-    Export:
-      Name: !Sub '${AWS::StackName}-ECSClusterName'
-  ECSServiceName:
-    Description: Name of the ECS Service
-    Value: !GetAtt ECSService.Name # Obtener el nombre completo del servicio
-    Export:
-      Name: !Sub '${AWS::StackName}-ECSServiceName'
+# Listener HTTP en el puerto 80
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs_tg.arn
+  }
+}
+
+# --- Definición de Tarea ECS ---
+resource "aws_ecs_task_definition" "app" {
+  family                   = "calculadora-${var.environment_name}-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"  # 0.25 vCPU (minimo Fargate)
+  memory                   = "512"  # 0.5 GB (minimo Fargate)
+  task_role_arn            = var.lab_role_arn       # Rol para permisos DENTRO del contenedor
+  execution_role_arn       = var.lab_role_arn       # Rol para que ECS/Fargate pueda descargar imagen, enviar logs, etc.
+
+  container_definitions = jsonencode([
+    {
+      name  = "calculadora-${var.environment_name}-container"
+      image = var.docker_image_uri # Imagen de Docker Hub
+
+      portMappings = [
+        {
+          containerPort = 8000
+          protocol      = "tcp"
+        }
+      ]
+
+      # Variable de entorno inyectada al contenedor: clave secreta para Flask-WTF (CSRF).
+      # El prefijo FLASK_ hace que from_prefixed_env() la recoja automáticamente como app.secret_key.
+      environment = [
+        {
+          name  = "FLASK_SECRET_KEY"
+          value = var.secret_key
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+    }
+  ])
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
+
+# --- Servicio ECS ---
+resource "aws_ecs_service" "main" {
+  name            = "calculadora-${var.environment_name}-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.app.arn
+  desired_count   = 1 # Numero inicial de tareas
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = var.subnet_ids # Las mismas subredes publicas del ALB
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = true # Necesario en subredes publicas sin NAT Gateway
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_tg.arn
+    container_name   = "calculadora-${var.environment_name}-container"
+    container_port   = 8000
+  }
+
+  deployment_minimum_healthy_percent = 50  # Permite que baje al 50% durante el deploy
+  deployment_maximum_percent         = 200 # Permite que suba al 200% temporalmente
+
+  # Ignorar cambios en task_definition porque el pipeline los actualiza con --force-new-deployment
+  lifecycle {
+    ignore_changes = [task_definition, desired_count]
+  }
+
+  depends_on = [aws_lb_listener.http] # Asegura que el listener exista antes de crear el servicio
+
+  tags = {
+    Environment = var.environment_name
+  }
+}
 ```
+
+**`infra/outputs.tf`**
+
+```hcl
+# infra/outputs.tf
+
+output "alb_dns_name" {
+  description = "DNS Name del Application Load Balancer"
+  value       = aws_lb.main.dns_name
+}
+
+output "alb_url" {
+  description = "URL completa del ALB (con http://)"
+  value       = "http://${aws_lb.main.dns_name}/"
+}
+
+output "ecs_cluster_name" {
+  description = "Nombre del ECS Cluster"
+  value       = aws_ecs_cluster.main.name
+}
+
+output "ecs_service_name" {
+  description = "Nombre del ECS Service"
+  value       = aws_ecs_service.main.name
+}
+```
+
+**Agrega Terraform al `.gitignore`:**
+
+```bash
+# Agrega estas líneas al .gitignore de tu repositorio
+# Terraform
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/terraform.tfstate.d/
+infra/*.tfvars
+```
+
+> **Nota:** la carpeta `terraform.tfstate.d/` es donde Terraform guarda los archivos de estado de cada workspace (staging/production). Nunca la subas a Git, ya que contiene información sensible de tu infraestructura.
 
 5. **Versiona los cambios en tu repositorio:**
 
     ```bash
     git add .
-    git commit -m "Ajustes código, pruebas de humo y CloudFormation template"
+    git commit -m "Ajustes código, pruebas de humo y archivos Terraform"
     git push origin main
     ```
 
 6. **Asegurate de que el pipeline de CI actual corra bien y llegue hasta desplegar la nueva imágen Docker en Docker Hub.**
     * Verifica que la imagen se haya subido correctamente a Docker Hub. Ve a tu repositorio de Docker Hub y verifica que la imagen `cicd-pipeline-python` esté disponible con el tag `latest` (o el SHA del commit) y que el **last pushed sea reciente**.
 
-    * Esto es importante porque esta nueva versión de la imágen Docker será la que usaremos en el despliegue de CloudFormation para Staging y Producción. Si no se subió correctamente, el despliegue fallará o nunca finalizará por que no encontrará el health check del ALB lo que hará que el servicio ECS no esté disponible.
+    * Esto es importante porque esta nueva versión de la imágen Docker será la que usaremos en el despliegue de Terraform para Staging y Producción. Si no se subió correctamente, el despliegue fallará o nunca finalizará por que no encontrará el health check del ALB lo que hará que el servicio ECS no esté disponible.
 
     * Si el pipeline no corre bien, corrige los defectos, pruebas unitarias y demás hasta que llegue a la etapa de subir la imagen Docker a Docker Hub. **No continúes hasta que el pipeline corra bien y suba la imagen Docker.**
 
-7.  **Despliega la Infraestructura Inicialmente (Manual con CloudFormation):**
+7.  **Despliega la Infraestructura Inicialmente (Manual con Terraform):**
     * Asegúrate de tener la AWS CLI configurada.
-    * Navega a la raíz de tu repositorio (donde está `template.yaml`).
-    * Ejecuta el comando `aws cloudformation deploy` **DOS VECES**, una para Staging y otra para Producción. Reemplaza los placeholders `<...>` con tus valores reales y si estás en Windows cambia los backslashes de los saltos de línea por `^` (caracter de escape de Windows).
+    * Navega a la carpeta `infra/` de tu repositorio.
+    * Reemplaza todos los placeholders `<...>` con tus valores reales antes de ejecutar los comandos.
+    * Comandos a utilizar:
+      * **`terraform init`**: Descarga los plugins del proveedor de AWS. Solo es necesario ejecutarlo una vez (o cuando se cambia la versión del proveedor).
+      * **`terraform workspace new <nombre>`**: Crea un workspace nuevo con estado aislado. Cada workspace tiene su propio `terraform.tfstate` guardado en `terraform.tfstate.d/<nombre>/`.
+      * **`terraform apply -auto-approve`**: Crea o actualiza los recursos definidos en los archivos `.tf`. El flag `-auto-approve` evita la confirmación interactiva.
+      * **`terraform output`**: Muestra los valores definidos en `outputs.tf`, como la URL del ALB, el nombre del cluster y el nombre del servicio ECS.
 
-        ```bash
-        # --- Despliegue Staging ---
-        aws cloudformation deploy \
-          --template-file template.yaml \
-          --stack-name calculadora-staging-stack \
-          --parameter-overrides \
-            EnvironmentName=staging \
-            DockerImageUri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest \
-            LabRoleArn=<ARN_COMPLETO_DE_TU_LABROLE> \
-            VpcId=<ID_DE_TU_VPC_POR_DEFECTO> \
-            SubnetIds=<ID_SUBNET_PUBLICA_1>,<ID_SUBNET_PUBLICA_2> \
-          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-          --region us-east-1
 
-        # Espera a que termine... luego obtén las salidas si es necesario:
-        aws cloudformation describe-stacks --stack-name calculadora-staging-stack --query "Stacks[0].Outputs" --region us-east-1
+      > **¿Por qué usar Terraform Workspaces?**
+      > Terraform guarda el estado de tu infraestructura en un archivo local `terraform.tfstate`. Si ejecutas `terraform apply` dos veces en la misma carpeta (una para staging y otra para producción), el segundo `apply` **sobreescribe** el estado del primero, destruyendo los recursos de staging o mezclando ambos entornos. Para evitar esto, usamos **Terraform Workspaces**: cada workspace mantiene su propio archivo de estado aislado, lo que permite gestionar staging y producción de forma completamente independiente desde la misma carpeta.
+    ---
 
-        # --- Despliegue Producción ---
-        aws cloudformation deploy \
-          --template-file template.yaml \
-          --stack-name calculadora-prod-stack \
-          --parameter-overrides \
-            EnvironmentName=production \
-            DockerImageUri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest \
-            LabRoleArn=<ARN_COMPLETO_DE_TU_LABROLE> \
-            VpcId=<ID_DE_TU_VPC_POR_DEFECTO> \
-            SubnetIds=<ID_SUBNET_PUBLICA_1>,<ID_SUBNET_PUBLICA_2>
-          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-          --region us-east-1
+    **Paso 1 — Navegar a la carpeta de Terraform e inicializar:**
 
-        # Espera a que termine... luego obtén las salidas si es necesario:
-        aws cloudformation describe-stacks --stack-name calculadora-prod-stack --query "Stacks[0].Outputs" --region us-east-1
-        ```
-    * **`--capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM`**: Son necesarias porque estamos haciendo referencia a un rol IAM existente (`LabRoleArn`) y CloudFormation necesita confirmación explícita para trabajar con recursos IAM.
-    * **Verifica la creación de los dos stacks de infraestructura en la Consola:** Ve a la consola de AWS, busca CloudFormation y confirma que ambos stacks (`calculadora-staging-stack`, `calculadora-prod-stack`) se hayan creado correctamente (`CREATE_COMPLETE`).
-    * **Obtén las Salidas:** Anota las URLs de los ALBs, los nombres de los Clusters y los nombres de los Servicios de las salidas de los stacks (ya sea desde la consola de CloudFormation o usando el comando `describe-stacks`).
-    * **Valida el despliege correcto de la imágen Docker en Staging:** Abre la URL del ALB de Staging en tu navegador que te arrojó el comando `describe-stacks` en la variable `ALBDnsName` o desde la consola de CloudFormation en Outputs del stack `calculadora-staging-stack` (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com` o similar) y verifica que la página cargue correctamente (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar). Deberías ver la página de la calculadora. Si no, revisa los logs de ECS y el ALB para identificar problemas.
-    * **Valida el despliegue correcto de la imágen Docker en Producción:** repite el paso anterior pero con la URL del ALB de Producción (ej: `http://calculadora-prod-alb-xxxxxx.us-east-1.elb.amazonaws.com` o similar). Deberías ver la página de la calculadora. Si no, revisa los logs de ECS y el ALB para identificar problemas.
-    * **Finalmente, elimina manualmente los stacks de CloudFormation:** Si todo está bien, puedes eliminar los stacks de CloudFormation desde la consola de AWS o usando el comando `aws cloudformation delete-stack --stack-name <nombre_del_stack>`. Esto eliminará todos los recursos creados por CloudFormation. **Asegurate que desaparezcan los stacks en la consola de AWS CloudFormation.**
+    ```bash
+    cd infra/
+    ```
 
-8.  **Crea los secretos en GitHub:**
+    ```bash
+    # Descarga el provider de AWS (solo la primera vez, o cuando cambia la versión del provider)
+    terraform init
+    ```
+
+    ---
+
+    **Paso 2 — Crear workspace y desplegar Staging:**
+
+    ```bash
+    # Crea el workspace de staging y actívalo
+    terraform workspace new staging
+    ```
+
+    > Si el workspace ya existe (por ejemplo, en un segundo intento), usa `terraform workspace select staging` en lugar de `new`.
+
+    > **`secret_key` en el apply manual:** La variable `secret_key` tiene un valor por defecto (`"dev-only-insecure-key"`) definido en `variables.tf`, así que no es necesario pasarla explícitamente durante la validación local. En el pipeline de GitHub Actions, el valor real se inyecta automáticamente desde el secreto `SECRET_KEY` de GitHub, que Terraform pasa al contenedor como la variable de entorno `FLASK_SECRET_KEY`.
+
+    **Linux / Mac:**
+    ```bash
+    terraform apply \
+      -var="environment_name=staging" \
+      -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" \
+      -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" \
+      -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" \
+      -var='subnet_ids=["<ID_SUBNET_PUBLICA_1>","<ID_SUBNET_PUBLICA_2>"]' \
+      -auto-approve
+    ```
+
+    **Windows (PowerShell):**
+    ```powershell
+    # El prefijo --% le indica a PowerShell que pase el resto de argumentos literalmente,
+    # lo que evita problemas con las comillas en la lista de subnets.
+    terraform --% apply -var="environment_name=staging" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
+    ```
+
+    ```bash
+    # Obtén y anota los valores de salida de Staging (URLs del ALB, nombres del cluster y servicio)
+    terraform output
+    ```
+
+    ---
+
+    **Paso 3 — Crear workspace y desplegar Producción:**
+
+    ```bash
+    # Crea el workspace de producción y actívalo
+    terraform workspace new production
+    ```
+
+    > Si el workspace ya existe, usa `terraform workspace select production`.
+
+    **Linux / Mac:**
+    ```bash
+    terraform apply \
+      -var="environment_name=production" \
+      -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" \
+      -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" \
+      -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" \
+      -var='subnet_ids=["<ID_SUBNET_PUBLICA_1>","<ID_SUBNET_PUBLICA_2>"]' \
+      -auto-approve
+    ```
+
+    **Windows (PowerShell):**
+    ```powershell
+    terraform --% apply -var="environment_name=production" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
+    ```
+
+    ```bash
+    # Obtén y anota los valores de salida de Producción
+    terraform output
+    ```
+
+    ---
+
+    **Paso 4 — Verificación y Troubleshooting:**
+
+    * **Verifica la creación de la infraestructura en la Consola:** Ve a la consola de AWS, busca los servicios `ECS` y `EC2 > Load Balancers` y confirma que los recursos de staging y producción se hayan creado correctamente. Deberías ver **dos clusters ECS** (`calculadora-staging-cluster` y `calculadora-production-cluster`) y **dos ALBs**.
+    * **Obtén las Salidas:** Anota las URLs de los ALBs, los nombres de los Clusters y los nombres de los Servicios de la salida de `terraform output` de cada workspace.
+    * **Valida el despliegue correcto de la imágen Docker en Staging:** Abre la URL del ALB de Staging en tu navegador (valor `alb_url` del output de Staging, ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/`) y verifica que la página cargue correctamente. Si no, sigue la guía de troubleshooting a continuación.
+    * **Valida el despliegue correcto de la imágen Docker en Producción:** Repite el paso anterior con la URL del ALB de Producción.
+
+    > **Troubleshooting: Problemas al desplegar la infraestructura**
+    >
+    > Los problemas se presentan en dos escenarios distintos. Identifica cuál es el tuyo y sigue los pasos correspondientes.
+    >
+    > ---
+    >
+    > **Escenario A — El servicio muestra "0 of 1 task running" y el deployment lleva varios minutos "in progress" sin tareas activas ni logs en CloudWatch**
+    >
+    > Esto significa que las tareas ni siquiera llegan a arrancar — el contenedor nunca se inicia. CloudWatch no tiene logs porque no hay nada que registrar aún.
+    >
+    > **A.1. Lee los eventos del servicio ECS — este es el primer lugar a revisar:**
+    > - Ve a **ECS → Clusters → tu cluster → Services → clic en el nombre del servicio → pestaña `Events`**.
+    > - **Importante:** NO uses "Event History" (esa pestaña requiere Container Insights y en el Learner Lab mostrará el error `Log group does not exist` — es un error esperado, no la causa de tu problema). La pestaña que necesitas es simplemente `Events`, dentro de la vista del servicio.
+    > - En `Events` verás mensajes del scheduler de ECS como `service X was unable to place a task` o `ResourceInitializationError`. Ese mensaje te dirá exactamente qué está fallando.
+    >
+    > **A.2. Verifica si las subnets son verdaderamente públicas (causa más frecuente):**
+    > - Fargate con `assign_public_ip = true` necesita que la subnet tenga una ruta hacia Internet para poder descargar la imagen de Docker Hub. Si la tabla de rutas de la subnet no tiene una entrada `0.0.0.0/0 → igw-xxx`, la tarea nunca podrá descargar la imagen y fallará silenciosamente.
+    > - Ve a **VPC → Subnets** → selecciona cada subnet que usaste en `subnet_ids` → pestaña `Route table` → verifica que exista una ruta `0.0.0.0/0` apuntando a un Internet Gateway (`igw-...`).
+    > - Si no existe esa ruta, no son subnets públicas. Elige otras subnets que sí la tengan y vuelve a ejecutar `terraform apply` con los nuevos IDs.
+    >
+    > **A.3. Verifica el URI exacto de la imagen Docker:**
+    > - El valor que pasaste en `-var="docker_image_uri=..."` debe coincidir exactamente con lo que está en Docker Hub (usuario, nombre de repo y tag).
+    > - Ve a [hub.docker.com](https://hub.docker.com), ingresa a tu repositorio y confirma que la imagen existe con ese tag exacto. Si el tag es `:latest`, asegúrate de que el pipeline de CI haya hecho push recientemente.
+    >
+    > **A.4. Verifica que el ARN pasado en `lab_role_arn` sea el del `LabRole` y no el de tu rol SSO:**
+    > - Si en la pestaña `Events` del servicio ves el mensaje `ECS was unable to assume the role 'arn:aws:iam::...:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_...'`, significa que pasaste el ARN de tu rol de inicio de sesión SSO en lugar del `LabRole`. Son roles diferentes:
+    >   - **Correcto:** `arn:aws:iam::<ACCOUNT_ID>:role/LabRole`
+    >   - **Incorrecto:** `arn:aws:iam::<ACCOUNT_ID>:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_...`
+    > - El ARN SSO es el que aparece en la sección `AWS Details` de la consola del Learner Lab como tu identidad de usuario. **No es el rol para las tareas ECS.**
+    > - Para corregirlo: ve a **IAM → Roles** → busca `LabRole` → copia su ARN → vuelve a ejecutar `terraform apply` en cada workspace con el ARN correcto. No necesitas hacer destroy primero; Terraform actualizará los recursos existentes.
+    >
+    > ---
+    >
+    > **Escenario B — El servicio tiene tareas corriendo pero el navegador muestra "503 Service Temporarily Unavailable"**
+    >
+    > Esto significa que las tareas están corriendo pero los contenedores no pasan el health check del ALB.
+    >
+    > **B.1. Espera 1–2 minutos y recarga.** El ALB necesita al menos 30–60 s para registrar los primeros targets. Si sigue en 503 después de 2 minutos, continúa.
+    >
+    > **B.2. Verifica el estado del Target Group:**
+    > - Ve a **EC2 → Load Balancing → Target Groups** → selecciona el TG de staging (`tg-ecs-staging`) → pestaña **Targets**.
+    > - Si el estado es `unhealthy`, el contenedor está corriendo pero la app no responde en `/health` en el puerto 8000.
+    > - **Causa más común:** la imagen desplegada no tiene el endpoint `/health` en `app/app.py`. Asegúrate de haberlo agregado (paso 7.1 de este taller), de que el pipeline de CI haya subido la nueva imagen a Docker Hub con tag `:latest`, y luego re-ejecuta el `terraform apply` del workspace correcto.
+    >
+    > **B.3. Revisa los logs del contenedor en CloudWatch:**
+    > - Ve a **CloudWatch → Log groups** → `/ecs/calculadora-staging-task` → abre el log stream más reciente.
+    > - Si ves `Address already in use` o un error de importación de Python, hay un bug en el código de la app.
+    >
+    > **B.4. Verifica los Security Groups:**
+    > - El Security Group de ECS (`ecs-service-sg-staging`) debe permitir tráfico TCP en el puerto **8000** desde el Security Group del ALB (`alb-sg-staging`). Terraform lo crea automáticamente; si lo modificaste manualmente, restáuralo.
+
+    ---
+
+    **Paso 5 — Limpieza:**
+
+    * **Finalmente, destruye la infraestructura manualmente:** Si todo está bien, destruye la infraestructura de cada workspace antes de que el pipeline la recree automáticamente. Asegúrate de estar en el workspace correcto antes de cada destroy:
+
+    ```bash
+    # Destruir Staging
+    terraform workspace select staging
+    ```
+
+    **Linux / Mac:**
+    ```bash
+    terraform apply -destroy \
+      -var="environment_name=staging" \
+      -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" \
+      -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" \
+      -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" \
+      -var='subnet_ids=["<ID_SUBNET_PUBLICA_1>","<ID_SUBNET_PUBLICA_2>"]' \
+      -auto-approve
+    ```
+
+    **Windows (PowerShell):**
+    ```powershell
+    terraform --% apply -destroy -var="environment_name=staging" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
+    ```
+
+    ```bash
+    # Destruir Producción
+    terraform workspace select production
+    ```
+
+    **Linux / Mac:**
+    ```bash
+    terraform apply -destroy \
+      -var="environment_name=production" \
+      -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" \
+      -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" \
+      -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" \
+      -var='subnet_ids=["<ID_SUBNET_PUBLICA_1>","<ID_SUBNET_PUBLICA_2>"]' \
+      -auto-approve
+    ```
+
+    **Windows (PowerShell):**
+    ```powershell
+    terraform --% apply -destroy -var="environment_name=production" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
+    ```
+
+    **Recuerda que en los siguientes pasos es el pipeline quién los volverá a crear automáticamente.**
+
+8.  **Crea los secretos y variables en GitHub:**
     * Antes de hacer lo siguiente, reinicia la sesión de AWS Academy (stop y start) para que se generen nuevas credenciales temporales. Esto es importante porque los secretos de GitHub Actions usarán estas credenciales para interactuar con AWS y Docker Hub (**recuerda que son temporales y tienen un tiempo de vida limitado**).
-    * Ve a tu repositorio en GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret.
-    * Crea los siguientes secretos (ajustados para CloudFormation):
+    * Ve a tu repositorio en GitHub -> **Settings -> Secrets and variables -> Actions**.
+
+    **Secretos** (`New repository secret`) — valores sensibles que GitHub cifra y nunca muestra en logs:
         * `AWS_ACCESS_KEY_ID`: Tu AWS Access Key ID.
         * `AWS_SECRET_ACCESS_KEY`: Tu AWS Secret Access Key.
         * `AWS_SESSION_TOKEN`: Tu AWS Session Token.
-        * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * `DOCKERHUB_TOKEN`: Tu token de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * `SONAR_TOKEN`: Tu token de SonarCloud. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+        * **`SECRET_KEY`**: Una cadena aleatoria y segura que Flask usará como clave secreta para los tokens CSRF (ej: cualquier cadena larga de caracteres aleatorios). **Nunca uses un valor simple como `secret` o `password`.**
+
+    **Variables** (pestaña `Variables` → `New repository variable`) — valores de configuración no sensibles, visibles en los logs:
+        * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * `SONAR_HOST_URL`: `https://sonarcloud.io`. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
         * **`LAB_ROLE_ARN`**: El ARN completo de tu `LabRole`.
         * **`VPC_ID`**: El ID de tu VPC por defecto.
         * **`SUBNET_IDS`**: Los IDs de tus dos subredes públicas, separados por coma (ej: `subnet-xxx,subnet-yyy`).
+
+    > **¿Por qué separar secretos de variables?** Los **secretos** están cifrados y nunca aparecen en los logs del pipeline. Las **variables** son visibles — son datos de configuración que no representan un riesgo si alguien los ve (un ARN, un ID de VPC o un usuario de Docker Hub no permiten acceso a los recursos por sí solos).
 
 9.  **Renombra y modifica el archivo `.github/workflows/ci.yml` por `.github/workflows/ci-cd.yml`:**
 
@@ -557,7 +848,7 @@ Outputs:
 
 ```yaml
 # Nombre del Workflow
-name: CI/CD Pipeline AWS ECS con CloudFormation
+name: CI/CD Pipeline AWS ECS con Terraform
 
 # Disparadores del Workflow
 on:
@@ -651,7 +942,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 12. Construir y pushear imagen Docker a Docker Hub
@@ -664,8 +955,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
+            ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
+            ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -679,19 +970,19 @@ jobs:
 
 
   # -------------------------------------
-  # Job de Despliegue CloudFormation Staging
+  # Job de Despliegue Terraform Staging
   # -------------------------------------
-  deploy-cfn-staging:
+  deploy-tf-staging:
     needs: build-test-publish # Depende del job anterior (necesita image_uri)
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Solo en push a main
     outputs:
-      alb_url_staging: ${{ steps.get_stack_outputs.outputs.alb_url }}
+      alb_url_staging: ${{ steps.get_tf_outputs.outputs.alb_url }}
       cluster_name_staging: "calculadora-staging-cluster"
       service_name_staging: "calculadora-staging-service"
 
     steps:
-      # 1. Checkout del código (para acceder a template.yaml)
+      # 1. Checkout del código (para acceder a los archivos de Terraform)
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -704,56 +995,60 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
           aws-region: us-east-1
 
-      # 3. Desplegar/Actualizar el stack CloudFormation de Staging
-      - name: Deploy CloudFormation Staging Stack
+      # 3. Configurar Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+          terraform_wrapper: false # Necesario para capturar outputs correctamente
+
+      # 4. Inicializar Terraform
+      - name: Terraform Init (Staging)
+        working-directory: infra
+        run: terraform init
+
+      # 5. Desplegar/Actualizar la infraestructura de Staging con Terraform
+      - name: Terraform Apply (Staging)
+        working-directory: infra
+        env:
+          TF_VAR_environment_name: staging
+          TF_VAR_lab_role_arn: ${{ vars.LAB_ROLE_ARN }}
+          TF_VAR_vpc_id: ${{ vars.VPC_ID }}
+          TF_VAR_secret_key: ${{ secrets.SECRET_KEY }}
         run: |
-          # Reconstruir la URI de la imagen usando el secreto y las salidas separadas
-          IMAGE_URI="${{ secrets.DOCKERHUB_USERNAME }}/${{ needs.build-test-publish.outputs.repo_name }}:${{ needs.build-test-publish.outputs.image_tag }}"
-          echo "Deploying Image URI: $IMAGE_URI" # Log para verificar (el username se ocultará aquí)
+          # Reconstruir la URI de la imagen usando la variable y las salidas separadas
+          IMAGE_URI="${{ vars.DOCKERHUB_USERNAME }}/${{ needs.build-test-publish.outputs.repo_name }}:${{ needs.build-test-publish.outputs.image_tag }}"
+          echo "Deploying Image URI: $IMAGE_URI"
 
-          aws cloudformation deploy \
-            --template-file template.yaml \
-            --stack-name calculadora-staging-stack \
-            --parameter-overrides \
-              EnvironmentName=staging \
-              DockerImageUri=$IMAGE_URI \
-              LabRoleArn=${{ secrets.LAB_ROLE_ARN }} \
-              VpcId=${{ secrets.VPC_ID }} \
-              SubnetIds="${{ secrets.SUBNET_IDS }}" \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --no-fail-on-empty-changes # No falla si no hay cambios en la plantilla
+          # Convertir "subnet-xxx,subnet-yyy" en ["subnet-xxx","subnet-yyy"] para Terraform
+          SUBNET_LIST=$(echo "${{ vars.SUBNET_IDS }}" | \
+            awk -F',' '{printf "["; for(i=1;i<=NF;i++){printf "\"%s\"%s",$i,(i<NF?",":"")}; printf "]"}')
 
-      # 4. Obtener las salidas del Stack CloudFormation Staging
-      - name: Get Staging Stack Outputs
-        id: get_stack_outputs
+          terraform apply -auto-approve \
+            -var="docker_image_uri=${IMAGE_URI}" \
+            -var="subnet_ids=${SUBNET_LIST}"
+
+      # 6. Obtener las salidas de Terraform (Staging)
+      - name: Get Terraform Outputs (Staging)
+        id: get_tf_outputs
+        working-directory: infra
         run: |
-          # Instalar jq si no está presente (común en ubuntu-latest, pero por si acaso)
-          if ! command -v jq &> /dev/null; then
-             sudo apt-get update && sudo apt-get install -y jq
-          fi
+          ALB_URL=$(terraform output -raw alb_url)
 
-          STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name calculadora-staging-stack --query "Stacks[0].Outputs" --region us-east-1 --output json)
-          echo "Raw Stack Outputs: $STACK_OUTPUTS" # Log para depuración
-
-          # Extraer la URL del ALB (ALBDnsName)
-          ALB_URL=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="ALBDnsName") | .OutputValue')
-
-          if [ -z "$ALB_URL" ] || [ "$ALB_URL" == "null" ]; then
-            echo "Error: No se pudo obtener ALBDnsName del stack de Staging."
+          if [ -z "$ALB_URL" ]; then
+            echo "Error: No se pudo obtener alb_url de Terraform (Staging)."
             exit 1
           fi
 
-          # Añadir http:// al inicio ya que el DNSName no lo incluye
-          ALB_URL_HTTP="http://${ALB_URL}/"
-          echo "ALB URL Staging: $ALB_URL_HTTP"
-          echo "alb_url=${ALB_URL_HTTP}" >> $GITHUB_OUTPUT
+          echo "ALB URL Staging: $ALB_URL"
+          echo "alb_url=${ALB_URL}" >> $GITHUB_OUTPUT
 
   # -------------------------------------
   # Job de Actualización Servicio Staging (ECS - Forzar despliegue)
   # -------------------------------------
   update-service-staging:
-    # Depende de que CFN haya actualizado la Task Definition
-    needs: [build-test-publish, deploy-cfn-staging]
+    # Depende de que Terraform haya actualizado la Task Definition
+    needs: [build-test-publish, deploy-tf-staging]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -771,20 +1066,20 @@ jobs:
       - name: Force New Deployment ECS Service Staging
         run: |
           echo "Forcing new deployment for Staging service..."
-          aws ecs update-service --cluster ${{ needs.deploy-cfn-staging.outputs.cluster_name_staging }} \
-                                --service ${{ needs.deploy-cfn-staging.outputs.service_name_staging }} \
+          aws ecs update-service --cluster ${{ needs.deploy-tf-staging.outputs.cluster_name_staging }} \
+                                --service ${{ needs.deploy-tf-staging.outputs.service_name_staging }} \
                                 --force-new-deployment \
                                 --region us-east-1
           # Esperar a que el despliegue se estabilice
           echo "Waiting for Staging service deployment to stabilize..."
-          aws ecs wait services-stable --cluster ${{ needs.deploy-cfn-staging.outputs.cluster_name_staging }} --services ${{ needs.deploy-cfn-staging.outputs.service_name_staging }} --region us-east-1
+          aws ecs wait services-stable --cluster ${{ needs.deploy-tf-staging.outputs.cluster_name_staging }} --services ${{ needs.deploy-tf-staging.outputs.service_name_staging }} --region us-east-1
           echo "Staging service deployment stable."
 
   # -------------------------------------
   # Job de Pruebas de Aceptación en Staging
   # -------------------------------------
   test-staging:
-    needs: [update-service-staging, deploy-cfn-staging] # Depende de que el servicio esté estable con la nueva versión
+    needs: [update-service-staging, deploy-tf-staging] # Depende de que el servicio esté estable con la nueva versión
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -808,21 +1103,21 @@ jobs:
       # 4. Ejecutar pruebas de aceptación contra el entorno de Staging
       - name: Run Acceptance Tests against Staging
         env:
-          APP_BASE_URL: ${{ needs.deploy-cfn-staging.outputs.alb_url_staging }} # URL del ALB de Staging desde salidas
+          APP_BASE_URL: ${{ needs.deploy-tf-staging.outputs.alb_url_staging }} # URL del ALB de Staging desde salidas de Terraform
         run: |
           echo "Running acceptance tests against: $APP_BASE_URL"
           sleep 30 # Espera prudencial para el registro del target en el ALB
           pytest tests/test_acceptance_app.py # Ejecutar las pruebas de aceptación
 
   # -------------------------------------
-  # Job de Despliegue CloudFormation Producción
+  # Job de Despliegue Terraform Producción
   # -------------------------------------
-  deploy-cfn-prod:
+  deploy-tf-prod:
     needs: [build-test-publish, test-staging] # Depende de la imagen y de que Staging esté OK
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs: # Definir salida para la URL del ALB de producción
-      alb_url_prod: ${{ steps.get_stack_outputs.outputs.alb_url }}
+      alb_url_prod: ${{ steps.get_tf_outputs.outputs.alb_url }}
       cluster_name_prod: "calculadora-production-cluster"
       service_name_prod: "calculadora-production-service"
 
@@ -840,55 +1135,59 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
           aws-region: us-east-1
 
-      # 3. Desplegar/Actualizar el stack CloudFormation de Producción
-      - name: Deploy CloudFormation Production Stack
+      # 3. Configurar Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+          terraform_wrapper: false # Necesario para capturar outputs correctamente
+
+      # 4. Inicializar Terraform
+      - name: Terraform Init (Production)
+        working-directory: infra
+        run: terraform init
+
+      # 5. Desplegar/Actualizar la infraestructura de Producción con Terraform
+      - name: Terraform Apply (Production)
+        working-directory: infra
+        env:
+          TF_VAR_environment_name: production
+          TF_VAR_lab_role_arn: ${{ vars.LAB_ROLE_ARN }}
+          TF_VAR_vpc_id: ${{ vars.VPC_ID }}
+          TF_VAR_secret_key: ${{ secrets.SECRET_KEY }}
         run: |
-          # Reconstruir la URI de la imagen usando el secreto y las salidas separadas
-          IMAGE_URI="${{ secrets.DOCKERHUB_USERNAME }}/${{ needs.build-test-publish.outputs.repo_name }}:${{ needs.build-test-publish.outputs.image_tag }}"
-          echo "Deploying Image URI: $IMAGE_URI" # Log para verificar
+          # Reconstruir la URI de la imagen usando la variable y las salidas separadas
+          IMAGE_URI="${{ vars.DOCKERHUB_USERNAME }}/${{ needs.build-test-publish.outputs.repo_name }}:${{ needs.build-test-publish.outputs.image_tag }}"
+          echo "Deploying Image URI: $IMAGE_URI"
 
-          aws cloudformation deploy \
-            --template-file template.yaml \
-            --stack-name calculadora-prod-stack \
-            --parameter-overrides \
-              EnvironmentName=production \
-              DockerImageUri=$IMAGE_URI \
-              LabRoleArn=${{ secrets.LAB_ROLE_ARN }} \
-              VpcId=${{ secrets.VPC_ID }} \
-              SubnetIds="${{ secrets.SUBNET_IDS }}" \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --no-fail-on-empty-changes
+          # Convertir "subnet-xxx,subnet-yyy" en ["subnet-xxx","subnet-yyy"] para Terraform
+          SUBNET_LIST=$(echo "${{ vars.SUBNET_IDS }}" | \
+            awk -F',' '{printf "["; for(i=1;i<=NF;i++){printf "\"%s\"%s",$i,(i<NF?",":"")}; printf "]"}')
 
-      # 4. Obtener las salidas del Stack CloudFormation Producción
-      - name: Get Production Stack Outputs
-        id: get_stack_outputs
+          terraform apply -auto-approve \
+            -var="docker_image_uri=${IMAGE_URI}" \
+            -var="subnet_ids=${SUBNET_LIST}"
+
+      # 6. Obtener las salidas de Terraform (Producción)
+      - name: Get Terraform Outputs (Production)
+        id: get_tf_outputs
+        working-directory: infra
         run: |
-          # Instalar jq si no está presente
-          if ! command -v jq &> /dev/null; then
-             sudo apt-get update && sudo apt-get install -y jq
-          fi
+          ALB_URL=$(terraform output -raw alb_url)
 
-          STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name calculadora-prod-stack --query "Stacks[0].Outputs" --region us-east-1 --output json)
-          echo "Raw Stack Outputs: $STACK_OUTPUTS" # Log
-
-          # Extraer la URL del ALB (ALBDnsName)
-          ALB_URL=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="ALBDnsName") | .OutputValue')
-
-          if [ -z "$ALB_URL" ] || [ "$ALB_URL" == "null" ]; then
-            echo "Error: No se pudo obtener ALBDnsName del stack de Producción."
+          if [ -z "$ALB_URL" ]; then
+            echo "Error: No se pudo obtener alb_url de Terraform (Production)."
             exit 1
           fi
 
-          # Añadir http:// al inicio
-          ALB_URL_HTTP="http://${ALB_URL}/"
-          echo "ALB URL Production: $ALB_URL_HTTP"
-          echo "alb_url=${ALB_URL_HTTP}" >> $GITHUB_OUTPUT
+          echo "ALB URL Production: $ALB_URL"
+          echo "alb_url=${ALB_URL}" >> $GITHUB_OUTPUT
 
   # -------------------------------------
   # Job de Actualización Servicio Producción (ECS - Forzar despliegue)
   # -------------------------------------
   update-service-prod:
-    needs: [build-test-publish, deploy-cfn-prod] # Depende de que CFN haya actualizado la Task Def de Prod
+    needs: [build-test-publish, deploy-tf-prod] # Depende de que Terraform haya actualizado la Task Def de Prod
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -906,20 +1205,20 @@ jobs:
       - name: Force New Deployment ECS Service Production
         run: |
           echo "Forcing new deployment for Production service..."
-          aws ecs update-service --cluster ${{ needs.deploy-cfn-prod.outputs.cluster_name_prod }} \
-                                --service ${{ needs.deploy-cfn-prod.outputs.service_name_prod }} \
+          aws ecs update-service --cluster ${{ needs.deploy-tf-prod.outputs.cluster_name_prod }} \
+                                --service ${{ needs.deploy-tf-prod.outputs.service_name_prod }} \
                                 --force-new-deployment \
                                 --region us-east-1
           # Esperar a que el despliegue se estabilice
           echo "Waiting for Production service deployment to stabilize..."
-          aws ecs wait services-stable --cluster ${{ needs.deploy-cfn-prod.outputs.cluster_name_prod }} --services ${{ needs.deploy-cfn-prod.outputs.service_name_prod }} --region us-east-1
+          aws ecs wait services-stable --cluster ${{ needs.deploy-tf-prod.outputs.cluster_name_prod }} --services ${{ needs.deploy-tf-prod.outputs.service_name_prod }} --region us-east-1
           echo "Production service deployment stable."
 
   # -------------------------------------
   # Job de Pruebas de Humo en Producción
   # -------------------------------------
   smoke-test-prod:
-    needs: [update-service-prod, deploy-cfn-prod] # Depende de que el servicio de prod esté estable
+    needs: [update-service-prod, deploy-tf-prod] # Depende de que el servicio de prod esté estable
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -943,7 +1242,7 @@ jobs:
       # 4. Ejecutar pruebas de humo contra el entorno de Producción
       - name: Run Smoke Tests against Production
         env:
-          APP_BASE_URL: ${{ needs.deploy-cfn-prod.outputs.alb_url_prod }} # URL del ALB de Producción desde salidas
+          APP_BASE_URL: ${{ needs.deploy-tf-prod.outputs.alb_url_prod }} # URL del ALB de Producción desde salidas de Terraform
         run: |
           echo "Running smoke tests against: $APP_BASE_URL"
           sleep 30 # Espera prudencial
@@ -951,24 +1250,24 @@ jobs:
 ```
 
 10.  **Sube los cambios a GitHub:**
-    * Asegúrate de tener `template.yaml` y `.github/workflows/ci-cd.yml` actualizados.
+    * Asegúrate de tener la carpeta `infra/` con los tres archivos Terraform y `.github/workflows/ci-cd.yml` actualizados.
       ```bash
         git add .
-        git commit -m "CICD complete pipeline with IaC in AWS ECS"
+        git commit -m "CICD complete pipeline with IaC in AWS ECS using Terraform"
         git push origin main
         ```
 
 11. **Verifica el despliegue:**
     * Ve a la pestaña "Actions" de tu repositorio. El workflow debería ejecutarse.
-    * Monitoriza la ejecución. Los jobs `deploy-cfn-*` ejecutarán `aws cloudformation deploy`. Puedes ver el progreso detallado en la consola de AWS CloudFormation.
+    * Monitoriza la ejecución. Los jobs `deploy-tf-*` ejecutarán `terraform apply`. Puedes ver el progreso detallado en los logs del job.
     * Los jobs `update-service-*` forzarán el despliegue de la nueva imagen en ECS.
     * Verifica que las pruebas de aceptación y humo pasen contra las URLs de los ALBs correctos.
-    * Accede a las URLs de los ALBs de Staging y Producción para probar la aplicación manualmente (puedes ver las URL en las salidas de los jobs `deploy-cfn-*` en el paso de "Get Stack Outputs" o en la consola de CloudFormation). Abre las URLs en tu navegador (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar para Staging y `http://calculadora-production-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar para Producción) y verifica que la página cargue correctamente.
+    * Accede a las URLs de los ALBs de Staging y Producción para probar la aplicación manualmente (puedes ver las URL en las salidas de los jobs `deploy-tf-*` en el paso de "Get Terraform Outputs"). Abre las URLs en tu navegador (ej: `http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar para Staging y `http://calculadora-production-alb-xxxxxx.us-east-1.elb.amazonaws.com/` o similar para Producción) y verifica que la página cargue correctamente.
 
 12. **Validación:**
-    * Asegúrate de que el pipeline CI/CD con CloudFormation funcione correctamente.
+    * Asegúrate de que el pipeline CI/CD con Terraform funcione correctamente.
     * Verifica los despliegues en Staging y Producción.
-    * Confirma que el health check `/health` funcione y los Target Groups estén saludables. Desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS y el ALB para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
+    * Confirma que el health check `/health` funcione y los Target Groups estén saludables. Desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS en CloudWatch para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
     * Valida que las pruebas de aceptación y humo pasen.
     * Asegúrate de no tener hallazgos de calidad/seguridad (SonarCloud, linters).
     * Asegúrate de tener una cobertura de pruebas unitarias de al menos un 80%.
@@ -980,29 +1279,27 @@ jobs:
 
 14. **Validación final:**
     * Repite TODAS las validaciones del numeral 12. Todas serán tenidas en cuenta en la evaluación y entrega de este taller.
-    * **Gestión de Costos (Learner Lab):** Considera eliminar los stacks (`aws cloudformation delete-stack --stack-name ...`) al finalizar para conservar tu presupuesto (**CUIDADO: HACERLO DESPUÉS DE ENVIAR EL ENTREGABLE DE ESTE TALLER**).
 
+## 8. Monitoreo y Health Checks en AWS ECS (con Terraform)
 
-## 8. Monitoreo y Health Checks en AWS ECS (con CloudFormation)
-
-Los Health Checks son una parte crucial de la infraestructura de AWS ECS y ALB, estos se realizan de manera automática a la ruta `/health` de la aplicación. En este taller, hemos configurado los Health Checks en el Target Group de ECS para asegurarnos de que las instancias de la aplicación estén saludables y disponibles para recibir tráfico.
+Los Health Checks son una parte crucial de la infraestructura de AWS ECS y ALB, estos se realizan de manera automática a la ruta `/health` de la aplicación. En este taller, hemos configurado los Health Checks en el Target Group de ECS (en el archivo `infra/main.tf`) para asegurarnos de que las instancias de la aplicación estén saludables y disponibles para recibir tráfico.
 
 Si el ECS o ALB no pueden acceder a la ruta `/health` intentarán reiniciar automáticamente las instancias. Si el problema persiste, el Target Group marcará las instancias como `unhealthy` y no recibirán tráfico. Esto es esencial para garantizar que solo las instancias saludables manejen las solicitudes de los usuarios.
 
 ## 9. Entregable
 
-Para completar este taller, envía **un correo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable CI/CD CloudFormation":
+Para completar este taller, envía **un correo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable CI/CD Terraform":
 
-1.  **URL del repositorio PÚBLICO de GitHub:** Debe contener el código de la aplicación, tests, Dockerfile, la plantilla `template.yaml` y el workflow `ci-cd.yml` actualizado.
-2.  **URL de la ejecución COMPLETA del workflow `ci-cd.yml`:** Envía la URL de una ejecución que haya completado **todos** los jobs exitosamente (build -> deploy-cfn-staging -> update-service-staging -> test-staging -> deploy-cfn-prod -> update-service-prod -> smoke-test-prod) en Github Actions.
+1.  **URL del repositorio PÚBLICO de GitHub:** Debe contener el código de la aplicación, tests, Dockerfile, la carpeta `infra/` con los archivos Terraform (`main.tf`, `variables.tf`, `outputs.tf`) y el workflow `ci-cd.yml` actualizado.
+2.  **URL de la ejecución COMPLETA del workflow `ci-cd.yml`:** Envía la URL de una ejecución que haya completado **todos** los jobs exitosamente (build -> deploy-tf-staging -> update-service-staging -> test-staging -> deploy-tf-prod -> update-service-prod -> smoke-test-prod) en Github Actions.
 3.  **URL de SonarCloud y captura de pantalla:** (Igual que en el taller 2 - Quality Gate `Passed`).
 4.  **URL y pantallazo de la aplicación desplegada en AWS ECS (STAGING):** URL del ALB de Staging y captura de pantalla en donde se evidencie la URL del balanceador de staging.
-5.  **URL y pantallazo de la aplicación desplegada en AWS ECS (PRODUCCIÓN):** URL del ALB de Producción y captura de pantalla en donde se evidencie la URL del balanceador de staging.
-6.  **Captura de pantalla del Health Check en AWS:** Captura de pantalla de la pestaña "Targets" de uno de tus Target Groups mostrando estado `healthy`. Esta captura la puedes tomarla desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS y el ALB para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
+5.  **URL y pantallazo de la aplicación desplegada en AWS ECS (PRODUCCIÓN):** URL del ALB de Producción y captura de pantalla en donde se evidencie la URL del balanceador de producción.
+6.  **Captura de pantalla del Health Check en AWS:** Captura de pantalla de la pestaña "Targets" de uno de tus Target Groups mostrando estado `healthy`. Esta captura la puedes tomarla desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS en CloudWatch para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
 6.  **Evidencia de las nuevas funcionalidades:** Captura de pantalla o URL de la aplicación funcionando para evaluar la correcta inclusión de las 2 funcionalidades. Adicionalmente recuerda que estas nuevas funcionalidades DEBEN ser evaluadas por las pruebas unitarias y las pruebas de aceptación.
 7.  **Responde a las siguientes preguntas:**
-    * Explica brevemente el flujo de trabajo **nuevo** completo que implementaste con **CloudFormation** (commit -> CI -> Build/Push Imagen -> Deploy CFN Staging -> Update Service Staging -> Test Staging -> Deploy CFN Prod -> Update Service Prod -> Smoke Test Prod). Sé *específico* sobre *qué artefacto se mueve, qué hace cada job principal, y qué valida cada tipo de prueba*.
-    * ¿Qué ventajas y desventajas encontraste al usar CloudFormation o infraestructura como código en vez de desplegar manualmente? ¿Qué te pareció definir la infraestructura en YAML?
+    * Explica brevemente el flujo de trabajo **nuevo** completo que implementaste con **Terraform** (commit -> CI -> Build/Push Imagen -> Deploy TF Staging -> Update Service Staging -> Test Staging -> Deploy TF Prod -> Update Service Prod -> Smoke Test Prod). Sé *específico* sobre *qué artefacto se mueve, qué hace cada job principal, y qué valida cada tipo de prueba*.
+    * ¿Qué ventajas y desventajas encontraste al usar Terraform o infraestructura como código en vez de desplegar manualmente? ¿Qué te pareció definir la infraestructura en HCL?
     * ¿Qué ventajas y desventajas tiene introducir un entorno de Staging en el pipeline de despliegue a AWS? ¿Cómo impacta esto la velocidad vs. la seguridad del despliegue?
     * ¿Qué diferencia hay entre las pruebas ejecutadas contra Staging (`test-staging`) y las ejecutadas contra Producción (`smoke-test-production`) en tu pipeline? ¿Por qué esta diferencia?
     * Considerando un ciclo completo de DevOps, ¿qué partes importantes (fases, herramientas, prácticas) crees que aún le faltan a este pipeline de CI/CD que has construido? (Menciona 2, explica por qué son importantes y cómo podrían implementarse brevemente).
@@ -1011,7 +1308,7 @@ Para completar este taller, envía **un correo** con la siguiente información a
 **Criterios de evaluación:**
 
 * URLs del repo y workflows correctas y funcionales. Ejecución de `ci-cd.yml` completa.
-* Plantilla `template.yaml` funcional y presente en el repositorio.
+* Carpeta `infra/` con archivos Terraform funcionales y presentes en el repositorio.
 * Capturas de pantalla de SonarCloud (Quality Gate `Passed`).
 * URLs y pantallazos de **ambas** aplicaciones (Staging y Producción vía ALBs).
 * Captura de pantalla del Target Group en AWS mostrando estado `healthy` de los targets (Staging y Producción).
