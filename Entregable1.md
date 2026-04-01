@@ -22,7 +22,7 @@ Git es el *sistema* de control de versiones. Es el motor que está por debajo. G
 1.  **Crea una cuenta en GitHub:**  Ve a [https://github.com/](https://github.com/) y regístrate. Es gratis.
 2.  **Crea un nuevo repositorio:**
     *   Una vez que hayas iniciado sesión, haz clic en el botón "+" en la esquina superior derecha y selecciona "New repository".  También puedes ir directamente a [https://github.com/new](https://github.com/new).
-    *   **Repository name:**  Dale un nombre a tu repositorio (por ejemplo, `primer-entregable-cicd`).  *No uses espacios, usa guiones (`-`) en su lugar*.
+    *   **Repository name:**  Dale un nombre a tu repositorio (por ejemplo, `entregable-1-cicd`).  *No uses espacios, usa guiones (`-`) en su lugar*.
     *   **Description (opcional):**  Añade una breve descripción (por ejemplo, "Primer entregable del curso de CI/CD").
     *   **Public/Private:**
         *   **Public:**  Cualquiera puede ver tu código (pero solo tú puedes modificarlo, a menos que des permiso a otros).  Ideal para proyectos de código abierto.
@@ -39,7 +39,7 @@ Para interactuar con tu repositorio de GitHub desde tu computadora, necesitarás
 1.  **`git clone <url_del_repositorio>`:**  Descarga una copia de tu repositorio remoto (en GitHub) a tu computadora local.  La URL la encuentras en la página principal de tu repositorio en GitHub, en el botón verde que dice "Code".  Copia la URL que aparece (la que termina en `.git`).
 
     ```bash
-    git clone [https://github.com/TU_USUARIO/primer-entregable-cicd.git](https://www.google.com/search?q=https://github.com/TU_USUARIO/primer-entregable-cicd.git)
+    git clone https://github.com/TU_USUARIO/entregable-1-cicd.git.git
     ```
 
     (Reemplaza `TU_USUARIO` con tu nombre de usuario de GitHub).
@@ -47,7 +47,7 @@ Para interactuar con tu repositorio de GitHub desde tu computadora, necesitarás
 2.  **`cd <nombre_del_repositorio>`:**  Navega al directorio de tu repositorio.  "cd" significa "change directory".
 
     ```bash
-    cd primer-entregable-cicd
+    cd entregable-1-cicd
     ```
 
 3.  **`git status`:**  Muestra el estado actual de tu repositorio local.  Te dice qué archivos han sido modificados, cuáles están listos para ser "commited" (guardados), etc.
@@ -90,7 +90,7 @@ GitHub ya no recomienda usar tu contraseña directamente con `git push`. En su l
 1. **Crear un PAT:**
     * Ve a tu perfil en GitHub > Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate new token > Generate new token (classic)
     * Dale un nombre descriptivo al token (ej. "Acceso Git desde mi PC").
-    * En "Select scopes", marca la casilla `repo`. Esto es suficiente para este curso.  *No marques más casillas de las necesarias por seguridad*.
+    * En "Select scopes", marca la casilla `repo` y `workflow`. Esto es suficiente para este curso.  *No marques más casillas de las necesarias por seguridad*.
     * Haz clic en "Generate token".
     * *Copia el token generado*.  GitHub no te lo volverá a mostrar.  Guárdalo en un lugar seguro.
 2.  **Usar el PAT:** Cuando Git te pida tu contraseña, *pega el token* en su lugar.
@@ -323,12 +323,12 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 
 **Instrucciones:**
 
-1.  **Crea un repositorio en GitHub** (si no lo has hecho ya) siguiendo las instrucciones de la sección "Creación de un Repositorio en GitHub".  Llámalo como quieras (por ejemplo, `entregable-1-cicd`). Asegúrate de inicializarlo con un archivo README.
+1.  **Crea un repositorio en GitHub** (si no lo has hecho ya) siguiendo las instrucciones de la sección "Creación de un Repositorio en GitHub".  Llámalo como quieras (por ejemplo, `entregable-1-cicd`). Asegúrate de inicializarlo con un archivo README. Para este ejercicio, la recomendación es crear un repositorio público para facilitar la visualización y calificación.
 
 2.  **Clona el repositorio a tu computadora local:**
 
     ```bash
-    git clone [https://github.com/TU_USUARIO/entregable-1-cicd.git](https://www.google.com/search?q=https://github.com/TU_USUARIO/entregable-1-cicd.git)
+    git clone https://github.com/TU_USUARIO/entregable-1-cicd.git
     cd entregable-1-cicd
     ```
 
@@ -427,3 +427,8 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 *   Respuestas correctas y *completas* a las preguntas del correo.  (Esto es importante para evaluar la comprensión).
 
 **RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRARIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
+
+8. **Información adicional:**
+   * Documentación oficial de GitHub Actions: https://docs.github.com/en/actions
+   Especialmente la sección 'Quickstart' y 'Learn GitHub Actions'.
+   * Ejemplos de workflows: https://github.com/actions/starter-workflows Repositorio de GitHub con templates.
