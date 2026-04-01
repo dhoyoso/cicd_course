@@ -18,9 +18,11 @@ En este taller construiremos un pipeline de Integración Continua (CI) para una 
 
 Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se realizan cambios en el código de un repositorio.  Típicamente, un pipeline de CI incluye las siguientes etapas:
 
-1.  **Code (Código):**  El desarrollador escribe código y lo sube al repositorio (usando Git, idealmente siguiendo un flujo de trabajo como Gitflow).
+1.  **Code (Código):**  El desarrollador escribe código y lo sube al repositorio (usando Git, idealmente siguiendo un flujo de trabajo como Gitflow o Trunk-Based Development).
 
-    **Gitflow** es un flujo de trabajo de Git que define una serie de ramas y reglas para gestionar el desarrollo de software de manera estructurada. Utiliza ramas principales como main y develop, y ramas de soporte como feature, release, y hotfix para organizar el trabajo en nuevas funcionalidades, preparaciones para lanzamientos y correcciones de errores críticos.
+    **Gitflow** es un flujo de trabajo de Git que define una serie de ramas y reglas para gestionar el desarrollo de software de manera estructurada. Utiliza ramas principales como `main` y `develop`, y ramas de soporte como `feature`, `release`, y `hotfix` para organizar el trabajo en nuevas funcionalidades, preparaciones para lanzamientos y correcciones de errores críticos. Es especialmente adecuado para proyectos con ciclos de releases bien definidos y equipos que necesitan mantener múltiples versiones en producción simultáneamente.
+
+    **Trunk-Based Development (TBD)** es un flujo de trabajo alternativo en el que todos los desarrolladores integran sus cambios directamente en una única rama principal (el "trunk", normalmente `main`). Las ramas de características son de muy corta duración (horas o pocos días) o se trabaja directamente en `main` usando *feature flags* para ocultar funcionalidad incompleta. Este enfoque favorece la integración continua real, reduce los conflictos de merge y acelera la entrega de valor, siendo la base de muchas prácticas DevOps modernas.
 
 2.  **Build (Construcción):** Se compila el código (si es necesario), se instalan las dependencias y se prepara el entorno de ejecución. En Python, esta etapa a menudo implica crear un entorno virtual e instalar paquetes con `pip`. En este taller, también incluirá la construcción de una imagen Docker.
 
@@ -185,19 +187,9 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 Docker Hub es el registro de imágenes Docker más popular. Necesitarás una cuenta para poder publicar (hacer "push") tu imagen Docker creada por el pipeline de CI.
 
-
 1.  **Ve a [https://hub.docker.com/](https://hub.docker.com/) y regístrate:** Haz clic en "Sign Up" y sigue las instrucciones. Necesitarás un nombre de usuario único (tu **Docker ID**), un correo electrónico y una contraseña.
-2.  **Recuerda tu Docker ID:** Lo necesitarás más adelante para configurar los secretos en GitHub y para etiquetar tu imagen Docker.
+2.  **Recuerda tu Docker ID:** Lo necesitarás más adelante para configurar las variables en GitHub y para etiquetar tu imagen Docker.
 3.  **Verifica tu correo electrónico:** Completa el proceso de verificación si Docker Hub te lo solicita.
-4.  **Genera un Token de Acceso:** Para iniciar sesión desde GitHub Actions (o cualquier script automatizado), es una **mejor práctica** usar un token de acceso en lugar de tu contraseña.
-    * Inicia sesión en Docker Hub.
-    * Ve a tu "Account Settings".
-    * Ve a la pestaña "Personal Access Tokens".
-    * Haz clic en "Generate new token".
-    * Dale un nombre descriptivo (ej: `github-actions-cicd-pipeline`).
-    * Define los permisos (ej: "Read & Write").
-    * Haz clic en "Generate".
-    * **Copia el token inmediatamente.** No podrás verlo de nuevo.
 
 ## 4. La Aplicación de Ejemplo (Calculadora Web)
 
@@ -317,7 +309,7 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 
 Antes de configurar el pipeline de CI completo, es una buena práctica verificar que tu `Dockerfile` funciona correctamente y que la aplicación se ejecuta como se espera dentro del contenedor Docker.
 
-**Asegúrate de tener Docker Desktop (o Docker Engine) instalado y en ejecución en tu máquina.**
+**Asegúrate de tener [Docker Desktop (o Docker Engine)](https://docs.docker.com/get-started/get-docker/) instalado y en ejecución en tu máquina.**
 
 1.  **Construye la imagen Docker localmente:**
     Abre tu terminal en la raíz del proyecto (donde están tu `Dockerfile` y la carpeta `app`) y ejecuta el siguiente comando:
@@ -408,37 +400,56 @@ La idea con esta herramienta es que puedas tener un análisis continuo de la cal
 SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará en un panel de control fácil de entender.
 
 1.  **Crea una cuenta en SonarCloud:**  Ve a [https://sonarcloud.io/](https://sonarcloud.io/) y regístrate con tu cuenta de GitHub.
+![alt text](images/e2-image-1.png)
 2.  **Crea una organización:** 
     * Da click en "Import an organization".
+    ![alt text](images/e2-image-2.png)
 
-
-    ![alt text](Entregable2-images/image.png)
     * Luego selecciona tu cuenta de Github. 
+    ![alt text](images/e2-image-3.png)
 
-
-    ![alt text](Entregable2-images/image-1.png)
     * Selecciona All repositories y da click en "Install".
+    ![alt text](images/e2-image-4.png)
 
-
-    ![alt text](Entregable2-images/image-2.png)
     * Crea tu organización (nombre e identificador único), selecciona el plan gratuito y da click en **crear** organización. **Recuerda el nombre de tu organización (Key), lo necesitarás más adelante.**
+    ![alt text](images/e2-image-5.png)
+    ![alt text](images/e2-image-6.png)
 
 3.  **Importa tu repositorio:**
     *   Haz clic  'My Projects' y selecciona "Analyze a new project".
     *   Selecciona tu repositorio (`cicd-pipeline-python`) y dale click en `Set Up`.
     *   Elige "Number of days", elige "30" con el fin de analizar todo el código que sea ha escrito en los últimos 30 días en tu repositorio.
     *   SonarCloud analizará tu repositorio y te mostrará un panel de control con los resultados.  Inicialmente, puede que no muestre mucha información porque no hemos configurado el análisis en el workflow.
+
+    > **⚠️ Importante — Deshabilita el Análisis Automático:** Una vez importado el proyecto, debes deshabilitar el análisis automático de SonarCloud para evitar duplicidad y errores con el análisis que realizará GitHub Actions. Ve a **Administration → Analysis Method** dentro de tu proyecto en SonarCloud y desactiva la opción **"Automatic Analysis"**. Si no haces esto, SonarCloud intentará analizar el código por su cuenta *además* del análisis lanzado desde el pipeline, lo que puede generar conflictos y resultados incorrectos.
+
 4.  **Obtén tu token de SonarCloud:**
     *   Ve a "My Account" (en la esquina superior derecha).
     *   Ve a la pestaña "Security".
-    *   Genera un token (dale un nombre, por ejemplo, "GitHub Actions Token").  *Copia este token*.  Lo necesitarás más adelante.
-5.  **Crea los secretos en GitHub:**
-    *   Ve a tu repositorio en GitHub (`cicd-pipeline-python`) > Settings > Secrets and variables > Actions > New repository secret.
-    * Crea *cuatro* secretos:
+    *   Genera un token (dale un nombre, por ejemplo, "GitHub Actions Token").  *Copia este token*.  Lo necesitarás en el siguiente paso.
+
+5.  **Crea los secretos y variables en GitHub:**
+
+    Primero, genera el token de acceso de Docker Hub (lo necesitas en este mismo paso, así evitas tenerlo anotado en un lugar inseguro):
+    *   Inicia sesión en [Docker Hub](https://hub.docker.com/).
+    *   Ve a tu **Account Settings → Personal Access Tokens**.
+    *   Haz clic en "Generate new token".
+    *   Dale un nombre descriptivo (ej: `github-actions-cicd-pipeline`) y define los permisos (ej: "Read & Write").
+    *   Haz clic en "Generate" y **copia el token inmediatamente**. No podrás verlo de nuevo.
+
+    Ahora configura los **secretos** en GitHub (para valores sensibles que nunca deben quedar expuestos):
+    *   Ve a tu repositorio en GitHub (`cicd-pipeline-python`) > **Settings > Secrets and variables > Actions > New repository secret**.
+    *   Crea los siguientes **2 secretos**:
         * **`SONAR_TOKEN`:** Pega el token que copiaste de SonarCloud.
+        * **`DOCKERHUB_TOKEN`:** Pega el **Token de Acceso** que acabas de generar en Docker Hub.
+
+    A continuación configura las **variables** en GitHub (para valores de configuración no sensibles):
+    *   En la misma sección **Settings > Secrets and variables > Actions**, haz clic en la pestaña **"Variables"** y luego en **"New repository variable"**.
+    *   Crea las siguientes **2 variables**:
+        * **`DOCKERHUB_USERNAME`:** Pon tu **Docker ID** (tu nombre de usuario en Docker Hub).
         * **`SONAR_HOST_URL`:** Pon `https://sonarcloud.io`.
-        * **`DOCKERHUB_USERNAME`:** Pon tu **Docker ID**.
-        * **`DOCKERHUB_TOKEN`:** Pega el **Token de Acceso** que generaste en Docker Hub.
+
+    > **¿Por qué separar secretos de variables?**  Los **secretos** (`secrets.*`) están cifrados y nunca se muestran en los logs del pipeline. Las **variables** (`vars.*`) son visibles en los logs y en la configuración del repositorio. `DOCKERHUB_USERNAME` y `SONAR_HOST_URL` no son datos sensibles, por lo que es más correcto y transparente tratarlos como variables de configuración.
 
 6.  **Crea un archivo `sonar-project.properties` en la raíz de tu repositorio:** Este archivo le dice a SonarCloud cómo analizar tu proyecto.
 
@@ -794,7 +805,8 @@ Es importante considerar qué:
             uses: SonarSource/sonarqube-scan-action@v5.0.0
             env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Automáticamente proporcionado
-              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
+              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # El secreto que creaste
+              SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }} # La variable que configuraste
         
           # --- Pasos de Docker ---
 
@@ -810,7 +822,7 @@ Es importante considerar qué:
             if: github.event_name == 'push' && github.ref == 'refs/heads/main'
             uses: docker/login-action@v3
             with:
-              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              username: ${{ vars.DOCKERHUB_USERNAME }}
               password: ${{ secrets.DOCKERHUB_TOKEN }}
 
           - name: Build and push Docker image
@@ -821,8 +833,8 @@ Es importante considerar qué:
               file: ./Dockerfile
               push: true
               tags: |
-                ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
-                ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
+                ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
+                ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
               cache-from: type=gha
               cache-to: type=gha,mode=max
     ```
@@ -848,9 +860,10 @@ Es importante considerar qué:
         *   **`env`:**
             *   **`GITHUB_TOKEN`:**  Token proporcionado automáticamente por GitHub Actions.
             *   **`SONAR_TOKEN`:**  El token que creaste en SonarCloud (como secreto).
+            *   **`SONAR_HOST_URL`:**  La URL de SonarCloud (como variable no sensible).
         *   **Set up QEMU**: Configura QEMU, necesario para `buildx` en algunas arquitecturas (solo en push a `main`). QUEMU permite ejecutar imágenes de diferentes arquitecturas en el mismo runner, en otras palabras, permite construir imágenes para diferentes arquitecturas (ej: `linux/arm64`, `linux/amd64`) en un solo runner.
         *   **Set up Docker Buildx**: Configura el constructor avanzado de Docker (solo en push a `main`). `buildx` permite construir imágenes de Docker de manera más eficiente y con soporte para múltiples plataformas.
-        *   **Login to Docker Hub**: Inicia sesión en Docker Hub usando los secretos `DOCKERHUB_USERNAME` y `DOCKERHUB_TOKEN` (solo en push a `main`).
+        *   **Login to Docker Hub**: Inicia sesión en Docker Hub usando la variable `DOCKERHUB_USERNAME` y el secreto `DOCKERHUB_TOKEN` (solo en push a `main`).
         *   **Build and push Docker image**: Construye la imagen Docker usando el `Dockerfile` en el contexto actual, la etiqueta con el SHA del commit y como `latest`, y la publica en Docker Hub (solo en push a `main`). Utiliza caché para acelerar futuras construcciones.
 
 2.  **Sube los cambios a GitHub:**
@@ -861,7 +874,7 @@ Es importante considerar qué:
     git push origin main
     ```
 
-3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub. Si seguiste bien todas las instrucciones, deberías ver qu el pipeline se ejecutó tras el push a `main` y deberías ver el pipeline ejecutandose o ejecutado en estado fallido, esto debido a la falta de calidad en el código, pues las pruebas unitarias y de aceptación están bien (cómo se validó localmente).
+3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub. Si seguiste bien todas las instrucciones, deberías ver que el pipeline se ejecutó tras el push a `main` y deberías ver el pipeline ejecutándose o ejecutado en **estado exitoso (verde)**, dado que las pruebas unitarias y de aceptación están bien (como se validó localmente) y el código tiene la calidad requerida.
 
 4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto o también puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` después de la validación del gate en GitHub Actions.  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. **Presta atención, sobretodo a cualquier hallazgo nivel C o inferior y a los security hotspots en High**.
 
