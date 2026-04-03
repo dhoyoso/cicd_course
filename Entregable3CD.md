@@ -1373,34 +1373,35 @@ Una vez hayas terminado el taller, tomado las evidencias, enviado el correo del 
 
 > **Importante:** si vuelves a hacer `push` a `main` o ejecutas manualmente el workflow `ci-cd.yml`, GitHub Actions puede recrear la infraestructura. Haz esta limpieza al final del todo, cuando ya no necesites más despliegues.
 
-### 10.1 Destruye la infraestructura de Staging y Producción
+### 10.1 Destruye la infraestructura creada por el pipeline
 
-Ubícate en la carpeta `infra/` de tu repositorio. Si abriste una sesión nueva de AWS Academy, vuelve a configurar tus credenciales temporales y reinicializa Terraform con el bucket remoto del estado antes de destruir, así:
+En la validación **manual/local** del paso 7 trabajaste con **Terraform workspaces**. Pero en el pipeline `ci-cd.yml` la separación entre entornos se hace de otra forma: usando el mismo bucket S3 y una **`key` distinta por entorno** (`staging/terraform.tfstate` y `production/terraform.tfstate`).
+
+Por eso, para eliminar específicamente lo que creó el pipeline, aquí **no debes usar `terraform workspace select`**. Debes reinicializar Terraform apuntando a la `key` correcta del estado remoto y luego ejecutar `terraform destroy` para ese entorno.
+
+Ubícate en la carpeta `infra/` de tu repositorio. Si abriste una sesión nueva de AWS Academy, vuelve a configurar tus credenciales temporales antes de destruir:
 
 ```bash
 cd infra/
 ```
+
+Destruye primero Staging y luego Producción. Reemplaza los placeholders `<...>` con tus valores reales.
+
+**Inicializa Terraform apuntando al estado remoto de Staging:**
 
 **Linux / Mac:**
 ```bash
 terraform init \
   -reconfigure \
   -backend-config="bucket=<TF_STATE_BUCKET>" \
-  -backend-config="key=terraform.tfstate" \
+  -backend-config="key=staging/terraform.tfstate" \
   -backend-config="region=us-east-1" \
   -backend-config="use_lockfile=true"
 ```
 
 **Windows (PowerShell):**
 ```powershell
-terraform init -reconfigure -backend-config="bucket=<TF_STATE_BUCKET>" -backend-config="key=terraform.tfstate" -backend-config="region=us-east-1" -backend-config="use_lockfile=true"
-```
-
-Destruye primero Staging y luego Producción. Reemplaza los placeholders `<...>` con tus valores reales.
-
-```bash
-# Selecciona el workspace de staging
-terraform workspace select staging
+terraform init -reconfigure -backend-config="bucket=<TF_STATE_BUCKET>" -backend-config="key=staging/terraform.tfstate" -backend-config="region=us-east-1" -backend-config="use_lockfile=true"
 ```
 
 **Linux / Mac:**
@@ -1419,9 +1420,21 @@ terraform destroy \
 terraform --% destroy -var="environment_name=staging" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
 ```
 
+**Inicializa Terraform apuntando al estado remoto de Producción:**
+
+**Linux / Mac:**
 ```bash
-# Selecciona el workspace de producción
-terraform workspace select production
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=<TF_STATE_BUCKET>" \
+  -backend-config="key=production/terraform.tfstate" \
+  -backend-config="region=us-east-1" \
+  -backend-config="use_lockfile=true"
+```
+
+**Windows (PowerShell):**
+```powershell
+terraform init -reconfigure -backend-config="bucket=<TF_STATE_BUCKET>" -backend-config="key=production/terraform.tfstate" -backend-config="region=us-east-1" -backend-config="use_lockfile=true"
 ```
 
 **Linux / Mac:**
