@@ -836,11 +836,11 @@ infra/*.tfvars
       * **`SECRET_KEY`**: Una cadena aleatoria y segura que Flask usará como clave secreta para los tokens CSRF (ej: cualquier cadena larga de caracteres aleatorios). **Nunca uses un valor simple como `secret` o `password`.**
 
     **Variables** (pestaña `Variables` → `New repository variable`) — valores de configuración no sensibles, visibles en los logs:
-        * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
-        * `SONAR_HOST_URL`: `https://sonarcloud.io`. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
-        * **`LAB_ROLE_ARN`**: El ARN completo de tu `LabRole`.
-        * **`VPC_ID`**: El ID de tu VPC por defecto.
-        * **`SUBNET_IDS`**: Los IDs de tus dos subredes públicas, separados por coma (ej: `subnet-xxx,subnet-yyy`).
+      * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+      * `SONAR_HOST_URL`: `https://sonarcloud.io`. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+      * **`LAB_ROLE_ARN`**: El ARN completo de tu `LabRole`.
+      * **`VPC_ID`**: El ID de tu VPC por defecto.
+      * **`SUBNET_IDS`**: Los IDs de tus dos subredes públicas, separados por coma (ej: `subnet-xxx,subnet-yyy`).
 
     > **¿Por qué separar secretos de variables?** Los **secretos** están cifrados y nunca aparecen en los logs del pipeline. Las **variables** son visibles — son datos de configuración que no representan un riesgo si alguien los ve (un ARN, un ID de VPC o un usuario de Docker Hub no permiten acceso a los recursos por sí solos).
 
