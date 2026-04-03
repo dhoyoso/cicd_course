@@ -779,7 +779,7 @@ infra/*.tfvars
 
     **Paso 5 — Limpieza:**
 
-    * **Finalmente, destruye la infraestructura manualmente:** Si todo está bien, destruye la infraestructura de cada workspace antes de que el pipeline la recree automáticamente. Asegúrate de estar en el workspace correcto antes de cada destroy:
+    **Finalmente, destruye la infraestructura manualmente:** Si todo está bien, destruye la infraestructura de cada workspace antes de que el pipeline la recree automáticamente. Asegúrate de estar en el workspace correcto antes de cada destroy:
 
     ```bash
     # Destruir Staging
@@ -823,7 +823,7 @@ infra/*.tfvars
     terraform --% apply -destroy -var="environment_name=production" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
     ```
 
-    **Recuerda que en los siguientes pasos es el pipeline quién los volverá a crear automáticamente.**
+    **Recuerda que en los siguientes pasos es el pipeline quién los volverá a crear automáticamente y ES NECESARIO QUE LOS DESTRUYAS ANTES DE CONTINUAR.**
 
 8.  **Crea los secretos y variables en GitHub:**
     * Antes de hacer lo siguiente, reinicia la sesión de AWS Academy (stop y start) para que se generen nuevas credenciales temporales. Esto es importante porque los secretos de GitHub Actions usarán estas credenciales para interactuar con AWS y Docker Hub (**recuerda que son temporales y tienen un tiempo de vida limitado**).
