@@ -344,6 +344,8 @@ variable "secret_key" {
 
 terraform {
   required_version = ">= 1.6.0"
+  backend "s3" {}
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -548,9 +550,9 @@ resource "aws_ecs_service" "main" {
   deployment_minimum_healthy_percent = 50  # Permite que baje al 50% durante el deploy
   deployment_maximum_percent         = 200 # Permite que suba al 200% temporalmente
 
-  # Ignorar cambios en task_definition porque el pipeline los actualiza con --force-new-deployment
+  # Ignorar desired_count para permitir ajustes manuales sin reescribirlos en cada apply.
   lifecycle {
-    ignore_changes = [task_definition, desired_count]
+    ignore_changes = [desired_count]
   }
 
   depends_on = [aws_lb_listener.http] # Asegura que el listener exista antes de crear el servicio
@@ -841,6 +843,7 @@ infra/*.tfvars
       * **`LAB_ROLE_ARN`**: El ARN completo de tu `LabRole`.
       * **`VPC_ID`**: El ID de tu VPC por defecto.
       * **`SUBNET_IDS`**: Los IDs de tus dos subredes públicas, separados por coma (ej: `subnet-xxx,subnet-yyy`).
+      * **`TF_STATE_BUCKET`**: El nombre del bucket de S3 donde se almacenará el estado de Terraform (debe ser una cadena de texto sin espacios ni caracteres especiales, sólo letras, números y guiones). Recuerda que los buckets de S3 tienen un namespace global, así que elige un nombre único (ej: `mi-estado-terraform-12345`, modificando el `12345` por tus iniciales o un número aleatorio para que sea único).
 
     > **¿Por qué separar secretos de variables?** Los **secretos** están cifrados y nunca aparecen en los logs del pipeline. Las **variables** son visibles — son datos de configuración que no representan un riesgo si alguien los ve (un ARN, un ID de VPC o un usuario de Docker Hub no permiten acceso a los recursos por sí solos).
 
@@ -997,19 +1000,42 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
           aws-region: us-east-1
 
-      # 3. Configurar Terraform
+      # 3. Crear el bucket del estado remoto si no existe
+      - name: Ensure Terraform State Bucket
+        run: |
+          if [ -z "${{ vars.TF_STATE_BUCKET }}" ]; then
+            echo "Error: Debes definir la variable del repositorio TF_STATE_BUCKET."
+            exit 1
+          fi
+
+          if aws s3api head-bucket --bucket "${{ vars.TF_STATE_BUCKET }}" 2>/dev/null; then
+            echo "El bucket de estado ya existe."
+          else
+            echo "Creando bucket de estado ${{ vars.TF_STATE_BUCKET }}..."
+            aws s3api create-bucket --bucket "${{ vars.TF_STATE_BUCKET }}" --region us-east-1
+          fi
+
+          aws s3api put-bucket-versioning \
+            --bucket "${{ vars.TF_STATE_BUCKET }}" \
+            --versioning-configuration Status=Enabled
+
+      # 4. Configurar Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "~1.6"
           terraform_wrapper: false # Necesario para capturar outputs correctamente
 
-      # 4. Inicializar Terraform
+      # 5. Inicializar Terraform usando estado remoto en S3
       - name: Terraform Init (Staging)
         working-directory: infra
-        run: terraform init
+        run: |
+          terraform init -reconfigure \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=staging/terraform.tfstate" \
+            -backend-config="region=us-east-1"
 
-      # 5. Desplegar/Actualizar la infraestructura de Staging con Terraform
+      # 6. Desplegar/Actualizar la infraestructura de Staging con Terraform
       - name: Terraform Apply (Staging)
         working-directory: infra
         env:
@@ -1030,7 +1056,7 @@ jobs:
             -var="docker_image_uri=${IMAGE_URI}" \
             -var="subnet_ids=${SUBNET_LIST}"
 
-      # 6. Obtener las salidas de Terraform (Staging)
+      # 7. Obtener las salidas de Terraform (Staging)
       - name: Get Terraform Outputs (Staging)
         id: get_tf_outputs
         working-directory: infra
@@ -1137,19 +1163,42 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # <--- USO DEL SESSION TOKEN
           aws-region: us-east-1
 
-      # 3. Configurar Terraform
+      # 3. Crear el bucket del estado remoto si no existe
+      - name: Ensure Terraform State Bucket
+        run: |
+          if [ -z "${{ vars.TF_STATE_BUCKET }}" ]; then
+            echo "Error: Debes definir la variable del repositorio TF_STATE_BUCKET."
+            exit 1
+          fi
+
+          if aws s3api head-bucket --bucket "${{ vars.TF_STATE_BUCKET }}" 2>/dev/null; then
+            echo "El bucket de estado ya existe."
+          else
+            echo "Creando bucket de estado ${{ vars.TF_STATE_BUCKET }}..."
+            aws s3api create-bucket --bucket "${{ vars.TF_STATE_BUCKET }}" --region us-east-1
+          fi
+
+          aws s3api put-bucket-versioning \
+            --bucket "${{ vars.TF_STATE_BUCKET }}" \
+            --versioning-configuration Status=Enabled
+
+      # 4. Configurar Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "~1.6"
           terraform_wrapper: false # Necesario para capturar outputs correctamente
 
-      # 4. Inicializar Terraform
+      # 5. Inicializar Terraform usando estado remoto en S3
       - name: Terraform Init (Production)
         working-directory: infra
-        run: terraform init
+        run: |
+          terraform init -reconfigure \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=production/terraform.tfstate" \
+            -backend-config="region=us-east-1"
 
-      # 5. Desplegar/Actualizar la infraestructura de Producción con Terraform
+      # 6. Desplegar/Actualizar la infraestructura de Producción con Terraform
       - name: Terraform Apply (Production)
         working-directory: infra
         env:
@@ -1170,7 +1219,7 @@ jobs:
             -var="docker_image_uri=${IMAGE_URI}" \
             -var="subnet_ids=${SUBNET_LIST}"
 
-      # 6. Obtener las salidas de Terraform (Producción)
+      # 7. Obtener las salidas de Terraform (Producción)
       - name: Get Terraform Outputs (Production)
         id: get_tf_outputs
         working-directory: infra
@@ -1317,3 +1366,108 @@ Para completar este taller, envía **un correo** con la siguiente información a
 * Evidencia de las nuevas funcionalidades implementadas, con pruebas unitarias, cobertura y pruebas de aceptación para estas.
 * Respuestas claras, correctas, completas y profundas a las preguntas planteadas.
 * Completitud y funcionamiento de todos los pasos del taller.
+
+## 10. Eliminación de recursos para evitar cargos adicionales
+
+Una vez hayas terminado el taller, tomado las evidencias, enviado el correo del entregable y confirmado que ya no necesitas volver a desplegar, elimina todos los recursos para evitar consumo innecesario del presupuesto de AWS Academy.
+
+> **Importante:** si vuelves a hacer `push` a `main` o ejecutas manualmente el workflow `ci-cd.yml`, GitHub Actions puede recrear la infraestructura. Haz esta limpieza al final del todo, cuando ya no necesites más despliegues.
+
+### 10.1 Destruye la infraestructura de Staging y Producción
+
+Ubícate en la carpeta `infra/` de tu repositorio. Si abriste una sesión nueva de AWS Academy, vuelve a configurar tus credenciales temporales y reinicializa Terraform con el bucket remoto del estado antes de destruir, así:
+
+```bash
+cd infra/
+```
+
+**Linux / Mac:**
+```bash
+terraform init \
+  -reconfigure \
+  -backend-config="bucket=<TF_STATE_BUCKET>" \
+  -backend-config="key=terraform.tfstate" \
+  -backend-config="region=us-east-1" \
+  -backend-config="use_lockfile=true"
+```
+
+**Windows (PowerShell):**
+```powershell
+terraform init -reconfigure -backend-config="bucket=<TF_STATE_BUCKET>" -backend-config="key=terraform.tfstate" -backend-config="region=us-east-1" -backend-config="use_lockfile=true"
+```
+
+Destruye primero Staging y luego Producción. Reemplaza los placeholders `<...>` con tus valores reales.
+
+```bash
+# Selecciona el workspace de staging
+terraform workspace select staging
+```
+
+**Linux / Mac:**
+```bash
+terraform destroy \
+  -var="environment_name=staging" \
+  -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" \
+  -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" \
+  -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" \
+  -var='subnet_ids=["<ID_SUBNET_PUBLICA_1>","<ID_SUBNET_PUBLICA_2>"]' \
+  -auto-approve
+```
+
+**Windows (PowerShell):**
+```powershell
+terraform --% destroy -var="environment_name=staging" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
+```
+
+```bash
+# Selecciona el workspace de producción
+terraform workspace select production
+```
+
+**Linux / Mac:**
+```bash
+terraform destroy \
+  -var="environment_name=production" \
+  -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" \
+  -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" \
+  -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" \
+  -var='subnet_ids=["<ID_SUBNET_PUBLICA_1>","<ID_SUBNET_PUBLICA_2>"]' \
+  -auto-approve
+```
+
+**Windows (PowerShell):**
+```powershell
+terraform --% destroy -var="environment_name=production" -var="docker_image_uri=<TU_USUARIO_DOCKERHUB>/cicd-pipeline-python:latest" -var="lab_role_arn=<ARN_COMPLETO_DE_TU_LABROLE>" -var="vpc_id=<ID_DE_TU_VPC_POR_DEFECTO>" -var="subnet_ids=[\"<ID_SUBNET_PUBLICA_1>\",\"<ID_SUBNET_PUBLICA_2>\"]" -auto-approve
+```
+
+> **Verificación recomendada:** entra a la consola de AWS y confirma que ya no existan los ECS Clusters, Services, Target Groups, Load Balancers, Security Groups y Log Groups creados por Terraform para `staging` y `production`.
+
+### 10.2 Elimina el bucket de estado remoto de Terraform
+
+Si creaste un bucket S3 únicamente para este taller (`TF_STATE_BUCKET`), elimínalo también. Antes de borrarlo, debes vaciarlo porque S3 no permite eliminar buckets con objetos dentro.
+
+**Linux / Mac:**
+```bash
+aws s3 rm s3://<TF_STATE_BUCKET> --recursive
+aws s3 rb s3://<TF_STATE_BUCKET>
+```
+
+**Windows (PowerShell):**
+```powershell
+aws s3 rm s3://<TF_STATE_BUCKET> --recursive
+aws s3 rb s3://<TF_STATE_BUCKET>
+```
+
+> Si el bucket tenía versionado habilitado por tu cuenta o por una configuración manual, primero elimina también las versiones y delete markers desde la consola de S3; de lo contrario el comando de borrado del bucket fallará.
+
+### 10.3 Evita recreaciones accidentales desde GitHub Actions
+
+Para dejar todo realmente limpio, evita que una ejecución futura vuelva a crear la infraestructura sin querer:
+
+1. No hagas nuevos `push` a `main` mientras los secretos de AWS sigan configurados.
+2. Si ya terminaste definitivamente el taller, elimina en GitHub los secretos `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `SECRET_KEY` y las variables `LAB_ROLE_ARN`, `VPC_ID`, `SUBNET_IDS`, `TF_STATE_BUCKET`.
+3. Opcionalmente, deshabilita temporalmente el workflow `ci-cd.yml` desde la pestaña **Actions** si quieres conservar la configuración pero impedir ejecuciones accidentales.
+
+### 10.4 Cierra la sesión del laboratorio
+
+Cuando termines, vuelve a AWS Academy Learner Lab y usa **Stop Lab**. Esto no reemplaza la destrucción de recursos persistentes, pero sí evita seguir consumiendo tiempo de laboratorio innecesariamente en esa sesión.
