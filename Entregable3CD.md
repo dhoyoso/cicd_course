@@ -656,6 +656,8 @@ infra/*.tfvars
 
     > **`secret_key` en el apply manual:** La variable `secret_key` tiene un valor por defecto (`"dev-only-insecure-key"`) definido en `variables.tf`, así que no es necesario pasarla explícitamente durante la validación local. En el pipeline de GitHub Actions, el valor real se inyecta automáticamente desde el secreto `SECRET_KEY` de GitHub, que Terraform pasa al contenedor como la variable de entorno `FLASK_SECRET_KEY`.
 
+    **Recuerda reemplazar las variables `<TU_USUARIO_DOCKERHUB>`, `<ARN_COMPLETO_DE_TU_LABROLE>`, `<ID_DE_TU_VPC_POR_DEFECTO>`, `<ID_SUBNET_PUBLICA_1>`, `<ID_SUBNET_PUBLICA_2>` con tus valores reales antes de ejecutar el siguiente comando.**
+
     **Linux / Mac:**
     ```bash
     terraform apply \
