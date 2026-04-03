@@ -828,12 +828,12 @@ infra/*.tfvars
     * Ve a tu repositorio en GitHub -> **Settings -> Secrets and variables -> Actions**.
 
     **Secretos** (`New repository secret`) — valores sensibles que GitHub cifra y nunca muestra en logs:
-        * `AWS_ACCESS_KEY_ID`: Tu AWS Access Key ID.
-        * `AWS_SECRET_ACCESS_KEY`: Tu AWS Secret Access Key.
-        * `AWS_SESSION_TOKEN`: Tu AWS Session Token.
-        * `DOCKERHUB_TOKEN`: Tu token de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
-        * `SONAR_TOKEN`: Tu token de SonarCloud. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
-        * **`SECRET_KEY`**: Una cadena aleatoria y segura que Flask usará como clave secreta para los tokens CSRF (ej: cualquier cadena larga de caracteres aleatorios). **Nunca uses un valor simple como `secret` o `password`.**
+      * `AWS_ACCESS_KEY_ID`: Tu AWS Access Key ID.
+      * `AWS_SECRET_ACCESS_KEY`: Tu AWS Secret Access Key.
+      * `AWS_SESSION_TOKEN`: Tu AWS Session Token.
+      * `DOCKERHUB_TOKEN`: Tu token de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+      * `SONAR_TOKEN`: Tu token de SonarCloud. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
+      * **`SECRET_KEY`**: Una cadena aleatoria y segura que Flask usará como clave secreta para los tokens CSRF (ej: cualquier cadena larga de caracteres aleatorios). **Nunca uses un valor simple como `secret` o `password`.**
 
     **Variables** (pestaña `Variables` → `New repository variable`) — valores de configuración no sensibles, visibles en los logs:
         * `DOCKERHUB_USERNAME`: Tu usuario de Docker Hub. Si estás trabajando el mismo repositorio del taller 2, no es necesario, ya lo tienes creado.
