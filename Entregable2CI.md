@@ -874,7 +874,7 @@ Es importante considerar qué:
     git push origin main
     ```
 
-3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub. Si seguiste bien todas las instrucciones, deberías ver que el pipeline se ejecutó tras el push a `main` y deberías ver el pipeline ejecutándose o ejecutado en **estado exitoso (verde)**, dado que las pruebas unitarias y de aceptación están bien (como se validó localmente) y el código tiene la calidad requerida.
+3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub. Si seguiste bien todas las instrucciones, deberías ver que el pipeline se ejecutó tras el push a `main` y deberías ver el pipeline ejecutándose o ejecutado, si el pipeline falla en el paso de SonarCloud, ingresa al link del análisis en sonarCloud que aparece en los logs del paso `SonarCloud Scan` para revisar los hallazgos y corregirlos (siguiente paso).
 
 4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto o también puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` después de la validación del gate en GitHub Actions.  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. **Presta atención, sobretodo a cualquier hallazgo nivel C o inferior y a los security hotspots en High**.
 
