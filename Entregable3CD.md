@@ -268,7 +268,7 @@ En nuestro pipeline de GitHub Actions, no usaremos `aws configure` interactivame
             * Modifica el archivo `ci.yml` para excluir de las pruebas unitarias el archivo `tests/test_smoke_app.py` (ya que no queremos ejecutar pruebas de humo en Staging). Puedes hacerlo agregando un filtro en el paso de pruebas unitarias:
             ```yaml
             - name: Run Unit Tests with pytest and Coverage
-                run: |
+              run: |
                 pytest --ignore=tests/test_acceptance_app.py  --ignore=tests/test_smoke_app.py
             ```
 
