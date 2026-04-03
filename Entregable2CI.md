@@ -879,7 +879,7 @@ Es importante considerar qué:
 4.  **Ve a SonarCloud y verifica los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto o también puedes ver el link del análisis en sonarCloud en los logs del paso `SonarCloud Scan` después de la validación del gate en GitHub Actions.  Deberías ver un informe detallado con la calidad de tu código, la cobertura de las pruebas, etc. **Presta atención, sobretodo a cualquier hallazgo nivel C o inferior y a los security hotspots en High**.
 
 5. **Corrige los problemas:** Corrige **TODOS** los problemas de calidad de código reportados en **OVERALL CODE (Reliability y Maintainability)** deben quedar en **0** hallazgos y vuelve a ejecutar el pipeline hasta que logres ejecutar el pipeline correctamente, también debes tener en SonarCloud el Quality Gate marcado cómo `Passed`. Todos los security hotspots también deben ser revisados, entendidos y marcados cómo seguros (pero en este caso, no es necesario que los resuelvas). Es importante aclarar que para una aplicación productiva es ideal corregir todos los hallazgos de seguridad, y ajustar las reglas de SonarCloud para personalizarlas a las necesidades del proyecto. Al final debes lograr un resultado similar al siguiente en el proyecto de SonarCloud:
-![alt text](Entregable2-images/image-5.png)
+![alt text](images/e2-image-7.png)
 
 6.  **Verifica la ejecución final del workflow:** Ve a la pestaña "Actions" de tu repositorio en GitHub. Observa los logs de cada paso. Si es un push a `main` y todo va bien, la imagen debería aparecer en tu cuenta de Docker Hub.
 
