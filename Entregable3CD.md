@@ -1318,7 +1318,7 @@ jobs:
 12. **Validación:**
     * Asegúrate de que el pipeline CI/CD con Terraform funcione correctamente.
     * Verifica los despliegues en Staging y Producción.
-    * Confirma que el health check `/health` funcione y los Target Groups estén saludables. Desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS en CloudWatch para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
+    * Confirma que el health check `/health` funcione y los Target Groups estén saludables. Desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS en CloudWatch para identificar problemas.
     * Valida que las pruebas de aceptación y humo pasen.
     * Asegúrate de no tener hallazgos de calidad/seguridad (SonarCloud, linters).
     * Asegúrate de tener una cobertura de pruebas unitarias de al menos un 80%.
@@ -1339,37 +1339,63 @@ Si el ECS o ALB no pueden acceder a la ruta `/health` intentarán reiniciar auto
 
 ## 9. Entregable
 
-Para completar este taller, envía **un correo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable CI/CD Terraform":
+### 9.1. Responde las preguntas y documenta los despliegues en tu README.md
 
-1.  **URL del repositorio PÚBLICO de GitHub:** Debe contener el código de la aplicación, tests, Dockerfile, la carpeta `infra/` con los archivos Terraform (`main.tf`, `variables.tf`, `outputs.tf`) y el workflow `ci-cd.yml` actualizado.
-2.  **URL de la ejecución COMPLETA del workflow `ci-cd.yml`:** Envía la URL de una ejecución que haya completado **todos** los jobs exitosamente (build -> deploy-tf-staging -> update-service-staging -> test-staging -> deploy-tf-prod -> update-service-prod -> smoke-test-prod) en Github Actions.
-3.  **URL de SonarCloud y captura de pantalla:** (Igual que en el taller 2 - Quality Gate `Passed`).
-4.  **URL y pantallazo de la aplicación desplegada en AWS ECS (STAGING):** URL del ALB de Staging y captura de pantalla en donde se evidencie la URL del balanceador de staging.
-5.  **URL y pantallazo de la aplicación desplegada en AWS ECS (PRODUCCIÓN):** URL del ALB de Producción y captura de pantalla en donde se evidencie la URL del balanceador de producción.
-6.  **Captura de pantalla del Health Check en AWS:** Captura de pantalla de la pestaña "Targets" de uno de tus Target Groups mostrando estado `healthy`. Esta captura la puedes tomarla desde la consola de AWS, busca `EC2` en la barra de búsqueda y luego ve a `Target Groups` en el menú de la izquierda (en la sección de Load Balancing). Selecciona ambos Target Groups que corresponden a tu servicios de ECS en Staging y Producción y ve a la pestaña `Targets`. Allí deberías ver los targets con estado `healthy` (saludables). Si no, revisa los logs de ECS en CloudWatch para identificar problemas. Añade el pantallazo de ambos Target Groups (Staging y Producción) mostrando el estado `healthy` de los targets.
-6.  **Evidencia de las nuevas funcionalidades:** Captura de pantalla o URL de la aplicación funcionando para evaluar la correcta inclusión de las 2 funcionalidades. Adicionalmente recuerda que estas nuevas funcionalidades DEBEN ser evaluadas por las pruebas unitarias y las pruebas de aceptación.
-7.  **Responde a las siguientes preguntas:**
-    * Explica brevemente el flujo de trabajo **nuevo** completo que implementaste con **Terraform** (commit -> CI -> Build/Push Imagen -> Deploy TF Staging -> Update Service Staging -> Test Staging -> Deploy TF Prod -> Update Service Prod -> Smoke Test Prod). Sé *específico* sobre *qué artefacto se mueve, qué hace cada job principal, y qué valida cada tipo de prueba*.
-    * ¿Qué ventajas y desventajas encontraste al usar Terraform o infraestructura como código en vez de desplegar manualmente? ¿Qué te pareció definir la infraestructura en HCL?
-    * ¿Qué ventajas y desventajas tiene introducir un entorno de Staging en el pipeline de despliegue a AWS? ¿Cómo impacta esto la velocidad vs. la seguridad del despliegue?
-    * ¿Qué diferencia hay entre las pruebas ejecutadas contra Staging (`test-staging`) y las ejecutadas contra Producción (`smoke-test-production`) en tu pipeline? ¿Por qué esta diferencia?
-    * Considerando un ciclo completo de DevOps, ¿qué partes importantes (fases, herramientas, prácticas) crees que aún le faltan a este pipeline de CI/CD que has construido? (Menciona 2, explica por qué son importantes y cómo podrían implementarse brevemente).
-    * ¿Cómo te pareció implementar dos funcionalidades nuevas? ¿Que tal fue tu experiencia? ¿Encontraste útil implementar CI/CD a la hora de realizar cambios y despliegues? ¿Por qué? ¿Qué no fue tan útil?
+Abre el archivo `README.md` de tu repositorio y añade:
+
+**a) Las URLs de los ALBs obtenidas del `terraform output` de cada entorno:**
+```
+Staging ALB URL:    http://calculadora-staging-alb-xxxxxx.us-east-1.elb.amazonaws.com/
+Production ALB URL: http://calculadora-production-alb-xxxxxx.us-east-1.elb.amazonaws.com/
+```
+> Estas URLs son evidencia del despliegue. Aunque la infraestructura se destruya después, el historial del README y del workflow quedan como registro.
+
+**b) Las respuestas a las siguientes preguntas** (con formato libre: subtítulos, párrafos, listas, etc.):
+
+1.  Explica brevemente el flujo de trabajo **nuevo** completo que implementaste con **Terraform** (commit -> CI -> Build/Push Imagen -> Deploy TF Staging -> Update Service Staging -> Test Staging -> Deploy TF Prod -> Update Service Prod -> Smoke Test Prod). Sé *específico* sobre *qué artefacto se mueve, qué hace cada job principal, y qué valida cada tipo de prueba*.
+2.  ¿Qué ventajas y desventajas encontraste al usar Terraform o infraestructura como código en vez de desplegar manualmente? ¿Qué te pareció definir la infraestructura en HCL?
+3.  ¿Qué ventajas y desventajas tiene introducir un entorno de Staging en el pipeline de despliegue a AWS? ¿Cómo impacta esto la velocidad vs. la seguridad del despliegue?
+4.  ¿Qué diferencia hay entre las pruebas ejecutadas contra Staging (`test-staging`) y las ejecutadas contra Producción (`smoke-test-production`) en tu pipeline? ¿Por qué esta diferencia?
+5.  Considerando un ciclo completo de DevOps, ¿qué partes importantes (fases, herramientas, prácticas) crees que aún le faltan a este pipeline de CI/CD que has construido? (Menciona 2, explica por qué son importantes y cómo podrían implementarse brevemente).
+6.  ¿Cómo te pareció implementar dos funcionalidades nuevas? ¿Qué tal fue tu experiencia? ¿Encontraste útil implementar CI/CD a la hora de realizar cambios y despliegues? ¿Por qué? ¿Qué no fue tan útil?
+
+Haz commit y push del README actualizado:
+
+```bash
+git add README.md
+git commit -m "Agregar respuestas y URLs del despliegue al README"
+git push origin main
+```
+
+### 9.2. Entrega
+
+Ingresa al buzón del **Entregable 3** en **EAFIT Interactiva** y proporciona los siguientes tres datos en el campo de texto:
+
+1.  **URL del repositorio de GitHub** (debe ser público): `https://github.com/TU_USUARIO/cicd-pipeline-python`
+2.  **URL del proyecto en SonarCloud** (debe ser público, accesible sin login): `https://sonarcloud.io/project/overview?id=TU_USUARIO_cicd-pipeline-python`
+3.  **Nombre de la imagen en Docker Hub** (debe ser público): `tunombredeusuario/cicd-pipeline-python`
+
+> Antes de entregar, verifica en una pestaña de incógnito que:
+> - El repositorio de GitHub es accesible sin iniciar sesión.
+> - La URL de SonarCloud muestra el proyecto con Quality Gate `Passed` sin necesidad de login.
+> - La imagen existe en Docker Hub con la etiqueta `latest`.
 
 **Criterios de evaluación:**
 
-* URLs del repo y workflows correctas y funcionales. Ejecución de `ci-cd.yml` completa.
-* Carpeta `infra/` con archivos Terraform funcionales y presentes en el repositorio.
-* Capturas de pantalla de SonarCloud (Quality Gate `Passed`).
-* URLs y pantallazos de **ambas** aplicaciones (Staging y Producción vía ALBs).
-* Captura de pantalla del Target Group en AWS mostrando estado `healthy` de los targets (Staging y Producción).
-* Evidencia de las nuevas funcionalidades implementadas, con pruebas unitarias, cobertura y pruebas de aceptación para estas.
-* Respuestas claras, correctas, completas y profundas a las preguntas planteadas.
-* Completitud y funcionamiento de todos los pasos del taller.
+* Repositorio GitHub público con todos los archivos requeridos (`ci-cd.yml`, carpeta `infra/`, `test_smoke_app.py`, etc.).
+* Carpeta `infra/` con los tres archivos Terraform (`main.tf`, `variables.tf`, `outputs.tf`) presentes y con el `AUTOR` reemplazado en `app/calculadora.py`.
+* Ejecución completa y exitosa de **todos** los jobs del workflow `ci-cd.yml` (build -> staging -> test -> production -> smoke).
+* Proyecto en SonarCloud público con Quality Gate `Passed` y cobertura ≥ 80%.
+* Imagen en Docker Hub pública con etiquetas `latest` y SHA.
+* Al menos 2 nuevas funciones en `calculadora.py` con pruebas unitarias y de aceptación que las cubran.
+* URLs de ALB Staging y Producción documentadas en el `README.md`.
+* Respuestas a las 6 preguntas incluidas en el `README.md`.
+
+**RECUERDA QUE TANTO TU REPOSITORIO GITHUB COMO TU PROYECTO EN SONARCLOUD Y TU IMAGEN EN DOCKER HUB DEBEN SER PÚBLICOS O NO SE PODRÁN CALIFICAR**
 
 ## 10. Eliminación de recursos para evitar cargos adicionales
 
-Una vez hayas terminado el taller, tomado las evidencias, enviado el correo del entregable y confirmado que ya no necesitas volver a desplegar, elimina todos los recursos para evitar consumo innecesario del presupuesto de AWS Academy.
+Una vez hayas terminado el taller, realizado la entrega en EAFIT Interactiva y confirmado que ya no necesitas volver a desplegar, elimina todos los recursos para evitar consumo innecesario del presupuesto de AWS Academy.
 
 > **Importante:** si vuelves a hacer `push` a `main` o ejecutas manualmente el workflow `ci-cd.yml`, GitHub Actions puede recrear la infraestructura. Haz esta limpieza al final del todo, cuando ya no necesites más despliegues.
 
