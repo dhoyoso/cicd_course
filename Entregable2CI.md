@@ -200,6 +200,9 @@ Crearemos una aplicación web muy sencilla con Flask (una calculadora) para tene
 
     ```python
     # app/calculadora.py
+
+    AUTORES = "???"  # IMPORTANTE: Reemplaza con los usuarios de correo de EAFIT de los estudiantes que participaron en la entrega, separados por comas.
+
     def sumar(a, b):
         return a + b
 
@@ -422,6 +425,8 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
     *   SonarCloud analizará tu repositorio y te mostrará un panel de control con los resultados.  Inicialmente, puede que no muestre mucha información porque no hemos configurado el análisis en el workflow.
 
     > **⚠️ Importante — Deshabilita el Análisis Automático:** Una vez importado el proyecto, debes deshabilitar el análisis automático de SonarCloud para evitar duplicidad y errores con el análisis que realizará GitHub Actions. Ve a **Administration → Analysis Method** dentro de tu proyecto en SonarCloud y desactiva la opción **"Automatic Analysis"**. Si no haces esto, SonarCloud intentará analizar el código por su cuenta *además* del análisis lanzado desde el pipeline, lo que puede generar conflictos y resultados incorrectos.
+
+    > **🌐 Importante — Haz tu proyecto público en SonarCloud:** Ve a **Administration → Visibility** dentro de tu proyecto en SonarCloud y selecciona **"Public"**. Esto es necesario para que el proyecto pueda ser revisado sin necesidad de iniciar sesión. Si el proyecto es privado, no podrá ser calificado.
 
 4.  **Obtén tu token de SonarCloud:**
     *   Ve a "My Account" (en la esquina superior derecha).
@@ -887,23 +892,42 @@ Ve a tu perfil en Docker Hub. Deberías ver tu nuevo repositorio de imagen (ej: 
 
 ## 9. Entregable
 
-Para completar este taller, envía **un correo** con la siguiente información a `dhoyoso@eafit.edu.co` con el asunto "Entregable Taller 2 Pipeline de CI":
+### 9.1. Responde las preguntas en tu README.md
 
-1.  **URL del repositorio PUBLICO de GitHub:**  Envía la URL de tu repositorio en GitHub.
-2.  **URL de la ejecución del workflow:**  Envía la URL de la última ejecución de tu workflow en GitHub Actions (de la pestaña "Actions"). Esta ejecución debe ser *exitosa*.
-3.  **URL y pantallazo del proyecto en SonarCloud:** Envía la URL y un pantallazo de tu proyecto en SonarCloud (donde se ven los resultados del análisis, similar al que se muestra en la guía). **Verifica que la URL sea accesible desde una ventana de incógnito (sin iniciar sesión en SonarCloud).** Valida y asegurate de que el Quality Gate esté marcado como `Passed`, no tengas ningún hallazgo de calidad o seguridad y la cobertura de código sea mayor al 90%. Todas las evaluaciones del código deben ser "A" (Security, Reliability, Maintainability) y los Hotspots deben estar revisados y marcados como seguros.
-4.  **Nombre de la Imagen en Docker Hub:** Indica el nombre completo de tu imagen pública en Docker Hub (ej: `tunombredeusuario/cicd-pipeline-python`).
+Abre el archivo `README.md` de tu repositorio y añade tus respuestas a las siguientes preguntas. Puedes estructurarlas como prefieras (con subtítulos, numeradas, en párrafos, etc.).
 
-4.  **Responde a las siguientes preguntas:**
-    *   ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI?  Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
-    *   ¿Cuál es la diferencia principal entre una prueba unitaria y una prueba de aceptación?  Da un ejemplo de algo que probarías con una prueba unitaria y algo que probarías con una prueba de aceptación (en el contexto de cualquier aplicación que conozcas (describela primero)).
-    * Describe brevemente qué hace cada uno de los *steps* principales de tu workflow de GitHub Actions (desde el checkout hasta el push de Docker). Explica el propósito de cada uno **(qué hace y para qué se hace)**.
-    *   ¿Qué problemas o dificultades encontraste al implementar este taller?  ¿Cómo los solucionaste?  (Si no encontraste ningún problema, describe algo nuevo que hayas aprendido).
-    * ¿Qué ventajas ofrece empaquetar la aplicación en una imagen Docker al final del pipeline en lugar de simplemente validar el código?
+1.  ¿Qué ventajas le proporciona a un proyecto el uso de un pipeline de CI? Menciona al menos tres ventajas *específicas* y explica por qué son importantes.
+2.  ¿Cuál es la diferencia principal entre una prueba unitaria y una prueba de aceptación? Da un ejemplo de algo que probarías con una prueba unitaria y algo que probarías con una prueba de aceptación (en el contexto de cualquier aplicación que conozcas, descríbela primero).
+3.  Describe brevemente qué hace cada uno de los *steps* principales de tu workflow de GitHub Actions (desde el checkout hasta el push de Docker). Explica el propósito de cada uno **(qué hace y para qué se hace)**.
+4.  ¿Qué problemas o dificultades encontraste al implementar este taller? ¿Cómo los solucionaste? (Si no encontraste ningún problema, describe algo nuevo que hayas aprendido).
+5.  ¿Qué ventajas ofrece empaquetar la aplicación en una imagen Docker al final del pipeline en lugar de simplemente validar el código?
+
+Haz commit y push del README actualizado:
+
+```bash
+git add README.md
+git commit -m "Agregar respuestas al README"
+git push origin main
+```
+
+### 9.2. Entrega
+
+Ingresa al buzón del **Entregable 2** en **EAFIT Interactiva** y proporciona los siguientes tres datos en el campo de texto:
+
+1.  **URL del repositorio de GitHub** (debe ser público): `https://github.com/TU_USUARIO/cicd-pipeline-python`
+2.  **URL del proyecto en SonarCloud** (debe ser público, accesible sin login): `https://sonarcloud.io/project/overview?id=TU_USUARIO_cicd-pipeline-python`
+3.  **Nombre de la imagen en Docker Hub** (debe ser público): `tunombredeusuario/cicd-pipeline-python`
+
+> Antes de entregar, verifica en una pestaña de incógnito que:
+> - El repositorio de GitHub es accesible sin iniciar sesión.
+> - La URL de SonarCloud muestra el proyecto con Quality Gate `Passed` sin necesidad de login.
+> - La imagen existe en Docker Hub con la etiqueta `latest`.
 
 **Criterios de evaluación:**
-*   **URL del repositorio:**  Debe ser un repositorio público en GitHub.
-*   **URL del workflow:**  Debe ser la URL de la última ejecución exitosa del pipeline en GitHub Actions.
-*   **URL y pantallazo de SonarCloud:**  Debe ser la URL de tu proyecto en SonarCloud, con el Quality Gate marcado como `Passed`, una cobertura de código mayor al 80% y sin hallazgos de calidad de código (Reliability, Maintainability) o de seguridad (Security).  El pantallazo debe mostrar el panel de control de SonarCloud con los resultados del análisis.
-* **Nombre de Imagen Docker Hub:** Repositorio público existente en Docker Hub con etiquetas `latest` y SHA.
-*   **Respuestas a las preguntas:**  Deben ser claras, concisas y correctas.  Deben demostrar comprensión de los conceptos y herramientas utilizadas en el taller.
+*   **Repositorio GitHub público** con todos los archivos requeridos y pipeline ejecutado exitosamente.
+*   **`AUTOR`** en `app/calculadora.py` reemplazado con tu nombre completo.
+*   **Proyecto en SonarCloud público** con Quality Gate `Passed`, cobertura > 90%, 0 hallazgos de Reliability/Maintainability y Hotspots revisados.
+*   **Imagen en Docker Hub pública** con etiquetas `latest` y SHA del commit.
+*   **Respuestas a las 5 preguntas** incluidas en el `README.md`.
+
+**RECUERDA QUE TANTO TU REPOSITORIO GITHUB COMO TU PROYECTO EN SONARCLOUD Y TU IMAGEN EN DOCKER HUB DEBEN SER PÚBLICOS O NO SE PODRÁN CALIFICAR**
