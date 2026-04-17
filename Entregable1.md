@@ -27,7 +27,7 @@ Git es el *sistema* de control de versiones. Es el motor que está por debajo. G
     *   **Public/Private:**
         *   **Public:**  Cualquiera puede ver tu código (pero solo tú puedes modificarlo, a menos que des permiso a otros).  Ideal para proyectos de código abierto.
         *   **Private:**  Solo tú (y las personas que invites) pueden ver y modificar el código.
-        *   *Para este curso, puedes usar un repositorio público o privado.*
+        *   *Para este curso, te recomendamos usar un repositorio público.*
     *   **Initialize this repository with:**
         *   **Add a README file:**  Marca esta casilla.  Un archivo README es una descripción de tu proyecto.  Es una buena práctica tener uno.
     *   Haz clic en "Create repository".
@@ -380,7 +380,10 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     import platform
     import datetime
 
+    AUTOR = "???"  # IMPORTANTE: Reemplaza con tu nombre completo (debe coincidir exactamente con el nombre que pusiste en el workflow)
+
     def main():
+        print(f"Autor: {AUTOR}")
         print(f"Sistema Operativo: {platform.system()} {platform.release()}")
         print(f"Fecha y hora desde Python: {datetime.datetime.now()}")
 
@@ -404,31 +407,40 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     *   Verás el resultado del job "imprimir_info".
     *   **Inspecciona cada paso y mira los logs para entender lo que sucedió y validar el correcto funcionamiento antes de realizar la entrega.**
 
-7.  **Entrega:**
-    *   En la página de la ejecución del workflow en GitHub, copia la URL completa de la página.
+7.  **Responde las preguntas en tu README.md:**
+    *   Abre el archivo `README.md` de tu repositorio y añade tus respuestas a las siguientes preguntas. Puedes estructurarlas como prefieras (con subtítulos, numeradas, en párrafos, etc.).
+        1.  ¿Qué eventos configuraste para disparar tu workflow y por qué?
+        2.  ¿Qué sistema operativo elegiste para el runner y por qué?
+        3.  Menciona al menos 3 acciones pre-construidas del Marketplace de GitHub Actions *diferentes* a las utilizadas en este taller. Describe qué hacen y para qué sirven.
+        4.  ¿Qué es un secreto en GitHub Actions y para qué se usa? ¿Cómo lo usarías en tu workflow?
+        5.  Reflexiona sobre el uso de GitHub Actions en tu flujo de trabajo diario. ¿Qué tareas automatizarías? ¿Por qué?
+    *   Haz commit y push del README actualizado:
+
+        ```bash
+        git add README.md
+        git commit -m "Agregar respuestas al README"
+        git push origin main
+        ```
+
+8.  **Entrega:**
     *   Envía un correo electrónico a `dhoyoso@eafit.edu.co` con:
         *   **Asunto:** Entregable 1 Intro CI/CD con GitHub Actions
         *   **Cuerpo:**
-            *   La URL de la ejecución de tu workflow (valida en una pestaña de incógnito que la URL sea pública y accesible).
-            *   *Responde a las siguientes preguntas*:
-                1.  ¿Qué eventos configuraste para disparar tu workflow y por qué?
-                2.  ¿Qué sistema operativo elegiste para el runner y por qué?
-                3.  Menciona al menos 3 acciones pre-construidas que encuentras en el Marketplace de GitHub Actions diferentes a las utilizadas en el workflow de este taller. Describe qué hacen y para qué sirven.
-                4.  Investiga, ¿qué es un secreto en GitHub Actions y para qué se usa? ¿Cómo lo usarías en tu workflow?
-                5.  Reflexiona sobre el uso de GitHub Actions en tu flujo de trabajo diario. ¿Qué tareas automatizarías? ¿Por qué?
+            *   La URL de tu repositorio de GitHub (ejemplo: `https://github.com/TU_USUARIO/entregable-1-cicd`).
+            *   Verifica en una pestaña de incógnito que el repositorio es público y accesible antes de hacer la entrega.
+            *   La lista de estudiantes que participaron en la entrega (si es que hicieron la entrega en parejas).
 
 **Criterios de evaluación:**
 
-*   Creación correcta del repositorio.
-*   Completar correctamente la plantilla YAML según las instrucciones descritas.
-*   Uso correcto de los comandos Git.
-*   Ejecución exitosa del workflow.
-*   Mensaje personalizado correcto.
-*   Respuestas correctas y *completas* a las preguntas del correo.  (Esto es importante para evaluar la comprensión).
+*   Repositorio público con `README.md`, `mi_workflow.yml` y `mi_script.py`.
+*   Plantilla YAML completada correctamente (nombre, eventos, runner, nombre personalizado, versión de Python, ejecución del script).
+*   Variable `AUTOR` en `mi_script.py` reemplazada con tu nombre completo, coincidiendo con el nombre del workflow.
+*   Ejecución exitosa del workflow (pestaña Actions con estado verde).
+*   Respuestas a las 5 preguntas incluidas en el `README.md`.
 
-**RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRARIO NO SE PODRÁ CALIFICAR Y PERDERAS LA NOTA**
+**RECUERDA QUE TU REPOSITORIO GITHUB DEBE SER PÚBLICO O DE LO CONTRARIO NO SE PODRÁ CALIFICAR Y PERDERÁS LA NOTA**
 
-8. **Información adicional:**
+9. **Información adicional:**
    * Documentación oficial de GitHub Actions: https://docs.github.com/en/actions
    Especialmente la sección 'Quickstart' y 'Learn GitHub Actions'.
    * Ejemplos de workflows: https://github.com/actions/starter-workflows Repositorio de GitHub con templates.
