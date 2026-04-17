@@ -356,10 +356,10 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
           - uses: actions/checkout@v3  # Este paso clona tu repositorio. No lo modifiques.
 
           - name: Imprimir Mensaje Personalizado
-            # 4. Reemplaza [TU NOMBRE COMPLETO] con tu nombre.
+            # 4. Reemplaza [NOMBRES COMPLETOS] con los nombres completos de los estudiantes que participaron en la entrega, separados por comas.
             # 5. ¿Qué comando de shell usarías para obtener la fecha y hora?
             run: |
-              echo "Hola, soy [TU NOMBRE COMPLETO] y este es mi primer workflow!"  
+              echo "Hola, somos [NOMBRES COMPLETOS] y este es nuestro primer workflow!"  
               echo "La fecha y hora actual es: $(???)"  
 
           - name: Configurar Python
@@ -380,10 +380,10 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
     import platform
     import datetime
 
-    AUTOR = "???"  # IMPORTANTE: Reemplaza con tu nombre completo (debe coincidir exactamente con el nombre que pusiste en el workflow)
+    AUTORES = "???"  # IMPORTANTE: Reemplaza con los nombres completos de los estudiantes que participaron en la entrega, separados por comas (debe coincidir exactamente con los que pusiste en el workflow)
 
     def main():
-        print(f"Autor: {AUTOR}")
+        print(f"Autores: {AUTORES}")
         print(f"Sistema Operativo: {platform.system()} {platform.release()}")
         print(f"Fecha y hora desde Python: {datetime.datetime.now()}")
 
@@ -434,7 +434,7 @@ GitHub Actions es una plataforma de *Integración Continua y Entrega Continua (C
 
 *   Repositorio público con `README.md`, `mi_workflow.yml` y `mi_script.py`.
 *   Plantilla YAML completada correctamente (nombre, eventos, runner, nombre personalizado, versión de Python, ejecución del script).
-*   Variable `AUTOR` en `mi_script.py` reemplazada con tu nombre completo, coincidiendo con el nombre del workflow.
+*   Variable `AUTORES` en `mi_script.py` reemplazada con los nombres completos de los estudiantes que participaron en la entrega separados por comas, coincidiendo con los nombres en el workflow.
 *   Ejecución exitosa del workflow (pestaña Actions con estado verde).
 *   Respuestas a las 5 preguntas incluidas en el `README.md`.
 
