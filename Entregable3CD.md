@@ -827,6 +827,8 @@ infra/*.tfvars
 
     **Recuerda que en los siguientes pasos es el pipeline quién los volverá a crear automáticamente y ES NECESARIO QUE LOS DESTRUYAS ANTES DE CONTINUAR.**
 
+    **RECUERDA también descomentar la sección `backend "s3" {}` en `main.tf` para que el pipeline use el backend remoto en S3.**
+
 8.  **Crea los secretos y variables en GitHub:**
     * Antes de hacer lo siguiente, reinicia la sesión de AWS Academy (stop y start) para que se generen nuevas credenciales temporales. Esto es importante porque los secretos de GitHub Actions usarán estas credenciales para interactuar con AWS y Docker Hub (**recuerda que son temporales y tienen un tiempo de vida limitado**).
     * Ve a tu repositorio en GitHub -> **Settings -> Secrets and variables -> Actions**.
