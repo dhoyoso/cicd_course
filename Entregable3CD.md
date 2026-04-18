@@ -640,6 +640,8 @@ infra/*.tfvars
     cd infra/
     ```
 
+    **Temporalmente comenta en `main.tf` la línea `backend "s3" {}` para que use estado local y no intente conectarse a un bucket S3 que no existe. Esto es solo para esta sección de despliegue manual, luego lo descomentaremos para el pipeline.**
+
     ```bash
     # Descarga el provider de AWS (solo la primera vez, o cuando cambia la versión del provider)
     terraform init
