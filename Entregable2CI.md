@@ -452,7 +452,7 @@ Antes de configurar el pipeline de CI completo, es una buena práctica verificar
     black app
     ```
 
-    Black reformateará tu código automáticamente para que cumpla con un estilo consistente.  Después de ejecutar Black, vuelve a ejecutar Pylint y Flake8 para ver si los problemas de estilo han desaparecido. ¿Algunos desaparecieron? y ¿la puntuación de pylint subió? ¿verdad?, Black es una herramienta muy útil para mantener un estilo de código consistente.
+    Black reformateará tu código automáticamente para que cumpla con un estilo consistente.  **Después de ejecutar Black, vuelve a ejecutar Pylint y Flake8** para ver si los problemas de estilo han desaparecido. ¿Algunos desaparecieron? y ¿la puntuación de pylint subió? ¿verdad?, Black es una herramienta muy útil para mantener un estilo de código consistente.
 
     No corrijas aún el resto de problemas, solo observa el informe.
 
@@ -489,7 +489,7 @@ Los pasos 1 a 5 de esta sección los realiza el **propietario** del repositorio.
 3.  **Importa tu repositorio:**
     *   Haz clic  'My Projects' y selecciona "Analyze a new project".
     *   Selecciona tu repositorio (`cicd-pipeline-python`) y dale click en `Set Up`.
-    *   Elige "Number of days", elige "30" con el fin de analizar todo el código que sea ha escrito en los últimos 30 días en tu repositorio.
+    *   Define qué se considera **código nuevo** (*New Code*). Puedes dejar la opción por defecto, **"Previous version"**, o elegir **"Number of days"** con el valor **30** (si la interfaz te lo permite) para analizar el código escrito en los últimos 30 días. Para este taller ambas opciones son válidas: en el primer análisis todo el código cuenta como nuevo y los criterios de calificación se miden sobre **Overall Code**. Si no te aparece la opción de días, no te preocupes: no afecta el resultado.
     *   SonarCloud analizará tu repositorio y te mostrará un panel de control con los resultados.  Inicialmente, puede que no muestre mucha información porque no hemos configurado el análisis en el workflow.
 
     > **⚠️ Importante — Deshabilita el Análisis Automático:** Una vez importado el proyecto, debes deshabilitar el análisis automático de SonarCloud para evitar duplicidad y errores con el análisis que realizará GitHub Actions. Ve a **Administration → Analysis Method** dentro de tu proyecto en SonarCloud y desactiva la opción **"Automatic Analysis"**. Si no haces esto, SonarCloud intentará analizar el código por su cuenta *además* del análisis lanzado desde el pipeline, lo que puede generar conflictos y resultados incorrectos.
@@ -498,7 +498,7 @@ Los pasos 1 a 5 de esta sección los realiza el **propietario** del repositorio.
 
 4.  **Obtén tu token de SonarCloud:**
     *   Ve a "My Account" (en la esquina superior derecha).
-    *   Ve a la pestaña "Security".
+    *   Ve a la pestaña "Access Tokens".
     *   Genera un token (dale un nombre, por ejemplo, "GitHub Actions Token").  *Copia este token*.  Lo necesitarás en el siguiente paso.
 
 5.  **Crea los secretos y variables en GitHub:**
