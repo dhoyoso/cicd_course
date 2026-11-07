@@ -494,7 +494,7 @@ Los pasos 1 a 5 de esta sección los realiza el **propietario** del repositorio.
 
     > **⚠️ Importante — Deshabilita el Análisis Automático:** Una vez importado el proyecto, debes deshabilitar el análisis automático de SonarCloud para evitar duplicidad y errores con el análisis que realizará GitHub Actions. Ve a **Administration → Analysis Method** dentro de tu proyecto en SonarCloud y desactiva la opción **"Automatic Analysis"**. Si no haces esto, SonarCloud intentará analizar el código por su cuenta *además* del análisis lanzado desde el pipeline, lo que puede generar conflictos y resultados incorrectos.
 
-    > **🌐 Importante — Haz tu proyecto público en SonarCloud:** Ve a **Administration → Visibility** dentro de tu proyecto en SonarCloud y selecciona **"Public"**. Esto es necesario para que el proyecto pueda ser revisado sin necesidad de iniciar sesión. Si el proyecto es privado, no podrá ser calificado.
+    > **🌐 Importante — Haz tu proyecto público en SonarCloud:** Ve a **Administration → Permissions** dentro de tu proyecto en SonarCloud y, en **Project visibility**, selecciona **"Public - Anyone"**. Esto es necesario para que el proyecto pueda ser revisado sin necesidad de iniciar sesión. Si el proyecto es privado, no podrá ser calificado.
 
 4.  **Obtén tu token de SonarCloud:**
     *   Ve a "My Account" (en la esquina superior derecha).
@@ -547,7 +547,7 @@ Los pasos 1 a 5 de esta sección los realiza el **propietario** del repositorio.
     *   `sonar.python.flake8.reportPaths=flake8-report.txt`:  Le dice a SonarCloud dónde encontrar el informe de Flake8.
     *   `sonar.coverage.exclusions=**/tests/**,**/setup.py,app/__init__.py`:  Excluye los archivos de prueba, el init y el archivo `setup.py` de la cobertura de código.
     *   `sonar.python.coverage.reportPaths=coverage.xml`:  Le dice a SonarCloud dónde encontrar el informe de cobertura de código.
-    *   `sonar.qualitygate.wait=true`:  Espera a que se complete el análisis antes de aplicar el Quality Gate. El quality gate es un conjunto de condiciones que tu código debe cumplir para ser considerado "bueno" (por ejemplo, un mínimo de cobertura de código, un máximo de errores, etc.). Si no se cumple el Quality Gate, el análisis fallará. El quality gate que tenemos establecido es el por defecto de SonarCloud:
+    *   `sonar.qualitygate.wait=true`:  Espera a que se complete el análisis antes de aplicar el Quality Gate. El quality gate es un conjunto de condiciones que tu código debe cumplir para ser considerado "bueno" (por ejemplo, un mínimo de cobertura de código, un máximo de errores, etc.). Si no se cumple el Quality Gate, el análisis fallará. El quality gate que tenemos establecido es el por defecto de SonarCloud (*Sonar way*), que puedes ver en **Policies → Quality gate** dentro de tu proyecto:
     ![alt text](./images/e2-quality-gate.png)
     *   `sonar.qualitygate.timeout=300`:  Tiempo máximo de espera para el Quality Gate (en segundos).
 
@@ -979,24 +979,17 @@ En un Pull Request se ejecutan los pasos 1 a 4, pero la imagen no se publica: as
 
 3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub y abre la ejecución. Todos los pasos hasta `Run Acceptance Tests` deben quedar en verde, porque ya los validaste localmente.
 
-    > **Es normal que la primera ejecución falle en el paso `SonarCloud Scan`.** En el primer análisis todo el código es "nuevo" para SonarCloud, y el Quality Gate encontrará issues y Security Hotspots sin revisar en el código inicial. En ese caso los pasos de Docker Hub no se ejecutan y **la imagen no se publica**: es precisamente el comportamiento que queremos, el código que no cumple la calidad no se entrega. En los pasos 4 y 5 corregirás los hallazgos.
+    > **Es normal que la primera ejecución falle en el paso `SonarCloud Scan`.** En el primer análisis todo el código es "nuevo" para SonarCloud, y el Quality Gate encontrará issues (incluidos los de seguridad) en el código inicial. En ese caso los pasos de Docker Hub no se ejecutan y **la imagen no se publica**: es precisamente el comportamiento que queremos, el código que no cumple la calidad no se entrega. En los pasos 4 y 5 corregirás los hallazgos.
     >
     > Si el pipeline falla en otro paso, revisa el log del paso fallido y los reportes en **Artifacts**. Errores frecuentes: el `Dockerfile` o un archivo de prueba con un nombre distinto al indicado, el nombre del repositorio con mayúsculas, o una variable o secreto con un nombre diferente al de la sección 5.2.
 
-4.  **Ve a SonarCloud y revisa los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto (también encuentras el enlace en los logs del paso `SonarCloud Scan`). Revisa la calidad del código, la cobertura de las pruebas, los issues y los Security Hotspots. Revisa la vista **Overall Code**, no solo **New Code**.
+4.  **Ve a SonarCloud y revisa los resultados del análisis:**  Ingresa a SonarCloud y busca tu proyecto (también encuentras el enlace en los logs del paso `SonarCloud Scan`). Revisa el tablero (*Overview*): el estado del Quality Gate, la cobertura de las pruebas y los issues de Security, Reliability y Maintainability. Entra a **Issues** para ver el detalle de cada hallazgo. Ten en cuenta que SonarCloud actualiza sus reglas con el tiempo, así que el número y el tipo de hallazgos pueden variar.
 
 5. **Corrige los problemas:**
 
-    *   **Issues:** Corrige en el código **TODOS** los issues de **Overall Code** (Security, Reliability y Maintainability), hasta que queden en **0**. Abre cada issue y lee las pestañas **"Why is this an issue?"** y **"How can I fix it?"**. Corrígelos en el código; no los marques como *Accepted* ni *False Positive*. Recuerda ejecutar `black app`, las pruebas y Pylint/Flake8 localmente antes de cada push.
-    *   **Security Hotspots:** un *hotspot* es código sensible para la seguridad que una persona debe revisar para decidir si es un riesgo real en su contexto. Revisarlos lo hace el **propietario** (es quien administra el proyecto en SonarCloud), en la pestaña **Security Hotspots**. En el código entregado aparecen estos hotspots; atiéndelos así:
-
-        | Hotspot | Qué detecta | Qué hacer |
-        |---|---|---|
-        | Debug activado (`debug=True`) | Flask en modo debug expone información interna y una consola de depuración | **Corregirlo:** elimina `debug=True` de `app.run(...)` en `app/app.py`. El hotspot se cierra solo en el siguiente análisis. |
-        | Protección CSRF deshabilitada | Formularios sin token CSRF | Marcar como **Safe** con el comentario: *"La calculadora no maneja sesiones, autenticación ni datos de usuario, por lo que no hay acciones que un atacante pueda forzar. En una aplicación real se habilitaría CSRF con Flask-WTF (CSRFProtect)."* |
-        | Métodos HTTP seguros e inseguros en la misma ruta (`GET` y `POST`) | Una ruta que acepta ambos métodos | Marcar como **Safe** con el comentario: *"GET solo muestra el formulario y POST solo calcula un resultado; ninguno modifica datos ni estado del servidor."* |
-
-        Si aparece un hotspot diferente, lee la pestaña **"What's the risk?"** y consulta con el docente antes de marcarlo.
+    *   **Corrige todos los hallazgos:** Abre la página **Issues** de tu proyecto y corrige en el código **todos** los issues de Security, Reliability y Maintainability. Abre cada issue y lee las pestañas **"Why is this an issue?"** y **"How can I fix it?"**. Recuerda ejecutar `black app`, las pruebas y Pylint/Flake8 localmente antes de cada push. SonarCloud actualiza sus reglas con el tiempo, así que el número y el tipo de hallazgos puede ser distinto al que ves en esta guía: corrige todo lo que reporte.
+    *   **Los issues de seguridad:** algunos issues de Security son código sensible que antes SonarCloud llamaba *Security Hotspots* (concepto que ya está deprecado y ahora aparece como issues). Lee con atención la explicación de cada uno y decide si es un riesgo real en el contexto de tu aplicación. Por ejemplo, ten presente qué significa ejecutar Flask con `debug=True` o escuchar en todas las interfaces de red (`0.0.0.0`) fuera de un entorno de desarrollo, y en qué parte del proyecto sí es necesario escuchar en `0.0.0.0`.
+    *   **Cuando un issue es válido pero no aplica corregirlo:** puedes aceptarlo, pero solo con justificación. Selecciona el issue, pulsa el botón **Change**, en **Change status** elige **Accept** y escribe un comentario que explique por qué no se corrige en este contexto. No uses **False positive** salvo que el análisis sea realmente incorrecto, y no uses **Confirm** para "cerrar" un issue (solo lo confirma y sigue afectando el Quality Gate). Cada issue aceptado debe tener un comentario claro. Si dudas, consulta con el docente. Ejemplo de justificación para el issue de protección CSRF (*"Make sure disabling CSRF protection is safe here"*): *"La calculadora no maneja sesiones, autenticación ni datos de usuario, por lo que no hay acciones que un atacante pueda forzar. En una aplicación real se habilitaría CSRF con Flask-WTF (CSRFProtect)."*
 
     *   Haz commit y push de las correcciones y vuelve a ejecutar el pipeline hasta que esté en verde y SonarCloud muestre el Quality Gate `Passed`. En una aplicación productiva lo ideal es corregir todos los hallazgos de seguridad y ajustar las reglas de SonarCloud a las necesidades del proyecto. Al final debes lograr un resultado similar al siguiente en el proyecto de SonarCloud:
 ![alt text](images/e2-image-7.png)
@@ -1005,7 +998,7 @@ En un Pull Request se ejecutan los pasos 1 a 4, pero la imagen no se publica: as
 
     Ve a tu perfil en Docker Hub. Deberías ver tu nuevo repositorio de imagen (ej: `tunombredeusuario/cicd-pipeline-python`) con la etiqueta `latest` y una etiqueta igual al SHA completo del commit (lo ves en GitHub, en la lista de commits o en la ejecución del workflow). Verifica que el repositorio de la imagen sea **público**.
 
-✅ **Punto de control:** la última ejecución en `main` está en verde, SonarCloud muestra Quality Gate `Passed`, 0 issues en Overall Code, cobertura ≥ 80% y todos los Security Hotspots revisados, y la imagen está en Docker Hub con las etiquetas `latest` y SHA.
+✅ **Punto de control:** la última ejecución en `main` está en verde, SonarCloud muestra Quality Gate `Passed`, cobertura ≥ 80% y todos los issues corregidos (o aceptados con justificación), y la imagen está en Docker Hub con las etiquetas `latest` y SHA.
 
 ## 9. Trabajo en Equipo con Pull Requests
 
@@ -1144,7 +1137,7 @@ Abre el PR de `docs/readme` hacia `main`, espera a que el pipeline quede en verd
 *   **Repositorio GitHub público** con todos los archivos requeridos (incluidos `requirements.txt`, `requirements-dev.txt`, `.flake8`, `Dockerfile`, `.dockerignore`, `sonar-project.properties`, `pytest.ini`, las pruebas y el workflow) y la última ejecución del pipeline en `main` exitosa.
 *   **Integrantes:** `AUTOR` en `app/calculadora.py` y la sección **Integrantes** del `README.md` con los nombres completos de los 3 integrantes, iguales y en el mismo orden.
 *   **Pipeline** que cumple la política de fallos: Black, pruebas unitarias y de componente con cobertura ≥ 80%, pruebas de aceptación contra el contenedor, Quality Gate de SonarCloud, y publicación solo en push a `main` de la misma imagen probada.
-*   **Proyecto en SonarCloud público** con Quality Gate `Passed`, cobertura ≥ 80%, 0 issues en Overall Code (Security, Reliability y Maintainability) y Security Hotspots revisados según la sección 8.
+*   **Proyecto en SonarCloud público** con Quality Gate `Passed`, cobertura ≥ 80% y todos los issues (Security, Reliability y Maintainability) corregidos, o aceptados con una justificación clara según la sección 8.
 *   **Imagen en Docker Hub pública** con etiquetas `latest` y SHA de un commit de `main`.
 *   **Rama `main` protegida** con la regla de la sección 9 (PR obligatorio, 1 aprobación y check `build-and-test`).
 *   **Pull Request de la sección 9** integrado, con al menos 2 pruebas nuevas, una ejecución fallida por el error intencional, una ejecución final exitosa y la aprobación de otro integrante.
