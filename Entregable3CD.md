@@ -332,7 +332,14 @@ El Load Balancer (ALB) de AWS necesita una ruta para verificar periódicamente q
     git push origin main
     ```
 
-5. **Revisa los Security Hotspots en el proyecto nuevo:** igual que en la primera ejecución del Taller 2, **es normal que el paso `SonarCloud Scan` falle**: para el proyecto nuevo todo el código es "nuevo" y los 2 hotspots que marcaste como *Safe* en el Taller 2 aparecen otra vez sin revisar (las revisiones no se copian entre proyectos). En SonarCloud, pestaña **Security Hotspots**, márcalos como **Safe** con los mismos comentarios del Taller 2 (sección 8, paso 5): *Protección CSRF deshabilitada* y *Métodos HTTP seguros e inseguros en la misma ruta*. Luego, en GitHub abre la ejecución fallida y usa **Re-run jobs → Re-run failed jobs**. Si el paso no falló, revisa los hotspots de todas formas: la evaluación tiene en cuenta que estén revisados.
+5. **Revisa los issues en el proyecto nuevo de SonarCloud:** igual que en la primera ejecución del Taller 2, **es normal que el paso `SonarCloud Scan` falle**. Para el proyecto nuevo todo el código es "nuevo", y los issues que **aceptaste** en el Taller 2 aparecen otra vez abiertos, porque los cambios de estado y los comentarios no se copian entre proyectos. Los issues que **corregiste en el código** no vuelven a aparecer, porque el código ya viene corregido.
+
+    * En SonarCloud, abre **Issues** en el proyecto nuevo. Debería aparecer, al menos, el issue de protección CSRF (*"Make sure disabling CSRF protection is safe here"*).
+    * Acepta de nuevo cada issue que aceptaste en el Taller 2, con la misma justificación (Taller 2, sección 8, paso 5): selecciónalo, pulsa **Change**, en **Change status** elige **Accept** y escribe el comentario.
+    * Si aparece un issue que no estaba en el Taller 2 (por ejemplo, porque SonarCloud actualizó sus reglas), corrígelo en el código como en el Taller 2. Solo acéptalo, con justificación, si es válido pero no aplica corregirlo en este contexto.
+    * Luego, en GitHub abre la ejecución fallida y usa **Re-run jobs → Re-run failed jobs**: el Quality Gate se recalcula en el siguiente análisis, no al cambiar el estado del issue.
+
+    > La página **Security hotspots** de SonarCloud está deprecada: los antiguos hotspots ahora aparecen como issues de seguridad en **Issues**. No necesitas revisarla.
 
 6. **Verifica la imagen en Docker Hub:** debe aparecer el repositorio `usuariodockerhub/cicd-pipeline-python-cd` con las etiquetas `latest` y SHA. Verifica que sea **público**. Esta imagen (con `/health`) es la que desplegarás manualmente en la sección 7.6; si no se publica, el health check del ALB fallará.
 
@@ -1347,7 +1354,7 @@ Antes de entregar, verifica cada punto. Todos serán tenidos en cuenta en la eva
 - [ ] La ejecución del merge de las nuevas funciones en `main` tiene los 5 jobs en verde, con la aprobación de Producción registrada en esa ejecución. Un merge posterior de documentación no vuelve a desplegar.
 - [ ] `/health` en Staging y en Producción muestra el SHA del último commit desplegado.
 - [ ] Los Target Groups de los dos ambientes están `healthy`.
-- [ ] SonarCloud: proyecto `cicd-pipeline-python-cd` público, Quality Gate `Passed`, cobertura ≥ 80% y Security Hotspots revisados.
+- [ ] SonarCloud: proyecto `cicd-pipeline-python-cd` público, Quality Gate `Passed`, cobertura ≥ 80% y todos los issues corregidos (o aceptados con justificación).
 - [ ] Docker Hub: imagen `cicd-pipeline-python-cd` pública con las etiquetas `latest` y SHA.
 - [ ] `main` protegida con `proteger-main` y el ambiente `production` con **Required reviewers**.
 - [ ] El repositorio contiene `infra/backend.hcl` e `infra/.terraform.lock.hcl`, y **no** contiene `.terraform/` ni archivos `.tfstate`.
@@ -1444,7 +1451,7 @@ Abre el PR de `docs/readme` hacia `main`, espera a que `build-and-test` quede en
 * **Repositorio GitHub público** con `.github/workflows/ci-cd.yml`, la carpeta `infra/` (`main.tf`, `variables.tf`, `outputs.tf`, `backend.hcl` y `.terraform.lock.hcl`), `tests/test_smoke_app.py` y el endpoint `/health`, sin archivos de estado de Terraform.
 * **Integrantes:** `AUTOR` en `app/calculadora.py` y la sección **Integrantes** del `README.md` con los nombres completos de los 3 integrantes, iguales y en el mismo orden.
 * **Pipeline CI/CD:** la ejecución del merge de las nuevas funciones con los 5 jobs en verde (`build-and-test`, `deploy-staging`, `test-staging`, `deploy-production`, `smoke-test-production`) y la aprobación manual de Producción.
-* **Proyecto en SonarCloud público** con Quality Gate `Passed`, cobertura ≥ 80% y Security Hotspots revisados.
+* **Proyecto en SonarCloud público** con Quality Gate `Passed`, cobertura ≥ 80% y todos los issues (Security, Reliability y Maintainability) corregidos, o aceptados con una justificación clara.
 * **Imagen en Docker Hub pública** con etiquetas `latest` y SHA.
 * **Protecciones:** `main` protegida con la regla `proteger-main` y el ambiente `production` con revisores requeridos.
 * **Pull Request** integrado con al menos 2 operaciones nuevas, cubiertas por pruebas unitarias, de componente y de aceptación, y aprobado por otro integrante.
