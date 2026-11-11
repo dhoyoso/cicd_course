@@ -730,7 +730,7 @@ Lo realiza el **propietario**, con la AWS CLI configurada (sección 5.1) y una s
 
     ```bash
     cd infra
-    terraform init -backend-config=backend.hcl
+    terraform init "-backend-config=backend.hcl"
     terraform fmt -recursive
     terraform validate
     terraform workspace select -or-create staging
@@ -745,7 +745,7 @@ Lo realiza el **propietario**, con la AWS CLI configurada (sección 5.1) y una s
 3. **Despliega Staging:**
 
     ```bash
-    terraform apply -var="environment_name=staging" -var="docker_image_uri=USUARIO_DOCKERHUB/cicd-pipeline-python-cd:latest"
+    terraform apply "-var=environment_name=staging" "-var=docker_image_uri=USUARIO_DOCKERHUB/cicd-pipeline-python-cd:latest"
     ```
 
     Terraform mostrará el plan y pedirá confirmación. Revisa que diga **`Plan: 9 to add, 0 to change, 0 to destroy.`** y escribe `yes`. La creación tarda entre 3 y 6 minutos (el ALB y la espera a que el servicio quede estable son lo más lento).
@@ -783,7 +783,9 @@ Lo realiza el **propietario**, con la AWS CLI configurada (sección 5.1) y una s
 >
 > **Errores en `terraform init` o al inicio del `apply`:**
 > * **`ExpiredToken` / `InvalidClientTokenId` / `security token included in the request is invalid`:** tus credenciales expiraron. Renuévalas con la lista de chequeo de la sección 5.2.
-> * **`NoSuchBucket` o `bucket does not exist`:** el nombre en `backend.hcl` no coincide con el bucket creado. Corrígelo y ejecuta `terraform init -reconfigure -backend-config=backend.hcl`.
+> * **`Too many command line arguments`** (en PowerShell): falta poner entre comillas un argumento con `=` y `.`. Usa `terraform init "-backend-config=backend.hcl"` (ver la nota del paso 2).
+> * **`Failed to query available provider packages` / `could not connect to registry.terraform.io` / `connection was forcibly closed by the remote host`:** es un problema de red al descargar el proveedor de AWS, no de tu configuración. Vuelve a ejecutar `terraform init "-backend-config=backend.hcl"`; si persiste, desactiva la VPN o prueba otra red (por ejemplo, compartiendo internet desde el celular). Puedes comprobar el acceso con `curl.exe -I https://registry.terraform.io/.well-known/terraform.json` (en Linux/macOS, `curl -I ...`), que debe responder `200`. Mientras `init` no termine bien, `terraform validate` mostrará *Missing required provider*.
+> * **`NoSuchBucket` o `bucket does not exist`:** el nombre en `backend.hcl` no coincide con el bucket creado. Corrígelo y ejecuta `terraform init -reconfigure "-backend-config=backend.hcl"`.
 > * **`no matching IAM Role found`, `no matching EC2 VPC found` o `no matching EC2 Subnets`:** verifica que el laboratorio esté iniciado y que tu región sea `us-east-1` (`aws configure get region`).
 > * **`Error acquiring the state lock`:** otra ejecución (tuya o del pipeline) está usando el estado, o una ejecución anterior se interrumpió. Si estás seguro de que no hay nada en ejecución (revisa la pestaña **Actions**), libera el bloqueo con `terraform force-unlock <ID>`, usando el `ID` que aparece en el mensaje de error.
 > * **`already exists` (ej: `DuplicateLoadBalancerName`, `InvalidGroup.Duplicate`, `ResourceAlreadyExistsException`):** quedaron recursos con el nombre `calculadora-staging-...` de un intento cuyo estado se perdió. Elimínalos desde la consola (Servicio y Cluster ECS, Load Balancer, Target Group, Security Groups y Log Group de CloudWatch) y vuelve a ejecutar el `apply`.
@@ -1482,13 +1484,13 @@ Se usan el mismo backend y los mismos workspaces que en el resto del taller. Des
 
 ```bash
 cd infra
-terraform init -backend-config=backend.hcl
+terraform init "-backend-config=backend.hcl"
 
 terraform workspace select staging
-terraform destroy -var="environment_name=staging" -var="docker_image_uri=USUARIO_DOCKERHUB/cicd-pipeline-python-cd:latest"
+terraform destroy "-var=environment_name=staging" "-var=docker_image_uri=USUARIO_DOCKERHUB/cicd-pipeline-python-cd:latest"
 
 terraform workspace select production
-terraform destroy -var="environment_name=production" -var="docker_image_uri=USUARIO_DOCKERHUB/cicd-pipeline-python-cd:latest"
+terraform destroy "-var=environment_name=production" "-var=docker_image_uri=USUARIO_DOCKERHUB/cicd-pipeline-python-cd:latest"
 ```
 
 En cada `destroy`, revisa que el plan diga **`9 to destroy`** y escribe `yes`. Cada uno tarda algunos minutos.
