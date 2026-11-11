@@ -264,10 +264,10 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
 
 ### 7.2 Configura SonarCloud, secretos y variables del repositorio nuevo
 
-1. **Crea el proyecto en SonarCloud:** **My Projects → Analyze a new project**, selecciona `cicd-pipeline-python-cd`, haz clic en **Set Up** y elige **Number of days → 30**, igual que en el Taller 2.
+1. **Crea el proyecto en SonarCloud:** **My Projects → Analyze a new project**, selecciona `cicd-pipeline-python-cd`, haz clic en **Set Up** y finaliza el proceso igual que en el Taller 2.
     > Si el repositorio no aparece en la lista, la aplicación de SonarCloud en GitHub tiene acceso solo a algunos repositorios. En GitHub ve a la configuración de tu cuenta **Settings → Applications → Installed GitHub Apps → SonarQube Cloud → Configure**, agrega `cicd-pipeline-python-cd` y vuelve a SonarCloud.
 
-2. Igual que en el Taller 2: desactiva el **Automatic Analysis** (**Administration → Analysis Method**) y haz el proyecto **público** (**Administration → Visibility → Public**).
+2. Igual que en el Taller 2: desactiva el **Automatic Analysis** (**Administration → Analysis Method**) y haz el proyecto **público** (**Administration → Permissions** dentro de tu proyecto en SonarCloud y, en **Project visibility**, selecciona **"Public - Anyone"**).
 
 3. **Actualiza `sonar-project.properties`:** cambia la clave del proyecto por la del proyecto nuevo (puedes copiarla exacta desde **Information** en SonarCloud). La organización (`sonar.organization`) no cambia.
 
@@ -275,7 +275,7 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
     sonar.projectKey=[TU_USUARIO]_cicd-pipeline-python-cd
     ```
 
-    > **⚠️ Si dejas la clave anterior**, el análisis de este repositorio se enviaría al proyecto del Taller 2 y cambiaría su resultado afectando su calificación.
+    > **⚠️ Si dejas la clave anterior**, el análisis de este repositorio se enviaría al proyecto del Taller 2 y cambiaría su resultado afectando su calificación. Lo que vas a cambiar si estás usando el mismo usuario de GitHub es solo el nombre del proyecto (usualmente derivado del nombre del repositorio).
 
 4. **Crea los secretos y variables:** los valores de los secretos de GitHub no se pueden leer ni copiar a otro repositorio, así que genera tokens nuevos como en el Taller 2 (sección 5.2, pasos 4 y 5): un token de SonarCloud y un token de Docker Hub. Luego, en **Settings → Secrets and variables → Actions** del repositorio nuevo crea:
     * **Secretos:** `SONAR_TOKEN` y `DOCKERHUB_TOKEN`.
