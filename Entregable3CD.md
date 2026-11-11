@@ -724,6 +724,8 @@ Lo realiza el **propietario**, con la AWS CLI configurada (sección 5.1) y una s
 
     > Los nombres de los buckets son únicos **en todo el mundo**. Si recibes `BucketAlreadyExists`, otra persona ya usa ese nombre: elige otro sufijo y actualiza `backend.hcl`. Si recibes `BucketAlreadyOwnedByYou`, el bucket ya es tuyo y puedes continuar.
 
+    puedes ejecutar `aws s3api list-buckets` para verificar que el bucket se creó correctamente.
+
 2. **Inicializa Terraform, formatea, valida y selecciona el workspace de Staging:**
 
     ```bash
