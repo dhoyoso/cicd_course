@@ -267,7 +267,7 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
 1. **Crea el proyecto en SonarCloud:** **My Projects → Analyze a new project**, selecciona `cicd-pipeline-python-cd`, haz clic en **Set Up** y finaliza el proceso igual que en el Taller 2.
     > Si el repositorio no aparece en la lista, la aplicación de SonarCloud en GitHub tiene acceso solo a algunos repositorios. En GitHub ve a la configuración de tu cuenta **Settings → Applications → Installed GitHub Apps → SonarQube Cloud → Configure**, agrega `cicd-pipeline-python-cd` y vuelve a SonarCloud.
 
-2. Igual que en el Taller 2: desactiva el **Automatic Analysis** (**Administration → Analysis Method**) y haz el proyecto **público** (**Administration → Permissions** dentro de tu proyecto en SonarCloud y, en **Project visibility**, selecciona **"Public - Anyone"**).
+2. Igual que en el Taller 2: desactiva el **Automatic Analysis** (**Administration → Analysis Method**), haz el proyecto **público** (**Administration → Permissions** dentro de tu proyecto en SonarCloud y, en **Project visibility**, selecciona **"Public - Anyone"**) y configura el código nuevo en **Administration → New code → "Number of days" = 30** (Taller 2, sección 5.2, paso 3). Sin este ajuste, el Quality Gate no evaluaría el código que traes del Taller 2.
 
 3. **Actualiza `sonar-project.properties`:** cambia la clave del proyecto por la del proyecto nuevo (puedes copiarla exacta desde **Information** en SonarCloud). La organización (`sonar.organization`) no cambia.
 
@@ -332,12 +332,21 @@ El Load Balancer (ALB) de AWS necesita una ruta para verificar periódicamente q
     git push origin main
     ```
 
-5. **Revisa los issues en el proyecto nuevo de SonarCloud:** igual que en la primera ejecución del Taller 2, **es normal que el paso `SonarCloud Scan` falle**. Para el proyecto nuevo todo el código es "nuevo", y los issues que **aceptaste** en el Taller 2 aparecen otra vez abiertos, porque los cambios de estado y los comentarios no se copian entre proyectos. Los issues que **corregiste en el código** no vuelven a aparecer, porque el código ya viene corregido.
+5. **Revisa el resultado de SonarCloud en el proyecto nuevo:** **el paso `SonarCloud Scan` puede fallar en esta primera ejecución**, aunque el código no tenga ningún issue. En el primer análisis de un proyecto, SonarCloud puede no calcular el Quality Gate (queda como *Not computed*), y el scanner lo reporta igual como fallido.
 
-    * En SonarCloud, abre **Issues** en el proyecto nuevo. Debería aparecer, al menos, el issue de protección CSRF (*"Make sure disabling CSRF protection is safe here"*).
-    * Acepta de nuevo cada issue que aceptaste en el Taller 2, con la misma justificación (Taller 2, sección 8, paso 5): selecciónalo, pulsa **Change**, en **Change status** elige **Accept** y escribe el comentario.
+    **¿Cómo sabes si falló por eso o porque el código no cumple?**
+
+    * En el log del paso `SonarCloud Scan`, en ambos casos verás al final `QUALITY GATE STATUS: FAILED` y `EXECUTION FAILURE`. Abre el enlace `View details on https://sonarcloud.io/dashboard?id=...` que aparece en esa misma línea.
+    * En SonarCloud (**Analysis → Summary** del proyecto), mira el recuadro **Quality gate**:
+        * **Not computed:** no es un error de tu código; es el primer análisis. Continúa con la revisión de issues y vuelve a ejecutar.
+        * **Failed:** el gate sí se calculó y el código no cumple. SonarCloud muestra las condiciones que fallaron (por ejemplo, *Security rating*, cobertura o duplicación); corrígelas antes de volver a ejecutar.
+
+    **Antes de volver a ejecutar, revisa los issues:** abre **Issues** en el proyecto nuevo. Los cambios de estado y los comentarios no se copian entre proyectos, así que:
+
+    * Los issues que **corregiste en el código** en el Taller 2 no vuelven a aparecer, porque el código ya viene corregido. Si los corregiste todos, verás 0 issues.
+    * Los issues que **aceptaste** en el Taller 2 (por ejemplo, el de protección CSRF, *"Make sure disabling CSRF protection is safe here"*) aparecen otra vez abiertos. Acéptalos de nuevo con la misma justificación (Taller 2, sección 8, paso 5): selecciónalo, pulsa **Change**, en **Change status** elige **Accept** y escribe el comentario.
     * Si aparece un issue que no estaba en el Taller 2 (por ejemplo, porque SonarCloud actualizó sus reglas), corrígelo en el código como en el Taller 2. Solo acéptalo, con justificación, si es válido pero no aplica corregirlo en este contexto.
-    * Luego, en GitHub abre la ejecución fallida y usa **Re-run jobs → Re-run failed jobs**: el Quality Gate se recalcula en el siguiente análisis, no al cambiar el estado del issue.
+    * Luego, en GitHub abre la ejecución fallida y usa **Re-run jobs → Re-run failed jobs**. En este segundo análisis el Quality Gate ya se calcula, y debe quedar en `Passed` (en el log verás `QUALITY GATE STATUS: PASSED`). Ten en cuenta que el Quality Gate se recalcula en cada análisis, no al cambiar el estado de un issue: por eso hay que volver a ejecutar.
 
     > La página **Security hotspots** de SonarCloud está deprecada: los antiguos hotspots ahora aparecen como issues de seguridad en **Issues**. No necesitas revisarla.
 
