@@ -63,6 +63,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     *   **Análisis de Calidad de Código:**  Herramientas que verifican el estilo del código, la complejidad, la presencia de errores potenciales, code smells y el cumplimiento de estándares (ej: PEP 8 en Python).
     *   **Pruebas Unitarias:**  Prueban unidades individuales de código (funciones, clases, métodos) de forma aislada.
     *   **Pruebas de Componente:** Prueban un componente completo de la aplicación (por ejemplo, las rutas web de Flask junto con su lógica y su plantilla) sin depender de servidores, navegadores ni servicios externos.
+    *  **Pruebas de Integración:**  Prueban la interacción entre varios componentes o servicios de la aplicación. En este taller no haremos pruebas de integración con servicios externos (bases de datos, APIs de terceros, etc.) porque esta aplicación no los utiliza.
     *   **Pruebas de Aceptación (o Pruebas Funcionales/ en algunos lugares también las usan para E2E):**  Prueban la aplicación desde la perspectiva del usuario, simulando interacciones reales, usualmente a través de la interfaz de usuario (UI).
 
 4.  **Release (Liberación):** Si todas las pruebas pasan, el código se considera apto para ser liberado. En un entorno de *Integración Continua*, esta etapa puede ser una verificación o la creación de un artefacto listo para desplegar. En este taller, esta etapa consistirá en publicar en Docker Hub la misma imagen Docker que pasó las pruebas, únicamente cuando el cambio ya está integrado en `main`.
