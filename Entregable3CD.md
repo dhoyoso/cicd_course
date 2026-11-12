@@ -1277,6 +1277,7 @@ Con esto el repositorio queda con **5 secretos** (`SONAR_TOKEN`, `DOCKERHUB_TOKE
 > * **`deploy-*` con `already exists`:** ver el troubleshooting de la sección 7.6.
 > * **`test-staging` o `smoke-test-production` fallan en el paso de espera:** la versión nueva no quedó en servicio en 5 minutos. Revisa la pestaña `Events` del servicio ECS y los logs en CloudWatch (troubleshooting de la sección 7.6). Si ECS revirtió el despliegue, `/health` sigue mostrando el SHA anterior (sección 8).
 > * **`test-staging` falla en las pruebas de aceptación:** descarga el reporte `staging-acceptance-report` desde **Artifacts** de la ejecución.
+> * **`test-staging` falla en una sola prueba con `ReadTimeoutError ... read timeout=120` al abrir la página, y las demás pasan:** es una falla intermitente de red entre el runner de GitHub y el ALB, o del navegador; tu aplicación funciona. Usa **Re-run failed jobs**. Si falla siempre, revisa que el ALB responda abriendo su URL en tu navegador.
 
 ✅ **Punto de control:** los 5 jobs están en verde, los dos ambientes responden en `/health` con el SHA del último commit y los Target Groups están `healthy`.
 
