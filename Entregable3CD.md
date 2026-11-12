@@ -15,12 +15,11 @@ Aquí algunos links útiles para ello:
 * **Docker**: Plataforma para desarrollar, enviar y ejecutar aplicaciones en contenedores. Permite empaquetar aplicaciones y sus dependencias en un solo contenedor, asegurando que funcionen de manera consistente en diferentes entornos.
 
 ## Pre requisitos y modalidad de trabajo
-* **Equipos de 3 integrantes, los mismos del Taller 2**, y cada equipo entrega **un único repositorio público**. Igual que en el Taller 2:
+* **Equipos de 3 integrantes, exactamente los mismos del Taller 2**, y cada equipo entrega **un único repositorio público**. Los equipos **no pueden cambiar**: el grupo que creó el profesor en EAFIT Interactiva para el Taller 2 es el mismo que se usa en este taller y en el proyecto final, así que no hace falta volver a registrarlo. Igual que en el Taller 2:
     * **Secciones 7.1 a 7.9: cada integrante trabaja en su propio repositorio**, con sus propias cuentas de GitHub, Docker Hub, SonarCloud y **AWS Academy**. Así todos practican cada paso, y si a alguien algo no le funciona, el equipo puede continuar con otro repositorio. Cada uno parte de su repositorio del Taller 2; si el suyo no quedó funcionando, puede partir del repositorio que el equipo entregó en el Taller 2 (sección 7.1).
     * **Sección 7.10 en adelante: el equipo elige un solo repositorio** (uno que cumpla el punto de control de la sección 7.9). Su dueño pasa a ser el **propietario**, y los otros dos integrantes se agregan como **colaboradores** (Pull Requests, revisiones y aprobaciones). **Ese es el único repositorio que se entrega y se califica**; los demás sirven para aprender y como respaldo, y no se revisan.
     * **En todos los repositorios**, `AUTOR` y la sección **Integrantes** del README tienen los nombres de los 3 integrantes, para que no importe cuál se entregue.
     * Las credenciales de AWS son personales y **nunca se comparten**, ni siquiera dentro del equipo.
-* Un cambio de equipo o de cantidad de integrantes requiere autorización previa del docente; actualicen `AUTOR`, Integrantes y la distribución de roles según lo autorizado.
 * Haber finalizado el Taller 2 y tener los artefactos desarrollados en ese taller (app, Dockerfile, pruebas, `requirements.txt` y `requirements-dev.txt`, pipeline de CI, regla de protección de `main`, etc.). En la sección 7.1 crearás un repositorio nuevo a partir de una copia del Taller 2, que quedará intacto.
 * Instalar AWS CLI. Puedes seguir la guía oficial [aquí](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 * Instalar Terraform. Puedes seguir la guía oficial [aquí](https://developer.hashicorp.com/terraform/install). Verifica la instalación ejecutando `terraform --version` (debe retornar versión ≥ 1.10.0; recomendamos la 1.17, la misma que usará el pipeline).
@@ -285,7 +284,7 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
 
     Los nombres deben escribirse exactamente así (mayúsculas incluidas): el workflow los busca por su nombre. Los secretos de AWS los crearás en la sección 7.8.
 
-5. **Prepara el `README.md`:** conserva la sección **Integrantes** y elimina las evidencias y respuestas del Taller 2; las del Taller 3 las agregarás en la sección 9. La variable `AUTOR` de `app/calculadora.py` no cambia (si el equipo cambió, actualízala igual que la sección Integrantes).
+5. **Prepara el `README.md`:** conserva la sección **Integrantes** y elimina las evidencias y respuestas del Taller 2; las del Taller 3 las agregarás en la sección 9. La variable `AUTOR` de `app/calculadora.py` no cambia, porque el equipo es el mismo del Taller 2.
 
 ### 7.3 Agrega el endpoint `/health` y publica la nueva imagen
 
@@ -1457,7 +1456,7 @@ Abre el PR de `docs/readme` hacia `main`, espera a que `build-and-test` quede en
 
 ### 9.2 Entrega
 
-**Cada integrante** ingresa al buzón del **Entregable 3** en **EAFIT Interactiva** y proporciona los siguientes tres datos (los mismos para los 3 integrantes) en el campo de texto. Todos corresponden al **repositorio elegido en la sección 7.10** y a las cuentas de su propietario: **solo se califica ese repositorio**; los repositorios, proyectos de SonarCloud, imágenes y despliegues de los demás integrantes no se revisan.
+**Un solo integrante** entrega en nombre de todo el equipo: ingresa al buzón del **Entregable 3** en **EAFIT Interactiva** y proporciona los siguientes tres datos en el campo de texto. La entrega queda registrada para los 3 integrantes porque el buzón usa el mismo grupo del Taller 2. Todos corresponden al **repositorio elegido en la sección 7.10** y a las cuentas de su propietario: **solo se califica ese repositorio**; los repositorios, proyectos de SonarCloud, imágenes y despliegues de los demás integrantes no se revisan.
 
 1. **URL del repositorio de GitHub** (debe ser público): `https://github.com/USUARIO_PROPIETARIO/cicd-pipeline-python-cd`
 2. **URL del proyecto en SonarCloud** (debe ser público, accesible sin login): `https://sonarcloud.io/project/overview?id=USUARIO_PROPIETARIO_cicd-pipeline-python-cd`

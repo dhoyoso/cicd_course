@@ -28,6 +28,10 @@ No haremos pruebas de integración con servicios externos (bases de datos, APIs 
 
 Una cantidad distinta de integrantes requiere autorización previa del docente; en ese caso se mantienen las mismas evidencias y se acuerda la distribución de roles.
 
+> **⚠️ Antes que nada, registren el equipo:** **uno** de los integrantes envía al profesor, por **Teams**, la lista con los nombres completos de los 3 integrantes del equipo. Con esa lista el profesor crea el grupo en el buzón de **EAFIT Interactiva** y les confirma por Teams cuando esté listo. **No podrán hacer la entrega hasta recibir esa confirmación.**
+>
+> **Los equipos quedan fijos para el Taller 3 y para el proyecto final:** el mismo grupo de Interactiva se usa en el Taller 2, el Taller 3 y el proyecto final, así que **no se permiten cambios de integrantes** durante el resto del curso. Elijan el equipo con eso en mente.
+
 *   **Secciones 3 a 8: cada integrante trabaja en su propio repositorio**, con sus propias cuentas de GitHub, SonarCloud y Docker Hub. Así todos practican cada paso, y si a alguien algo no le funciona, el equipo puede continuar con otro repositorio.
 *   **Sección 9 en adelante: el equipo elige un solo repositorio** (uno que cumpla el punto de control de la sección 8). Su dueño pasa a ser el **propietario**, y los otros dos integrantes se agregan como **colaboradores** para crear ramas, abrir Pull Requests y aprobar los de sus compañeros. **Ese es el único repositorio que se entrega y se califica**; los demás sirven para aprender y como respaldo, y no se revisan.
 *   **En todos los repositorios**, identifica a los 3 integrantes con sus nombres completos en la variable `AUTOR` de `app/calculadora.py` y en una sección **Integrantes** del `README.md`, con el mismo texto y en el mismo orden. Así no importa cuál repositorio se entregue al final. Separa los nombres con ` | ` (espacio, barra vertical, espacio), igual que en el Taller 1. Ejemplo: `Ana María Pérez | Luis Andrés Gómez | Sara Restrepo Ríos`. En el README añade también el usuario de GitHub de cada integrante e indica quién es el propietario del repositorio. No incluyas credenciales ni datos personales adicionales.
@@ -1135,7 +1139,7 @@ Abre el PR de `docs/readme` hacia `main`, espera a que el pipeline quede en verd
 
 ### 10.2. Entrega
 
-**Cada integrante** ingresa al buzón del **Entregable 2** en **EAFIT Interactiva** y proporciona los siguientes tres datos (los mismos para los 3 integrantes) en el campo de texto. Todos corresponden al **repositorio elegido en la sección 9.1** y a las cuentas de su propietario: **solo se califica ese repositorio**; los repositorios, proyectos de SonarCloud e imágenes de los demás integrantes no se revisan.
+**Un solo integrante** entrega en nombre de todo el equipo: ingresa al buzón del **Entregable 2** en **EAFIT Interactiva** y proporciona los siguientes tres datos en el campo de texto. La entrega queda registrada para los 3 integrantes porque el buzón usa el grupo que creó el profesor (ver *Prerrequisitos y modalidad de trabajo*); si aún no tienen la confirmación del profesor de que el grupo está creado, **no entreguen** y escríbanle por Teams. Todos corresponden al **repositorio elegido en la sección 9.1** y a las cuentas de su propietario: **solo se califica ese repositorio**; los repositorios, proyectos de SonarCloud e imágenes de los demás integrantes no se revisan.
 
 1.  **URL del repositorio de GitHub** (debe ser público): `https://github.com/USUARIO_PROPIETARIO/cicd-pipeline-python`
 2.  **URL del proyecto en SonarCloud** (debe ser público, accesible sin login): `https://sonarcloud.io/project/overview?id=USUARIO_PROPIETARIO_cicd-pipeline-python`
