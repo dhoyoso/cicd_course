@@ -15,8 +15,12 @@ Aquí algunos links útiles para ello:
 * **Docker**: Plataforma para desarrollar, enviar y ejecutar aplicaciones en contenedores. Permite empaquetar aplicaciones y sus dependencias en un solo contenedor, asegurando que funcionen de manera consistente en diferentes entornos.
 
 ## Pre requisitos y modalidad de trabajo
-* **Equipos de 3 integrantes, los mismos del Taller 2.** El **propietario** del repositorio del Taller 2 es también el propietario en este taller: usa sus cuentas de GitHub, Docker Hub y SonarCloud, y su cuenta de **AWS Academy** para desplegar. Los otros dos integrantes participan como colaboradores (Pull Requests, revisiones y aprobaciones). Las credenciales de AWS son personales y **nunca se comparten**, ni siquiera dentro del equipo.
-* Un cambio de equipo, propietario o cantidad de integrantes requiere autorización previa del docente; actualicen `AUTOR`, Integrantes y la distribución de roles según lo autorizado.
+* **Equipos de 3 integrantes, los mismos del Taller 2**, y cada equipo entrega **un único repositorio público**. Igual que en el Taller 2:
+    * **Secciones 7.1 a 7.9: cada integrante trabaja en su propio repositorio**, con sus propias cuentas de GitHub, Docker Hub, SonarCloud y **AWS Academy**. Así todos practican cada paso, y si a alguien algo no le funciona, el equipo puede continuar con otro repositorio. Cada uno parte de su repositorio del Taller 2; si el suyo no quedó funcionando, puede partir del repositorio que el equipo entregó en el Taller 2 (sección 7.1).
+    * **Sección 7.10 en adelante: el equipo elige un solo repositorio** (uno que cumpla el punto de control de la sección 7.9). Su dueño pasa a ser el **propietario**, y los otros dos integrantes se agregan como **colaboradores** (Pull Requests, revisiones y aprobaciones). **Ese es el único repositorio que se entrega y se califica**; los demás sirven para aprender y como respaldo, y no se revisan.
+    * **En todos los repositorios**, `AUTOR` y la sección **Integrantes** del README tienen los nombres de los 3 integrantes, para que no importe cuál se entregue.
+    * Las credenciales de AWS son personales y **nunca se comparten**, ni siquiera dentro del equipo.
+* Un cambio de equipo o de cantidad de integrantes requiere autorización previa del docente; actualicen `AUTOR`, Integrantes y la distribución de roles según lo autorizado.
 * Haber finalizado el Taller 2 y tener los artefactos desarrollados en ese taller (app, Dockerfile, pruebas, `requirements.txt` y `requirements-dev.txt`, pipeline de CI, regla de protección de `main`, etc.). En la sección 7.1 crearás un repositorio nuevo a partir de una copia del Taller 2, que quedará intacto.
 * Instalar AWS CLI. Puedes seguir la guía oficial [aquí](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 * Instalar Terraform. Puedes seguir la guía oficial [aquí](https://developer.hashicorp.com/terraform/install). Verifica la instalación ejecutando `terraform --version` (debe retornar versión ≥ 1.10.0; recomendamos la 1.17, la misma que usará el pipeline).
@@ -160,7 +164,7 @@ En el pipeline de GitHub Actions no usaremos `aws configure`. En su lugar, la ac
 
 **Las credenciales de AWS Academy son temporales:** duran lo mismo que la sesión del laboratorio (máximo 4 horas) y cambian cada vez que haces **Start Lab**. Cuando expiran, los jobs que usan AWS fallan con mensajes como `ExpiredToken` o `The security token included in the request is invalid`. No es un error de tu código: solo debes renovarlas.
 
-**Lista de chequeo para renovar las credenciales** (la realiza el propietario cada vez que inicia una nueva sesión del laboratorio y va a desplegar):
+**Lista de chequeo para renovar las credenciales** (la realiza cada integrante, con sus propias credenciales, cada vez que inicia una nueva sesión del laboratorio y va a desplegar):
 
 1. En AWS Academy haz clic en **Start Lab** y espera a que el indicador junto a "AWS" esté en verde.
 2. Abre **AWS Details → AWS CLI: Show** y copia los 3 valores.
@@ -211,7 +215,7 @@ En el pipeline de GitHub Actions no usaremos `aws configure`. En su lugar, la ac
 
 ## 7. Implementación del Pipeline CD con Staging y Producción en AWS ECS usando Terraform
 
-**Roles en esta sección:** las secciones 7.1 a 7.11 las realiza el **propietario**, porque usan sus cuentas de GitHub, Docker Hub, SonarCloud y AWS Academy. Los otros dos integrantes acompañan y revisan cada paso con él (por ejemplo, en una llamada compartiendo pantalla). **Las credenciales de AWS nunca se comparten**, ni siquiera dentro del equipo. La sección 7.12 la realizan los **colaboradores**.
+**Roles en esta sección:** las secciones 7.1 a 7.9 las realiza **cada integrante en su propio repositorio**, con sus cuentas de GitHub, Docker Hub, SonarCloud y AWS Academy (pueden apoyarse entre ustedes, por ejemplo en una llamada compartiendo pantalla). **Las credenciales de AWS nunca se comparten**, ni siquiera dentro del equipo. Al inicio de la sección 7.10 el equipo elige el repositorio que entregará: las secciones 7.10 y 7.11 las realiza su **propietario**, y la sección 7.12 los **colaboradores**.
 
 ### 7.1 Crea el repositorio del Taller 3 a partir del Taller 2
 
@@ -219,16 +223,16 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
 
 1. En GitHub crea un repositorio **público** y **vacío** llamado `cicd-pipeline-python-cd`. **No** agregues README, `.gitignore` ni licencia: si el repositorio no está vacío, el primer push será rechazado. Usa solo minúsculas: el nombre de la imagen Docker se forma con el nombre del repositorio y Docker Hub no acepta mayúsculas.
 
-2. Clona el repositorio del Taller 2 en una carpeta nueva y cambia su destino (`origin`) al repositorio nuevo:
+2. Clona el repositorio del Taller 2 en una carpeta nueva y cambia su destino (`origin`) a **tu** repositorio nuevo. Puedes partir de **tu propio** repositorio del Taller 2 o, si el tuyo no quedó funcionando, del repositorio que el equipo **entregó** en el Taller 2 (este último incluye además las pruebas del Pull Request de la sección 9):
 
     ```bash
-    git clone https://github.com/USUARIO_PROPIETARIO/cicd-pipeline-python.git cicd-pipeline-python-cd
+    git clone https://github.com/USUARIO_TALLER2/cicd-pipeline-python.git cicd-pipeline-python-cd
     cd cicd-pipeline-python-cd
-    git remote set-url origin https://github.com/USUARIO_PROPIETARIO/cicd-pipeline-python-cd.git
+    git remote set-url origin https://github.com/TU_USUARIO/cicd-pipeline-python-cd.git
     git remote -v
     ```
 
-    > **⚠️ Verifica la salida de `git remote -v` antes de continuar:** las dos líneas deben terminar en `cicd-pipeline-python-cd.git`. Si siguen apuntando a `cicd-pipeline-python.git`, el siguiente push modificaría tu entrega del Taller 2.
+    > **⚠️ Verifica la salida de `git remote -v` antes de continuar:** las dos líneas deben terminar en `cicd-pipeline-python-cd.git`. Si siguen apuntando a `cicd-pipeline-python.git`, el siguiente push modificaría la entrega del Taller 2. Reemplaza `USUARIO_TALLER2` por el usuario de GitHub dueño del repositorio del Taller 2 que vas a copiar, y `TU_USUARIO` por el tuyo.
 
     ```bash
     git push -u origin main
@@ -236,9 +240,7 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
 
     > **Es normal que esta primera ejecución del pipeline falle** en la pestaña **Actions**: el repositorio nuevo aún no tiene secretos, variables ni proyecto de SonarCloud. Los configurarás en la sección 7.2.
 
-3. **Agrega a tus compañeros como colaboradores:** igual que en el Taller 2 (**Settings → Collaborators → Add people**). Cada compañero debe aceptar la invitación y clonar el repositorio **nuevo** (`cicd-pipeline-python-cd`).
-
-4. **Crea el entorno virtual e instala las dependencias** (la carpeta `venv/` no se copia porque está en el `.gitignore`):
+3. **Crea el entorno virtual e instala las dependencias** (la carpeta `venv/` no se copia porque está en el `.gitignore`):
 
     ```bash
     python -m venv venv
@@ -256,11 +258,11 @@ Como el Taller 2 se califica por separado, **no se modifica**: el Taller 3 se tr
 | Código, pruebas, `Dockerfile`, workflow, archivos de configuración | Sí | Ajustar `sonar.projectKey` (7.2) |
 | Historial de commits | Sí | Nada |
 | Secretos y variables de GitHub Actions | **No** | Crearlos de nuevo (7.2 y 7.8) |
-| Colaboradores | **No** | Invitarlos de nuevo (paso 3) |
+| Colaboradores | **No** | Se agregan solo en el repositorio que elija el equipo (7.10) |
 | Regla de protección `proteger-main` | **No** | Crearla de nuevo (7.10) |
 | Proyecto de SonarCloud | **No** | Crear uno nuevo (7.2) |
 | Repositorio de la imagen en Docker Hub | **No** | Se crea solo con el primer push de la imagen: `usuariodockerhub/cicd-pipeline-python-cd` |
-| Entorno virtual `venv/` | **No** | Crearlo (paso 4) |
+| Entorno virtual `venv/` | **No** | Crearlo (paso 3) |
 
 ### 7.2 Configura SonarCloud, secretos y variables del repositorio nuevo
 
@@ -713,7 +715,7 @@ infra
 
 Antes de automatizar, desplegarás **Staging una vez a mano**. Así entenderás qué hará el pipeline y, si algo falla (credenciales, nombres, imagen), lo detectarás en tu computador con respuesta inmediata. **Producción no se despliega a mano:** la creará el pipeline por primera vez en la sección 7.9.
 
-Lo realiza el **propietario**, con la AWS CLI configurada (sección 5.1) y una sesión activa del laboratorio. Todos los comandos funcionan igual en Bash (Linux/Mac/Git Bash) y en PowerShell (Windows). Reemplaza `<sufijo>` y `USUARIO_DOCKERHUB` por tus valores.
+Lo realiza **cada integrante** en su propia cuenta de AWS Academy, con la AWS CLI configurada (sección 5.1) y una sesión activa del laboratorio. Todos los comandos funcionan igual en Bash (Linux/Mac/Git Bash) y en PowerShell (Windows). Reemplaza `<sufijo>` y `USUARIO_DOCKERHUB` por tus valores.
 
 1. **Crea el bucket del estado** (una sola vez), con el **mismo nombre** que pusiste en `backend.hcl`, y activa su versionado:
 
@@ -1278,11 +1280,16 @@ Con esto el repositorio queda con **5 secretos** (`SONAR_TOKEN`, `DOCKERHUB_TOKE
 
 ✅ **Punto de control:** los 5 jobs están en verde, los dos ambientes responden en `/health` con el SHA del último commit y los Target Groups están `healthy`.
 
-### 7.10 Protege la rama `main`
+### 7.10 Elijan el repositorio del equipo y protejan la rama `main`
 
-Igual que en el Taller 2 (sección 9, paso 1): **Settings → Rules → Rulesets → New ruleset → New branch ruleset**, con nombre `proteger-main`, estado `Active`, objetivo **Include default branch**, sin **Bypass list**, y las reglas **Require a pull request before merging** (1 aprobación) y **Require status checks to pass** con el check `build-and-test` (aparece porque el pipeline ya se ejecutó en la sección 7.9).
+Hasta aquí cada integrante tiene su propio repositorio. Desde este punto **el equipo trabaja en un solo repositorio**, que es el que se entrega y se califica:
 
-Desde este momento todos los cambios entran a `main` mediante Pull Requests.
+1. **Elijan el repositorio:** cualquiera que cumpla el punto de control de la sección 7.9 (los 5 jobs en verde, los dos ambientes desplegados respondiendo en `/health` y Quality Gate `Passed`). Su dueño es, desde ahora, el **propietario**: el pipeline de ese repositorio usa sus cuentas de Docker Hub, SonarCloud y AWS Academy. Verifiquen que `AUTOR` y la sección **Integrantes** del README tengan los nombres de los 3 integrantes.
+2. **Agrega a tus compañeros como colaboradores (propietario):** igual que en el Taller 2 (**Settings → Collaborators → Add people**). Cada compañero debe **aceptar la invitación**; sin ella no podrán crear ramas, aprobar Pull Requests ni ser revisores del ambiente `production` (sección 7.11).
+3. **Clona el repositorio elegido (colaboradores):** cada colaborador clona **el repositorio del propietario** (`cicd-pipeline-python-cd`) en una carpeta nueva, crea su entorno virtual e instala las dependencias (sección 7.1, paso 3). No trabajes sobre tu propio repositorio: los cambios desde aquí deben quedar en el repositorio elegido. Los colaboradores no necesitan credenciales de AWS para esto: el pipeline del repositorio elegido usa los secretos del propietario.
+4. **Protege la rama `main` (propietario):** igual que en el Taller 2 (sección 9.2, paso 1): **Settings → Rules → Rulesets → New ruleset → New branch ruleset**, con nombre `proteger-main`, estado `Active`, objetivo **Include default branch**, sin **Bypass list**, y las reglas **Require a pull request before merging** (1 aprobación) y **Require status checks to pass** con el check `build-and-test` (aparece porque el pipeline ya se ejecutó en la sección 7.9).
+
+    Desde este momento todos los cambios entran a `main` mediante Pull Requests.
 
 ### 7.11 Agrega aprobación manual antes de Producción
 
@@ -1449,7 +1456,7 @@ Abre el PR de `docs/readme` hacia `main`, espera a que `build-and-test` quede en
 
 ### 9.2 Entrega
 
-**Cada integrante** ingresa al buzón del **Entregable 3** en **EAFIT Interactiva** y proporciona los siguientes tres datos (los mismos para los 3 integrantes) en el campo de texto:
+**Cada integrante** ingresa al buzón del **Entregable 3** en **EAFIT Interactiva** y proporciona los siguientes tres datos (los mismos para los 3 integrantes) en el campo de texto. Todos corresponden al **repositorio elegido en la sección 7.10** y a las cuentas de su propietario: **solo se califica ese repositorio**; los repositorios, proyectos de SonarCloud, imágenes y despliegues de los demás integrantes no se revisan.
 
 1. **URL del repositorio de GitHub** (debe ser público): `https://github.com/USUARIO_PROPIETARIO/cicd-pipeline-python-cd`
 2. **URL del proyecto en SonarCloud** (debe ser público, accesible sin login): `https://sonarcloud.io/project/overview?id=USUARIO_PROPIETARIO_cicd-pipeline-python-cd`
@@ -1474,7 +1481,9 @@ Abre el PR de `docs/readme` hacia `main`, espera a que `build-and-test` quede en
 
 ## 10. Eliminación de recursos para evitar cargos adicionales
 
-Una vez hayas terminado el taller y realizado la entrega en EAFIT Interactiva, elimina todos los recursos para no consumir el presupuesto de AWS Academy. Lo realiza el **propietario**, con una sesión activa del laboratorio y las credenciales locales vigentes (sección 5.2).
+> **⚠️ TODOS LOS INTEGRANTES DEBEN EJECUTAR ESTA SECCIÓN, no solo el propietario.** Cada integrante desplegó Staging y Producción en su propia cuenta de AWS Academy (secciones 7.6 a 7.9), así que cada uno debe destruir su infraestructura, eliminar su bucket del estado y desactivar el workflow de **su** repositorio. Si alguno no lo hace, sus recursos seguirán consumiendo el presupuesto de su laboratorio.
+
+Una vez hayas terminado el taller y realizado la entrega en EAFIT Interactiva, elimina todos los recursos para no consumir el presupuesto de AWS Academy. Cada integrante lo realiza en su repositorio y su cuenta, con una sesión activa del laboratorio y las credenciales locales vigentes (sección 5.2).
 
 > **Importante:** verifica en la pestaña **Actions** que no haya ninguna ejecución en curso. Un merge a `main` o una ejecución manual del workflow volverían a crear la infraestructura, así que haz esta limpieza al final de todo.
 
