@@ -24,19 +24,23 @@ No haremos pruebas de integración con servicios externos (bases de datos, APIs 
 
 ## Prerrequisitos y modalidad de trabajo
 
-**Modalidad e identificación:** Este taller se realiza en **equipos de 3 integrantes**, con **un único repositorio público** por equipo:
+**Modalidad e identificación:** Este taller se realiza en **equipos de 3 integrantes**, y cada equipo entrega **un único repositorio público**.
 
 Una cantidad distinta de integrantes requiere autorización previa del docente; en ese caso se mantienen las mismas evidencias y se acuerda la distribución de roles.
 
-*   Un integrante es el **propietario** del repositorio. Las cuentas de SonarCloud y Docker Hub que se usen en el taller son también las del propietario.
-*   Los otros dos integrantes se agregan como **colaboradores** del repositorio (ver sección 3). Esto es necesario para que puedan crear ramas, abrir Pull Requests y aprobar los Pull Requests de sus compañeros.
-*   Identifica a los 3 integrantes con sus nombres completos en la variable `AUTOR` de `app/calculadora.py` y en una sección **Integrantes** del `README.md`, con el mismo texto y en el mismo orden. Separa los nombres con ` | ` (espacio, barra vertical, espacio), igual que en el Taller 1. Ejemplo: `Ana María Pérez | Luis Andrés Gómez | Sara Restrepo Ríos`. En el README añade también el usuario de GitHub de cada integrante e indica quién es el propietario del repositorio. No incluyas credenciales ni datos personales adicionales.
-*   **Forma de trabajo:** en las secciones 3 a 8 el equipo construye la base del proyecto directamente sobre `main` (todos pueden seguir los pasos en su equipo y hacer `git pull` para mantenerse sincronizados; coordínense para que un solo integrante haga push de cada cambio y evitar conflictos). En la sección 9 se protege `main` y, desde ese momento, **todo cambio entra mediante Pull Request**.
+> **⚠️ Antes que nada, registren el equipo:** **uno** de los integrantes envía al profesor, por **Teams**, la lista con los nombres completos de los 3 integrantes del equipo. Con esa lista el profesor crea el grupo en el buzón de **EAFIT Interactiva** y les confirma por Teams cuando esté listo. **No podrán hacer la entrega hasta recibir esa confirmación.**
+>
+> **Los equipos quedan fijos para el Taller 3 y para el proyecto final:** el mismo grupo de Interactiva se usa en el Taller 2, el Taller 3 y el proyecto final, así que **no se permiten cambios de integrantes** durante el resto del curso. Elijan el equipo con eso en mente.
 
-**Cuentas necesarias:**
-*   Cuenta de **GitHub** de cada integrante.
-*   Cuenta de **SonarCloud** del propietario (se crea iniciando sesión con GitHub, sección 5.2).
-*   Cuenta de **Docker Hub** del propietario (sección 3.1).
+*   **Secciones 3 a 8: cada integrante trabaja en su propio repositorio**, con sus propias cuentas de GitHub, SonarCloud y Docker Hub. Así todos practican cada paso, y si a alguien algo no le funciona, el equipo puede continuar con otro repositorio.
+*   **Sección 9 en adelante: el equipo elige un solo repositorio** (uno que cumpla el punto de control de la sección 8). Su dueño pasa a ser el **propietario**, y los otros dos integrantes se agregan como **colaboradores** para crear ramas, abrir Pull Requests y aprobar los de sus compañeros. **Ese es el único repositorio que se entrega y se califica**; los demás sirven para aprender y como respaldo, y no se revisan.
+*   **En todos los repositorios**, identifica a los 3 integrantes con sus nombres completos en la variable `AUTOR` de `app/calculadora.py` y en una sección **Integrantes** del `README.md`, con el mismo texto y en el mismo orden. Así no importa cuál repositorio se entregue al final. Separa los nombres con ` | ` (espacio, barra vertical, espacio), igual que en el Taller 1. Ejemplo: `Ana María Pérez | Luis Andrés Gómez | Sara Restrepo Ríos`. En el README añade también el usuario de GitHub de cada integrante e indica quién es el propietario del repositorio. No incluyas credenciales ni datos personales adicionales.
+*   **Forma de trabajo:** en las secciones 3 a 8 cada integrante construye la base del proyecto directamente sobre `main` de su propio repositorio (pueden apoyarse entre ustedes, por ejemplo en una llamada compartiendo pantalla). En la sección 9 se protege `main` del repositorio elegido y, desde ese momento, **todo cambio entra mediante Pull Request**.
+
+**Cuentas necesarias (de cada integrante):**
+*   Cuenta de **GitHub**.
+*   Cuenta de **SonarCloud** (se crea iniciando sesión con GitHub, sección 5.2).
+*   Cuenta de **Docker Hub** (sección 3.1).
 
 **Herramientas locales (en el equipo de cada integrante):**
 *   **Git**.
@@ -85,13 +89,11 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
 ## 3. Configuración del Proyecto
 
-1.  **Crea un nuevo repositorio público en GitHub (lo hace el propietario):**  Llámalo, por ejemplo, `cicd-pipeline-python`. Usa un nombre **en minúsculas**: el pipeline usará el nombre del repositorio como nombre de la imagen en Docker Hub, y Docker no acepta mayúsculas en ese nombre.
+1.  **Crea un nuevo repositorio público en GitHub (cada integrante, en su cuenta):**  Llámalo, por ejemplo, `cicd-pipeline-python`. Usa un nombre **en minúsculas**: el pipeline usará el nombre del repositorio como nombre de la imagen en Docker Hub, y Docker no acepta mayúsculas en ese nombre.
 
-2.  **Agrega a tus compañeros como colaboradores (lo hace el propietario):** En el repositorio ve a **Settings → Collaborators → Add people**, busca el usuario de GitHub de cada compañero y envíale la invitación. Cada compañero debe **aceptar la invitación** (llega por correo y en las notificaciones de GitHub). Sin este paso no podrán hacer push de ramas ni aprobar Pull Requests en la sección 9.
+2.  **Clona el repositorio a tu máquina local.** Los colaboradores se agregan más adelante, en la sección 9, solo en el repositorio que el equipo elija.
 
-3.  **Clona el repositorio a tu máquina local** (cada integrante).
-
-4. **Crea un archivo `.gitignore` en la raíz de tu repositorio**:
+3. **Crea un archivo `.gitignore` en la raíz de tu repositorio**:
 
     ```plaintext
     # virtual envs
@@ -125,7 +127,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
     Este archivo le dice a Git qué archivos y carpetas *no* debe incluir en el repositorio (por ejemplo, el entorno virtual, archivos de caché, reportes generados, archivos de configuración locales, etc.).
 
-5.  **Crea un entorno virtual y activalo:**
+4.  **Crea un entorno virtual y activalo:**
 
     ```bash
     python -m venv venv      # En algunos SO puede ser python3
@@ -137,7 +139,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
     El entorno virtual aísla las dependencias del proyecto. Te debe aparecer `(venv)` en la terminal.
 
-6. **Crea los archivos de dependencias en la raíz de tu repositorio:**
+5. **Crea los archivos de dependencias en la raíz de tu repositorio:**
 
     Separaremos las dependencias en dos archivos:
 
@@ -164,14 +166,14 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
 
     Fijamos versiones exactas (`==`) para que todos los integrantes y el pipeline usen las mismas herramientas. Así, por ejemplo, Black formatea igual en tu computador y en GitHub Actions, y una nueva versión de una librería no rompe el pipeline sin que nadie haya cambiado el código.
 
-7.  **Instala las dependencias:**
+6.  **Instala las dependencias:**
 
     ```bash
     pip install -r requirements-dev.txt
     ```
     En la misma terminal donde activaste el entorno virtual.
 
-8.  **Crea un archivo `Dockerfile` en la raíz de tu repositorio:**
+7.  **Crea un archivo `Dockerfile` en la raíz de tu repositorio:**
     Este archivo contiene las instrucciones para construir la imagen Docker de tu aplicación.
 
     ```dockerfile
@@ -204,7 +206,7 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     ```
     Investiga qué hace cada instrucción (`FROM`, `WORKDIR`, `COPY`, `RUN`, `EXPOSE`, `CMD`) y por qué el orden de las capas (`COPY requirements.txt` antes de `COPY app/ ./app/`) es importante para la eficiencia de la construcción de la imagen. **Observa también que la imagen no incluye pruebas, linters ni Selenium: solo lo necesario para ejecutar la aplicación.**
 
-9.  **Crea un archivo `.dockerignore` en la raíz de tu repositorio:**
+8.  **Crea un archivo `.dockerignore` en la raíz de tu repositorio:**
     Similar a `.gitignore`, este archivo especifica qué archivos y directorios NO deben enviarse a Docker como contexto de construcción. Así la construcción es más rápida y evitamos copiar por error archivos locales.
 
     ```plaintext
@@ -229,11 +231,11 @@ Un pipeline de CI es un proceso automatizado que se ejecuta cada vez que se real
     tests
     ```
 
-✅ **Punto de control:** tu repositorio tiene `.gitignore`, `requirements.txt`, `requirements-dev.txt`, `Dockerfile` y `.dockerignore`, y `pip install -r requirements-dev.txt` terminó sin errores. Tus dos compañeros aparecen como colaboradores del repositorio.
+✅ **Punto de control:** tu repositorio tiene `.gitignore`, `requirements.txt`, `requirements-dev.txt`, `Dockerfile` y `.dockerignore`, y `pip install -r requirements-dev.txt` terminó sin errores.
 
 ### 3.1. Crea una cuenta en Docker Hub
 
-Docker Hub es el registro de imágenes Docker más popular. El propietario del repositorio necesitará una cuenta para que el pipeline de CI pueda publicar (hacer "push") la imagen Docker.
+Docker Hub es el registro de imágenes Docker más popular. Cada integrante necesitará una cuenta para que el pipeline de CI pueda publicar (hacer "push") la imagen Docker.
 
 1.  **Ve a [https://hub.docker.com/](https://hub.docker.com/) y regístrate:** Haz clic en "Sign Up" y sigue las instrucciones. Necesitarás un nombre de usuario único (tu **Docker ID**), un correo electrónico y una contraseña.
 2.  **Recuerda tu Docker ID:** Lo necesitarás más adelante para configurar las variables en GitHub y para etiquetar tu imagen Docker.
@@ -469,8 +471,6 @@ SonarCloud es una plataforma en la nube que proporciona análisis estático cont
 La idea con esta herramienta es que puedas tener un análisis continuo de la calidad de tu código, detectando problemas de seguridad, bugs, code smells y duplicación de código.
 SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará en un panel de control fácil de entender.
 
-Los pasos 1 a 5 de esta sección los realiza el **propietario** del repositorio.
-
 1.  **Crea una cuenta en SonarCloud:**  Ve a [https://sonarcloud.io/](https://sonarcloud.io/) y regístrate con tu cuenta de GitHub.
 ![alt text](images/e2-image-1.png)
 2.  **Crea una organización:** 
@@ -490,7 +490,9 @@ Los pasos 1 a 5 de esta sección los realiza el **propietario** del repositorio.
 3.  **Importa tu repositorio:**
     *   Haz clic  'My Projects' y selecciona "Analyze a new project".
     *   Selecciona tu repositorio (`cicd-pipeline-python`) y dale click en `Set Up`.
-    *   Define qué se considera **código nuevo** (*New Code*). Puedes dejar la opción por defecto, **"Previous version"**, o elegir **"Number of days"** con el valor **30** (si la interfaz te lo permite) para analizar el código escrito en los últimos 30 días. Para este taller ambas opciones son válidas: en el primer análisis todo el código cuenta como nuevo y los criterios de calificación se miden sobre **Overall Code**. Si no te aparece la opción de días, no te preocupes: no afecta el resultado.
+    *   **Configura el código nuevo (*New Code*) en "Number of days" = 30:** si el asistente de creación te ofrece la opción, elige **"Number of days"** con el valor **30**. Si no te la ofrece (el proyecto queda con **"Previous version"**), una vez creado el proyecto ve a **Administration → New code**, selecciona **"Number of days"**, escribe **30** y guarda. Hazlo **antes** de ejecutar el pipeline por primera vez.
+
+        > **¿Por qué es importante?** El Quality Gate por defecto (*Sonar way*) evalúa **solo el código nuevo**. Con "Number of days" = 30, es código nuevo toda línea cuyo último commit tenga menos de 30 días (SonarCloud lo calcula con el historial de Git), así que el código inicial del taller cuenta como nuevo y el Quality Gate te exigirá corregir sus hallazgos. Con "Previous version", en cambio, el código nuevo es solo lo que cambia **después del primer análisis** (nuestro proyecto no define una versión), así que los hallazgos del código inicial no detendrían el pipeline. Ten en cuenta que un issue que no atiendas en 30 días pasa a ser parte del código "antiguo" y deja de afectar el Quality Gate, aunque siga contando para la calificación.
     *   SonarCloud analizará tu repositorio y te mostrará un panel de control con los resultados.  Inicialmente, puede que no muestre mucha información porque no hemos configurado el análisis en el workflow.
 
     > **⚠️ Importante — Deshabilita el Análisis Automático:** Una vez importado el proyecto, debes deshabilitar el análisis automático de SonarCloud para evitar duplicidad y errores con el análisis que realizará GitHub Actions. Ve a **Administration → Analysis Method** dentro de tu proyecto en SonarCloud y desactiva la opción **"Automatic Analysis"**. Si no haces esto, SonarCloud intentará analizar el código por su cuenta *además* del análisis lanzado desde el pipeline, lo que puede generar conflictos y resultados incorrectos.
@@ -980,7 +982,11 @@ En un Pull Request se ejecutan los pasos 1 a 4, pero la imagen no se publica: as
 
 3.  **Verifica la ejecución del workflow:**  Ve a la pestaña "Actions" de tu repositorio en GitHub y abre la ejecución. Todos los pasos hasta `Run Acceptance Tests` deben quedar en verde, porque ya los validaste localmente.
 
-    > **Es normal que la primera ejecución falle en el paso `SonarCloud Scan`.** En el primer análisis todo el código es "nuevo" para SonarCloud, y el Quality Gate encontrará issues (incluidos los de seguridad) en el código inicial. En ese caso los pasos de Docker Hub no se ejecutan y **la imagen no se publica**: es precisamente el comportamiento que queremos, el código que no cumple la calidad no se entrega. En los pasos 4 y 5 corregirás los hallazgos.
+    > **Es normal que la primera ejecución falle en el paso `SonarCloud Scan`.** El código inicial tiene issues (incluidos algunos de seguridad) que el Quality Gate no acepta. Cuando el paso falla, los pasos de Docker Hub no se ejecutan y **la imagen no se publica**: es precisamente el comportamiento que queremos, el código que no cumple la calidad no se entrega. En los pasos 4 y 5 corregirás los hallazgos.
+    >
+    > **¿Falló porque el código no cumple o porque el Quality Gate no se calculó?** En el log del paso `SonarCloud Scan` verás al final `QUALITY GATE STATUS: FAILED` en ambos casos. Abre el enlace `View details on https://sonarcloud.io/dashboard?id=...` de esa misma línea (o ve a **Analysis → Summary** del proyecto) y mira el recuadro **Quality gate**:
+    > * **Failed:** el Quality Gate se calculó y el código no cumple. SonarCloud muestra las condiciones que fallaron. Corrige los hallazgos (pasos 4 y 5) y vuelve a hacer push.
+    > * **Not computed:** en el primer análisis de un proyecto, SonarCloud puede no calcular el Quality Gate, y el scanner lo reporta igual como fallido. No es un error de tu código: en GitHub abre la ejecución y usa **Re-run jobs → Re-run failed jobs**. En el segundo análisis el Quality Gate ya se calcula (y, con los issues del código inicial, mostrará **Failed**).
     >
     > Si el pipeline falla en otro paso, revisa el log del paso fallido y los reportes en **Artifacts**. Errores frecuentes: el `Dockerfile` o un archivo de prueba con un nombre distinto al indicado, el nombre del repositorio con mayúsculas, o una variable o secreto con un nombre diferente al de la sección 5.2.
 
@@ -1004,6 +1010,16 @@ En un Pull Request se ejecutan los pasos 1 a 4, pero la imagen no se publica: as
 ## 9. Trabajo en Equipo con Pull Requests
 
 Hasta ahora el equipo integró los cambios directamente en `main`. En un equipo real, `main` se protege para que **ningún cambio entre sin que el pipeline lo valide y otra persona lo revise**. En esta sección protegerás `main`, harás una contribución mediante un Pull Request (PR) y verás cómo el pipeline bloquea un cambio defectuoso.
+
+### 9.1. Elijan el repositorio del equipo
+
+Hasta aquí cada integrante tiene su propio repositorio. Desde este punto **el equipo trabaja en un solo repositorio**, que es el que se entrega y se califica:
+
+1.  **Elijan el repositorio:** cualquiera que cumpla el punto de control de la sección 8 (pipeline en verde en `main`, Quality Gate `Passed` e imagen publicada en Docker Hub). Su dueño es, desde ahora, el **propietario**. Verifiquen que `AUTOR` y la sección **Integrantes** del README tengan los nombres de los 3 integrantes.
+2.  **Agrega a tus compañeros como colaboradores (propietario):** en el repositorio ve a **Settings → Collaborators → Add people**, busca el usuario de GitHub de cada compañero y envíale la invitación. Cada compañero debe **aceptar la invitación** (llega por correo y en las notificaciones de GitHub). Sin este paso no podrán hacer push de ramas ni aprobar Pull Requests.
+3.  **Clona el repositorio elegido (colaboradores):** cada colaborador clona **el repositorio del propietario** en una carpeta nueva, crea su entorno virtual e instala las dependencias (`pip install -r requirements-dev.txt`), igual que en la sección 3. No trabajes sobre tu propio repositorio: los cambios de esta sección deben quedar en el repositorio elegido.
+
+### 9.2. Protege `main` e integra cambios mediante un Pull Request
 
 Roles en esta sección:
 *   El **propietario** configura la protección de `main` (paso 1).
@@ -1123,7 +1139,7 @@ Abre el PR de `docs/readme` hacia `main`, espera a que el pipeline quede en verd
 
 ### 10.2. Entrega
 
-**Cada integrante** ingresa al buzón del **Entregable 2** en **EAFIT Interactiva** y proporciona los siguientes tres datos (los mismos para los 3 integrantes) en el campo de texto:
+**Un solo integrante** entrega en nombre de todo el equipo: ingresa al buzón del **Entregable 2** en **EAFIT Interactiva** y proporciona los siguientes tres datos en el campo de texto. La entrega queda registrada para los 3 integrantes porque el buzón usa el grupo que creó el profesor (ver *Prerrequisitos y modalidad de trabajo*); si aún no tienen la confirmación del profesor de que el grupo está creado, **no entreguen** y escríbanle por Teams. Todos corresponden al **repositorio elegido en la sección 9.1** y a las cuentas de su propietario: **solo se califica ese repositorio**; los repositorios, proyectos de SonarCloud e imágenes de los demás integrantes no se revisan.
 
 1.  **URL del repositorio de GitHub** (debe ser público): `https://github.com/USUARIO_PROPIETARIO/cicd-pipeline-python`
 2.  **URL del proyecto en SonarCloud** (debe ser público, accesible sin login): `https://sonarcloud.io/project/overview?id=USUARIO_PROPIETARIO_cicd-pipeline-python`
