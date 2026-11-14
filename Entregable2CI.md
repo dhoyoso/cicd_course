@@ -497,6 +497,8 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
 
     > **⚠️ Importante — Deshabilita el Análisis Automático:** Una vez importado el proyecto, debes deshabilitar el análisis automático de SonarCloud para evitar duplicidad y errores con el análisis que realizará GitHub Actions. Ve a **Administration → Analysis Method** dentro de tu proyecto en SonarCloud y desactiva la opción **"Automatic Analysis"**. Si no haces esto, SonarCloud intentará analizar el código por su cuenta *además* del análisis lanzado desde el pipeline, lo que puede generar conflictos y resultados incorrectos.
 
+    > **🛡️ Importante — Excluye el README y los workflows también en SonarCloud:** Ve a **Administration → General Settings → Analysis Scope → Source File Exclusions** y agrega `README.md,**/*.md,docs/**,.github/**`. Esta configuración vive en el proyecto (no en el repositorio), así que aplica **siempre**, incluso si por accidente el **Automatic Analysis** quedara activo. Ten en cuenta que con el Automatic Analysis activo el análisis del pipeline falla con el error *"You are running CI analysis while Automatic Analysis is enabled"*: si lo ves, desactívalo como se indica arriba. Los hallazgos de archivos excluidos que ya aparecían antes de esta configuración desaparecen en el siguiente análisis.
+
     > **🌐 Importante — Haz tu proyecto público en SonarCloud:** Ve a **Administration → Permissions** dentro de tu proyecto en SonarCloud y, en **Project visibility**, selecciona **"Public - Anyone"**. Esto es necesario para que el proyecto pueda ser revisado sin necesidad de iniciar sesión. Si el proyecto es privado, no podrá ser calificado.
 
 4.  **Obtén tu token de SonarCloud:**
@@ -533,6 +535,7 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
     sonar.projectKey=[TU_USUARIO]_cicd-pipeline-python
     sonar.organization=[TU_ORGANIZACION]
     sonar.sources=app
+    sonar.exclusions=README.md,**/*.md,docs/**,.github/**
     sonar.python.version=3.13
     sonar.python.pylint.reportPaths=pylint-report.txt
     sonar.python.flake8.reportPaths=flake8-report.txt
@@ -545,6 +548,7 @@ SonarCloud tomará los informes de Pylint, Flake8 y Coverage.py y los mostrará 
     *   Reemplaza `[TU_USUARIO]` con el *nombre de usuario de GitHub del propietario del repositorio*. **Si tu repositorio no se llama `cicd-pipeline-python`, reemplaza también `cicd-pipeline-python` con el nombre de tu repositorio o proyecto en SonarCloud**. Lo más seguro es copiar el **Project Key** exacto desde SonarCloud (**Information** del proyecto).
     *   Reemplaza `[TU_ORGANIZACION]` con el *nombre o Key de tu organización en SonarCloud* (que puede ser diferente a tu nombre de usuario de GitHub, pero **USUALMENTE es el mismo usuario de Github si no cambiaste nada al crear la organización en SonarCloud**).
     *   `sonar.sources=app`:  Esto le dice a SonarCloud que solo analice el código dentro de la carpeta `app`.  Si tuvieras código en otros directorios, los añadirías aquí (separados por comas).
+    *   `sonar.exclusions=README.md,**/*.md,docs/**,.github/**`:  Excluye del análisis el README, la documentación y los workflows de GitHub Actions. Esos archivos no son código de la aplicación y no deben generar hallazgos ni afectar el Quality Gate.
     *   `sonar.python.version=3.13`:  Indica la versión de Python que estás utilizando.
     *   `sonar.python.pylint.reportPaths=pylint-report.txt`:  Le dice a SonarCloud dónde encontrar el informe de Pylint.
     *   `sonar.python.flake8.reportPaths=flake8-report.txt`:  Le dice a SonarCloud dónde encontrar el informe de Flake8.
